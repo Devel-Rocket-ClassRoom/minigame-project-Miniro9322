@@ -13,6 +13,15 @@ public class Boss : MonoBehaviour
         Die,
     }
 
+    [SerializeField]
+    private float rushAmount;
+    [SerializeField]
+    private float rushSpeed;
+    private Vector2 rushVector;
+    private bool isRush;
+    private Animator animator;
+    [SerializeField] private Transform attackZone;
+
     private static readonly Dictionary<string, int> AttackTriger = new()
     { 
         { "Attack1", Animator.StringToHash("Attack1")},
@@ -44,9 +53,7 @@ public class Boss : MonoBehaviour
         }
     }
 
-    private Animator animator;
-    [SerializeField] private Transform attackZone;
-    private float rushSpeed = 5f;
+    
 
     private void OnEnable()
     {
@@ -56,7 +63,10 @@ public class Boss : MonoBehaviour
 
     private void FixedUpdate()
     {
-        
+        if (isRush)
+        {
+            rushVector = new Vector2(transform.position.x + rushAmount, transform.position.y);
+        }
     }
 
     private void Attack1()
@@ -71,6 +81,7 @@ public class Boss : MonoBehaviour
 
     private void Rush()
     {
+        isRush = true;
         animator.SetTrigger(AttackTriger["Rush"]);
     }
 
