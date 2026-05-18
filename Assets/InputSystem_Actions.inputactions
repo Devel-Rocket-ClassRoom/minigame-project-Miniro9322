@@ -547,6 +547,15 @@
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": false
+                },
+                {
+                    "name": "DebugMode",
+                    "type": "Button",
+                    "id": "cf0030d4-952f-435a-9dc3-3a5084704411",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
                 }
             ],
             "bindings": [
@@ -965,6 +974,85 @@
                     "processors": "",
                     "groups": "XR",
                     "action": "TrackedDeviceOrientation",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "8a948a86-5649-4683-ab31-a0c3eccb5c49",
+                    "path": "<Keyboard>/f11",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": ";Keyboard&Mouse",
+                    "action": "DebugMode",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                }
+            ]
+        },
+        {
+            "name": "Debug",
+            "id": "776d11a3-adc7-48f8-b98a-c6ead8652f66",
+            "actions": [
+                {
+                    "name": "BossAttack",
+                    "type": "Button",
+                    "id": "a7b7cfa1-0b21-45c5-88c5-51a9b092ae9d",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "OffDebug",
+                    "type": "Button",
+                    "id": "0168b356-e8e5-4b5a-bc60-a140b90d0248",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "BossAttack2",
+                    "type": "Button",
+                    "id": "6dfd68b6-5d1f-4f2f-a9c6-1665d3022370",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                }
+            ],
+            "bindings": [
+                {
+                    "name": "",
+                    "id": "8ee44d73-0357-455f-a218-abbf40d3c197",
+                    "path": "<Keyboard>/1",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": ";Keyboard&Mouse",
+                    "action": "BossAttack",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "15da0ed0-6518-4fc4-87d6-6b54ee176978",
+                    "path": "<Keyboard>/f11",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": ";Keyboard&Mouse",
+                    "action": "OffDebug",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "77c297aa-9819-4d93-ab9c-cedd4bde537b",
+                    "path": "<Keyboard>/2",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": ";Keyboard&Mouse",
+                    "action": "BossAttack2",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }
