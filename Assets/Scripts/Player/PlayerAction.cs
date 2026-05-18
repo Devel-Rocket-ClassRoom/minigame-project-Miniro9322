@@ -6,23 +6,25 @@ using UnityEngine.InputSystem;
 public class PlayerAction : MonoBehaviour
 {
     private static readonly int MoveBool = Animator.StringToHash("Move");
-    private static readonly int JumpBool = Animator.StringToHash("Jump");
+    private static readonly int JumpTriger = Animator.StringToHash("Jump");
+    private static readonly int FallTriger = Animator.StringToHash("Fall");
     private static readonly int AttackTriger = Animator.StringToHash("Attack");
     private Animator animator;
     private Rigidbody2D rb;
 
-    public enum State
+    private enum State
     {
         Idle,
         Move,
         Attack,
         Die,
         Jump,
+        Fall,
     }
 
-    private State currentstate = State.Idle;
+    private State currentstate;
 
-    public State CurrentState
+    private State CurrentState
     {
         get
         {
@@ -34,18 +36,43 @@ public class PlayerAction : MonoBehaviour
             switch (value)
             {
                 case State.Idle:
-                    animator.SetBool(MoveBool, false);
+                    isJump = false;
+                    isFall = false;
+                    isMove = false;
+                    animator.SetBool(JumpTriger, isJump);
+                    animator.SetBool(FallTriger, isFall);
+                    animator.SetBool(MoveBool, isMove);
+                    currentstate = value;
                     break;
                 case State.Move:
-                    animator.SetBool(MoveBool, true);
+                    isJump = false;
+                    isFall = false;
+                    isMove = true;
+                    animator.SetBool(JumpTriger, isJump);
+                    animator.SetBool(FallTriger, isFall);
+                    animator.SetBool(MoveBool, isMove);
+                    currentstate = value;
                     break;
                 case State.Attack:
                     animator.SetTrigger(AttackTriger);
+                    currentstate = value;
                     break;
                 case State.Die:
+                    currentstate = value;
                     break;
                 case State.Jump:
-                    animator.SetBool(JumpBool, true);
+                    isJump = true;
+                    isMove = false;
+                    animator.SetBool(JumpTriger, isJump);
+                    currentstate = value;
+                    break;
+                case State.Fall:
+                    isJump = false;
+                    isMove = false;
+                    isFall = true;
+                    animator.SetBool(JumpTriger, isJump);
+                    animator.SetBool(FallTriger, isFall);
+                    currentstate = value;
                     break;
             }
         }
@@ -68,6 +95,8 @@ public class PlayerAction : MonoBehaviour
     private InputAction Jump;
     private InputAction Attack;
     private bool isJump = false;
+    private bool isFall = false;
+    private bool isMove = false;
     private float coyoteCounter;
     private float bufferCounter;
 
@@ -75,6 +104,7 @@ public class PlayerAction : MonoBehaviour
     {
         animator = GetComponent<Animator>();
         rb = GetComponent<Rigidbody2D>();
+        attackZone.gameObject.SetActive(false);
     }
 
     private void OnEnable()
@@ -98,14 +128,28 @@ public class PlayerAction : MonoBehaviour
         move = context.ReadValue<Vector2>();
     }
 
-    private void Update()
-    {
-        Move(move);
-    }
-
     private void FixedUpdate()
     {
+        Move(move);
+
         bool grounded = Physics2D.OverlapCircle(groundCheck.position, groundCheckRadius, groundLayer);
+
+        if(rb.linearVelocityY < -0.01f && CurrentState != State.Fall)
+        {
+            CurrentState = State.Fall;
+        }
+
+        Debug.Log(CurrentState);
+
+        switch (CurrentState)
+        {
+            case State.Fall:
+                if (grounded)
+                {
+                    CurrentState = State.Idle;
+                }
+                break;
+        }
 
         coyoteCounter = grounded ? coyoteTime : coyoteCounter - Time.fixedDeltaTime;
         bufferCounter -= Time.fixedDeltaTime;
@@ -115,34 +159,41 @@ public class PlayerAction : MonoBehaviour
             rb.linearVelocity = new Vector2(rb.linearVelocity.x, jumpPower);
             bufferCounter = 0f;
             coyoteCounter = 0f;
+            CurrentState = State.Jump;
         }
 
         if (!isJump && rb.linearVelocity.y > 0f)
-            rb.linearVelocity += Vector2.up * Physics2D.gravity.y * (lowJumpMultiplier - 1f) * Time.fixedDeltaTime;
+            rb.linearVelocity += (lowJumpMultiplier - 1f) * Physics2D.gravity.y * Time.fixedDeltaTime * Vector2.up;
 
-        if (rb.linearVelocity.y > 0f)
-            rb.linearVelocity += Vector2.up * Physics2D.gravity.y * (fallMultiplier - 1f) * Time.fixedDeltaTime;
+        if (rb.linearVelocity.y < 0f)
+            rb.linearVelocity += (fallMultiplier - 1f) * Physics2D.gravity.y * Time.fixedDeltaTime * Vector2.up;
     }
 
     public void Move(Vector2 move)
     {
-        if(move.sqrMagnitude < 0.01)
+        if (move.x < 0)
+        {
+            transform.localScale = new Vector3(-1f, 1f, 1f);
+        }
+        else if (move.x > 0)
+        {
+            transform.localScale = new Vector3(1f, 1f, 1f);
+        }
+
+        transform.position += moveSpeed * Time.fixedDeltaTime * new Vector3(move.x, 0f);
+
+        if(CurrentState == State.Jump || CurrentState == State.Fall)
+        {
+            return;
+        }
+
+        if (move.sqrMagnitude < 0.01)
         {
             CurrentState = State.Idle;
             return;
         }
 
-        if(move.x < 0)
-        {
-            transform.localScale = new Vector3(-1f, 1f, 1f);
-        }
-        else if(move.x  > 0)
-        {
-            transform.localScale = new Vector3(1f, 1f, 1f);
-        }
-
         CurrentState = State.Move;
-        transform.position += new Vector3(move.x, 0f) * moveSpeed * Time.deltaTime;
     }
 
     private void OnJump(InputAction.CallbackContext context)
