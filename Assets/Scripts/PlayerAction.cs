@@ -3,9 +3,11 @@ using UnityEngine.InputSystem;
 
 [RequireComponent(typeof(Rigidbody2D))]
 [RequireComponent(typeof(Animator))]
-public class PlayerMove : MonoBehaviour
+public class PlayerAction : MonoBehaviour
 {
     private static readonly int MoveBool = Animator.StringToHash("Move");
+    private static readonly int JumpBool = Animator.StringToHash("Jump");
+    private static readonly int AttackTriger = Animator.StringToHash("Attack");
     private Animator animator;
     private Rigidbody2D rb;
 
@@ -15,6 +17,7 @@ public class PlayerMove : MonoBehaviour
         Move,
         Attack,
         Die,
+        Jump,
     }
 
     private State currentstate = State.Idle;
@@ -37,8 +40,12 @@ public class PlayerMove : MonoBehaviour
                     animator.SetBool(MoveBool, true);
                     break;
                 case State.Attack:
+                    animator.SetTrigger(AttackTriger);
                     break;
                 case State.Die:
+                    break;
+                case State.Jump:
+                    animator.SetBool(JumpBool, true);
                     break;
             }
         }
@@ -50,6 +57,7 @@ public class PlayerMove : MonoBehaviour
     [SerializeField] private float jumpPower = 10f;
     private Vector2 move;
     [SerializeField] private Transform groundCheck;
+    [SerializeField] private Transform attackZone;
     [SerializeField] private float groundCheckRadius = 0.15f;
     [SerializeField] private LayerMask groundLayer;
     [SerializeField] private float coyoteTime = 0.1f;
@@ -58,6 +66,7 @@ public class PlayerMove : MonoBehaviour
     [SerializeField] private float fallMultiplier = 2.5f;
 
     private InputAction Jump;
+    private InputAction Attack;
     private bool isJump = false;
     private float coyoteCounter;
     private float bufferCounter;
@@ -71,13 +80,17 @@ public class PlayerMove : MonoBehaviour
     private void OnEnable()
     {
         Jump = InputSystem.actions.FindAction("Jump");
+        Attack = InputSystem.actions.FindAction("Attack");
         Jump.performed += OnJump;
         Jump.canceled += OnJump;
+        Attack.performed += OnAttack;
     }
 
     private void OnDisable()
     {
         Jump.performed -= OnJump;
+        Jump.canceled -= OnJump;
+        Attack.performed -= OnAttack;
     }
 
     public void OnMove(InputAction.CallbackContext context)
@@ -143,5 +156,30 @@ public class PlayerMove : MonoBehaviour
         {
             isJump = false;
         }
+    }
+
+    private void OnAttack(InputAction.CallbackContext context)
+    {
+        if (CurrentState == State.Attack)
+        {
+            return;
+        }
+
+        CurrentState = State.Attack;
+    }
+
+    public void AttackStart()
+    {
+        attackZone.gameObject.SetActive(true);
+    }
+
+    public void AttackEnd()
+    {
+        attackZone.gameObject.SetActive(false);
+    }
+
+    public void ClearTrigger()
+    {
+        animator.ResetTrigger(AttackTriger);
     }
 }
