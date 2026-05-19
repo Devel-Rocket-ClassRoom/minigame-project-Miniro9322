@@ -6,12 +6,14 @@ using UnityEngine.InputSystem;
 public class PlayerAction : MonoBehaviour, IDamageable
 {
     private static readonly int MoveBool = Animator.StringToHash("Move");
-    private static readonly int JumpTriger = Animator.StringToHash("Jump");
-    private static readonly int FallTriger = Animator.StringToHash("Fall");
+    private static readonly int JumpBool = Animator.StringToHash("Jump");
+    private static readonly int FallBool = Animator.StringToHash("Fall");
     private static readonly int AttackTriger = Animator.StringToHash("Attack");
     private static readonly int HitTriger = Animator.StringToHash("Hit");
+    private static readonly int DodgeTriger = Animator.StringToHash("Dodge");
     private Animator animator;
     private Rigidbody2D rb;
+    private bool grounded;
 
     private enum State
     {
@@ -22,6 +24,7 @@ public class PlayerAction : MonoBehaviour, IDamageable
         Jump,
         Fall,
         Hit,
+        Dodge,
     }
 
     private State currentstate;
@@ -41,8 +44,9 @@ public class PlayerAction : MonoBehaviour, IDamageable
                     isJump = false;
                     isFall = false;
                     isMove = false;
-                    animator.SetBool(JumpTriger, isJump);
-                    animator.SetBool(FallTriger, isFall);
+                    isDodge = false;
+                    animator.SetBool(JumpBool, isJump);
+                    animator.SetBool(FallBool, isFall);
                     animator.SetBool(MoveBool, isMove);
                     currentstate = value;
                     break;
@@ -50,8 +54,8 @@ public class PlayerAction : MonoBehaviour, IDamageable
                     isJump = false;
                     isFall = false;
                     isMove = true;
-                    animator.SetBool(JumpTriger, isJump);
-                    animator.SetBool(FallTriger, isFall);
+                    animator.SetBool(JumpBool, isJump);
+                    animator.SetBool(FallBool, isFall);
                     animator.SetBool(MoveBool, isMove);
                     currentstate = value;
                     break;
@@ -65,19 +69,27 @@ public class PlayerAction : MonoBehaviour, IDamageable
                 case State.Jump:
                     isJump = true;
                     isMove = false;
-                    animator.SetBool(JumpTriger, isJump);
+                    animator.SetBool(JumpBool, isJump);
+                    animator.SetBool(MoveBool, isMove);
                     currentstate = value;
                     break;
                 case State.Fall:
                     isJump = false;
                     isMove = false;
                     isFall = true;
-                    animator.SetBool(JumpTriger, isJump);
-                    animator.SetBool(FallTriger, isFall);
+                    animator.SetBool(JumpBool, isJump);
+                    animator.SetBool(FallBool, isFall);
+                    animator.SetBool(MoveBool, isMove);
                     currentstate = value;
                     break;
                 case State.Hit:
                     animator.SetTrigger(HitTriger);
+                    currentstate = value;
+                    break;
+                case State.Dodge:
+                    isDodge = true;
+                    animator.SetTrigger(DodgeTriger);
+                    currentstate = value;
                     break;
             }
         }
@@ -96,29 +108,41 @@ public class PlayerAction : MonoBehaviour, IDamageable
     [SerializeField] private float jumpBufferTime = 0.1f;
     [SerializeField] private float lowJumpMultiplier = 2f;
     [SerializeField] private float fallMultiplier = 2.5f;
+    [SerializeField] private float dodgeAmount = 0f;
+    [SerializeField] private float dodgeDuration = 1f;
+    private float dodgeTime = 0f;
+    private Vector3 dodgeStart;
+    private Vector3 dodgeEnd;
 
     private InputAction Jump;
     private InputAction Attack;
+    private InputAction Dodge;
     private bool isJump = false;
     private bool isFall = false;
     private bool isMove = false;
     private float coyoteCounter;
     private float bufferCounter;
+    private bool isDodge = false;
+    private bool jumpHeld = false;
+    private float originalGravityScale;
 
     private void Awake()
     {
         animator = GetComponent<Animator>();
         rb = GetComponent<Rigidbody2D>();
         attackZone.gameObject.SetActive(false);
+        originalGravityScale = rb.gravityScale;
     }
 
     private void OnEnable()
     {
         Jump = InputSystem.actions.FindAction("Jump");
         Attack = InputSystem.actions.FindAction("Attack");
+        Dodge = InputSystem.actions.FindAction("Dodge");
         Jump.performed += OnJump;
         Jump.canceled += OnJump;
         Attack.performed += OnAttack;
+        Dodge.performed += OnDodge;
     }
 
     private void OnDisable()
@@ -126,6 +150,7 @@ public class PlayerAction : MonoBehaviour, IDamageable
         Jump.performed -= OnJump;
         Jump.canceled -= OnJump;
         Attack.performed -= OnAttack;
+        Dodge.performed -= OnDodge;
     }
 
     public void OnMove(InputAction.CallbackContext context)
@@ -135,14 +160,28 @@ public class PlayerAction : MonoBehaviour, IDamageable
 
     private void FixedUpdate()
     {
-        if(CurrentState == State.Hit)
+        if (isDodge)
         {
-            return;
+            dodgeTime += Time.fixedDeltaTime;
+            dodgeEnd = new Vector3(dodgeStart.x + dodgeAmount * transform.localScale.x, dodgeStart.y);
+            if (dodgeTime > dodgeDuration)
+            {
+                transform.position = dodgeEnd;
+                rb.gravityScale = originalGravityScale;
+                rb.linearVelocity = Vector2.zero;
+                dodgeTime = 0f;
+                isDodge = false;
+            }
+            else
+            {
+                transform.position = Vector3.Lerp(dodgeStart, dodgeEnd, dodgeTime / dodgeDuration);
+                return;
+            }
         }
 
         Move(move);
 
-        bool grounded = Physics2D.OverlapCircle(groundCheck.position, groundCheckRadius, groundLayer);
+        grounded = Physics2D.OverlapCircle(groundCheck.position, groundCheckRadius, groundLayer);
 
         if(rb.linearVelocityY < -0.01f && CurrentState != State.Fall)
         {
@@ -167,9 +206,10 @@ public class PlayerAction : MonoBehaviour, IDamageable
             rb.linearVelocity = new Vector2(rb.linearVelocity.x, jumpPower);
             bufferCounter = 0f;
             coyoteCounter = 0f;
+            CurrentState = State.Jump;
         }
 
-        if (!isJump && rb.linearVelocity.y > 0f)
+        if (!jumpHeld && rb.linearVelocity.y > 0f)
             rb.linearVelocity += (lowJumpMultiplier - 1f) * Physics2D.gravity.y * Time.fixedDeltaTime * Vector2.up;
 
         if (rb.linearVelocity.y < 0f)
@@ -208,17 +248,17 @@ public class PlayerAction : MonoBehaviour, IDamageable
         if (context.performed)
         {
             bufferCounter = jumpBufferTime;
-            CurrentState = State.Jump;
+            jumpHeld = true;
         }
         if (context.canceled)
         {
-            CurrentState = State.Fall;
+            jumpHeld = false;
         }
     }
 
     private void OnAttack(InputAction.CallbackContext context)
     {
-        if (CurrentState == State.Attack)
+        if (CurrentState == State.Attack || CurrentState == State.Dodge)
         {
             return;
         }
@@ -239,7 +279,6 @@ public class PlayerAction : MonoBehaviour, IDamageable
     public void ClearTrigger()
     {
         animator.ResetTrigger(AttackTriger);
-        CurrentState = State.Idle;
     }
 
     public int GetDamageAmount()
@@ -249,6 +288,24 @@ public class PlayerAction : MonoBehaviour, IDamageable
 
     public void OnDamage(int damage)
     {
+        if (isDodge)
+        {
+            return;
+        }
+
         CurrentState = State.Hit;
+    }
+
+    public void OnDodge(InputAction.CallbackContext _)
+    {
+        if (CurrentState == State.Dodge)
+            return;
+
+        AttackEnd();
+
+        dodgeStart = transform.position;
+        rb.linearVelocity = Vector2.zero;
+        rb.gravityScale = 0f;
+        CurrentState = State.Dodge;
     }
 }
