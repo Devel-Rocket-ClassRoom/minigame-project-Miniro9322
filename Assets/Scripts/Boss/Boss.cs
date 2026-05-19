@@ -12,37 +12,39 @@ public class Boss : MonoBehaviour, IDamageable
         Die,
     }
 
-    [SerializeField]
-    private float rushAmount;
-    [SerializeField]
-    private float rushDuration;
-    [SerializeField]
-    private float moveSpeed = 2f;
-    private float rushTime;
-    private Vector3 rushVector;
-    private Vector3 startPoint;
-    private bool isRush;
-    private Animator animator;
-    [SerializeField] private Transform attackZone;
-    private float attack2CoolTime = 0f;
-    [SerializeField] private float attack2Interval = 5f;
-    [SerializeField] private Transform playerPosition;
-    [SerializeField] private BossData data;
-    private int atk;
-    private bool canParry;
-    [SerializeField] private float stunInterval = 3f;
-    [SerializeField] private float attack1Range = 3f;
-    [SerializeField] private float rushRange = 3f;
-    private float stunTime = 0f;
-
     private static readonly Dictionary<string, int> AttackTriger = new()
-    { 
+    {
         { "Attack1", Animator.StringToHash("Attack1")},
         { "Attack2", Animator.StringToHash("Attack2") },
         { "Rush", Animator.StringToHash("Rush") },
     };
     private static readonly int Move = Animator.StringToHash("Move");
     private static readonly int Parry = Animator.StringToHash("Parry");
+
+    
+    [SerializeField] private Transform attackZone;
+    [SerializeField] private Transform playerPosition;
+    [SerializeField] private BossData data;
+    [SerializeField] private float rushAmount;
+    [SerializeField] private float rushDuration;
+    [SerializeField] private float moveSpeed = 2f;
+    [SerializeField] private float attack2Interval = 5f;
+    [SerializeField] private float stunInterval = 3f;
+    [SerializeField] private float attack1Range = 3f;
+    [SerializeField] private float rushRange = 3f;
+
+    private Animator animator;
+    private Vector3 rushVector;
+    private Vector3 startPoint;
+    
+    private bool canParry;
+    private bool isRush;
+    private int atk;
+    private float stunTime = 0f;
+    private float rushTime;
+    private float attack2CoolTime = 0f;
+
+
 
     private State currentState;
     private State CurrentState
@@ -76,6 +78,12 @@ public class Boss : MonoBehaviour, IDamageable
                     break;
             }
         }
+    }
+
+    private void OnEnable()
+    {
+        animator = GetComponent<Animator>();
+        attackZone.gameObject.SetActive(false);
     }
 
     private void Update()
@@ -119,19 +127,6 @@ public class Boss : MonoBehaviour, IDamageable
         }
     }
 
-    private void FollowPlayer()
-    {
-        CurrentState = State.Move;
-        Vector3 direction = new Vector3(Mathf.Sign(playerPosition.position.x - transform.position.x), 0f, 0f);
-        transform.position += direction * moveSpeed * Time.deltaTime;
-    }
-
-    private void OnEnable()
-    {
-        animator = GetComponent<Animator>();
-        attackZone.gameObject.SetActive(false);
-    }
-
     private void FixedUpdate()
     {
         if (isRush)
@@ -139,13 +134,20 @@ public class Boss : MonoBehaviour, IDamageable
             rushTime += Time.fixedDeltaTime;
             rushVector = new Vector3(startPoint.x + rushAmount * transform.localScale.x, startPoint.y);
             transform.position = Vector3.Lerp(startPoint, rushVector, rushTime / rushDuration);
-            if(rushTime > rushDuration)
+            if (rushTime > rushDuration)
             {
                 transform.position = rushVector;
                 CurrentState = State.Idle;
                 rushTime = 0f;
             }
         }
+    }
+
+    private void FollowPlayer()
+    {
+        CurrentState = State.Move;
+        Vector3 direction = new Vector3(Mathf.Sign(playerPosition.position.x - transform.position.x), 0f, 0f);
+        transform.position += direction * moveSpeed * Time.deltaTime;
     }
 
     private void Attack1()
@@ -196,7 +198,7 @@ public class Boss : MonoBehaviour, IDamageable
 
     public void GetDamage(IDamageable.DamageInfo damage)
     {
-        Debug.Log(damage);
+
     }
 
     public IDamageable.DamageInfo SetDamage()

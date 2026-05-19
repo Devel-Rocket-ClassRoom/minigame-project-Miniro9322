@@ -13,5 +13,5 @@ MonoBehaviour:
   m_Name: Boss1
   m_EditorClassIdentifier: Assembly-CSharp::BossData
   bossName: 
-  atk: 0
-  animator: {fileID: 0}
+  atk: 10
+  Hp: 100
