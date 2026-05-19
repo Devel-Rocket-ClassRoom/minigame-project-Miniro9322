@@ -4,10 +4,6 @@ using UnityEngine.InputSystem;
 
 public class GameManager : MonoBehaviour
 {
-    private static readonly int Attack1 = Animator.StringToHash("Attack1");
-    private static readonly int Attack2 = Animator.StringToHash("Attack2");
-    private static readonly int Rush = Animator.StringToHash("Rush");
-
     [SerializeField]
     private PlayerInput playerInput;
     private InputAction debug;
@@ -15,8 +11,6 @@ public class GameManager : MonoBehaviour
     private InputAction attack;
     private InputAction attack2;
     private InputAction rush;
-    [SerializeField]
-    private Animator animator;
     [SerializeField] private Boss boss;
 
     private void Start()
