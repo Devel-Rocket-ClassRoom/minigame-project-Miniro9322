@@ -2,7 +2,13 @@ using UnityEngine;
 
 public interface IDamageable
 {
-    int GetDamageAmount();
+    struct DamageInfo
+    {
+        public int damage;
+        public bool canParry;
+    }
 
-    void OnDamage(int damage);
+    DamageInfo SetDamage();
+
+    void GetDamage(DamageInfo damageInfo);
 }

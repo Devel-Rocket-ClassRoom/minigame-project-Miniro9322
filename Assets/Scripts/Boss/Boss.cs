@@ -27,6 +27,13 @@ public class Boss : MonoBehaviour, IDamageable
     private float attack2CoolTime = 0f;
     [SerializeField] private float attack2Interval = 5f;
     [SerializeField] private Transform playerPosition;
+    [SerializeField] private BossData data;
+    private int atk;
+    private bool canParry;
+    [SerializeField] private float stunInterval = 3f;
+    [SerializeField] private float attack1Range = 3f;
+    [SerializeField] private float rushRange = 3f;
+    private float stunTime = 0f;
 
     private static readonly Dictionary<string, int> AttackTriger = new()
     { 
@@ -35,6 +42,7 @@ public class Boss : MonoBehaviour, IDamageable
         { "Rush", Animator.StringToHash("Rush") },
     };
     private static readonly int Move = Animator.StringToHash("Move");
+    private static readonly int Parry = Animator.StringToHash("Parry");
 
     private State currentState;
     private State CurrentState
@@ -51,6 +59,7 @@ public class Boss : MonoBehaviour, IDamageable
                 case State.Idle:
                     animator.SetBool(Move, false);
                     isRush = false;
+                    rushTime = 0f;
                     currentState = value;
                     break;
                 case State.Move:
@@ -71,6 +80,12 @@ public class Boss : MonoBehaviour, IDamageable
 
     private void Update()
     {
+        if(stunTime > 0f)
+        {
+            stunTime -= Time.deltaTime;
+            return;
+        }
+
         if (CurrentState == State.Attack) return;
 
         if (playerPosition.position.x < transform.position.x)
@@ -90,11 +105,11 @@ public class Boss : MonoBehaviour, IDamageable
             Attack2();
             attack2CoolTime = 0f;
         }
-        else if (distance < 3f)
+        else if (distance < attack1Range)
         {
             Attack1();
         }
-        else if (distance > 7f)
+        else if (distance > rushRange)
         {
             Rush();
         }
@@ -124,7 +139,7 @@ public class Boss : MonoBehaviour, IDamageable
             rushTime += Time.fixedDeltaTime;
             rushVector = new Vector3(startPoint.x + rushAmount * transform.localScale.x, startPoint.y);
             transform.position = Vector3.Lerp(startPoint, rushVector, rushTime / rushDuration);
-            if(rushTime > 1f)
+            if(rushTime > rushDuration)
             {
                 transform.position = rushVector;
                 CurrentState = State.Idle;
@@ -137,12 +152,16 @@ public class Boss : MonoBehaviour, IDamageable
     {
         animator.SetTrigger(AttackTriger["Attack1"]);
         CurrentState = State.Attack;
+        atk = data.atk;
+        canParry = false;
     }
 
     private void Attack2()
     {
         animator.SetTrigger(AttackTriger["Attack2"]);
         CurrentState = State.Attack;
+        atk = data.atk * 2;
+        canParry = false;
     }
 
     private void Rush()
@@ -151,6 +170,8 @@ public class Boss : MonoBehaviour, IDamageable
         startPoint = transform.position;
         animator.SetTrigger(AttackTriger["Rush"]);
         CurrentState = State.Attack;
+        atk = Mathf.CeilToInt(data.atk * 1.5f);
+        canParry = true;
     }
 
     public void AttackStart()
@@ -173,13 +194,20 @@ public class Boss : MonoBehaviour, IDamageable
         CurrentState = State.Idle;
     }
 
-    public void OnDamage(int damage)
+    public void GetDamage(IDamageable.DamageInfo damage)
     {
         Debug.Log(damage);
     }
 
-    public int GetDamageAmount()
+    public IDamageable.DamageInfo SetDamage()
     {
-        return 10;
+        return new IDamageable.DamageInfo() { canParry = this.canParry, damage = atk };
+    }
+
+    public void GetParryed()
+    {
+        stunTime = stunInterval;
+        animator.SetTrigger(Parry);
+        CurrentState = State.Idle;
     }
 }
