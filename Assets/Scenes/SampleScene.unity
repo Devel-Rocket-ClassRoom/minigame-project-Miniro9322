@@ -430,6 +430,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::GameManager
   playerInput: {fileID: 762355780}
   animator: {fileID: 161544164}
+  boss: {fileID: 1868377368}
 --- !u!4 &614717273
 Transform:
   m_ObjectHideFlags: 0
@@ -540,6 +541,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 62899f850307741f2a39c98a8b639597, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Unity.InputSystem::UnityEngine.InputSystem.PlayerInput
+--- !u!114 &1868377368 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 5371473612880002984, guid: 132dee3d2f46bed48ad4d39434422c74, type: 3}
+  m_PrefabInstance: {fileID: 5315901615278689506}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0e94f1541486e0145bb3623e2487935c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Boss
 --- !u!1001 &28160318994055829
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -663,7 +675,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4909672065160890177, guid: 132dee3d2f46bed48ad4d39434422c74, type: 3}
       propertyPath: m_LocalPosition.x
-      value: -2.73
+      value: -6.98
       objectReference: {fileID: 0}
     - target: {fileID: 4909672065160890177, guid: 132dee3d2f46bed48ad4d39434422c74, type: 3}
       propertyPath: m_LocalPosition.y
@@ -701,9 +713,17 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 5371473612880002984, guid: 132dee3d2f46bed48ad4d39434422c74, type: 3}
+      propertyPath: rushSpeed
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5371473612880002984, guid: 132dee3d2f46bed48ad4d39434422c74, type: 3}
+      propertyPath: rushAmount
+      value: 10
+      objectReference: {fileID: 0}
     - target: {fileID: 6661877332937677943, guid: 132dee3d2f46bed48ad4d39434422c74, type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
