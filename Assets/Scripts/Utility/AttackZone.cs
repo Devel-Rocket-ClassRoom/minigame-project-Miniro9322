@@ -8,13 +8,13 @@ public class AttackZone : MonoBehaviour
     {
         if (collision.gameObject.CompareTag("Player") && parent.CompareTag("Boss"))
         {
-            var damage = parent.GetComponent<IDamageable>().GetDamageAmount();
-            collision.gameObject.GetComponent<IDamageable>().OnDamage(damage);
+            var damage = parent.GetComponent<IDamageable>().SetDamage();
+            collision.gameObject.GetComponent<IDamageable>().GetDamage(damage);
         }
         else if (collision.gameObject.CompareTag("Boss") && parent.CompareTag("Player"))
         {
-            var damage = parent.GetComponent<IDamageable>().GetDamageAmount();
-            collision.gameObject.GetComponent<IDamageable>().OnDamage(damage);
+            var damage = parent.GetComponent<IDamageable>().SetDamage();
+            collision.gameObject.GetComponent<IDamageable>().GetDamage(damage);
         }
     }
 }

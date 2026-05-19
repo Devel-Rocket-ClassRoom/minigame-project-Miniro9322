@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.Events;
 using UnityEngine.InputSystem;
 
 [RequireComponent(typeof(Rigidbody2D))]
@@ -11,9 +12,13 @@ public class PlayerAction : MonoBehaviour, IDamageable
     private static readonly int AttackTriger = Animator.StringToHash("Attack");
     private static readonly int HitTriger = Animator.StringToHash("Hit");
     private static readonly int DodgeTriger = Animator.StringToHash("Dodge");
+    private static readonly int ParryTriger = Animator.StringToHash("Parry");
+    private DashAfterImage afterImage;
     private Animator animator;
     private Rigidbody2D rb;
     private bool grounded;
+
+    public UnityEvent SuccessParry;
 
     private enum State
     {
@@ -25,6 +30,7 @@ public class PlayerAction : MonoBehaviour, IDamageable
         Fall,
         Hit,
         Dodge,
+        Parry,
     }
 
     private State currentstate;
@@ -91,6 +97,9 @@ public class PlayerAction : MonoBehaviour, IDamageable
                     animator.SetTrigger(DodgeTriger);
                     currentstate = value;
                     break;
+                case State.Parry:
+                    parryTime = parryInterval;
+                    break;
             }
         }
     }
@@ -113,10 +122,12 @@ public class PlayerAction : MonoBehaviour, IDamageable
     private float dodgeTime = 0f;
     private Vector3 dodgeStart;
     private Vector3 dodgeEnd;
+    [SerializeField] private int atk;
 
     private InputAction Jump;
     private InputAction Attack;
     private InputAction Dodge;
+    private InputAction Parry;
     private bool isJump = false;
     private bool isFall = false;
     private bool isMove = false;
@@ -125,6 +136,8 @@ public class PlayerAction : MonoBehaviour, IDamageable
     private bool isDodge = false;
     private bool jumpHeld = false;
     private float originalGravityScale;
+    [SerializeField] private float parryInterval;
+    private float parryTime = 0f;
 
     private void Awake()
     {
@@ -132,6 +145,7 @@ public class PlayerAction : MonoBehaviour, IDamageable
         rb = GetComponent<Rigidbody2D>();
         attackZone.gameObject.SetActive(false);
         originalGravityScale = rb.gravityScale;
+        afterImage = GetComponent<DashAfterImage>();
     }
 
     private void OnEnable()
@@ -139,10 +153,12 @@ public class PlayerAction : MonoBehaviour, IDamageable
         Jump = InputSystem.actions.FindAction("Jump");
         Attack = InputSystem.actions.FindAction("Attack");
         Dodge = InputSystem.actions.FindAction("Dodge");
+        Parry = InputSystem.actions.FindAction("Parry");
         Jump.performed += OnJump;
         Jump.canceled += OnJump;
         Attack.performed += OnAttack;
         Dodge.performed += OnDodge;
+        Parry.performed += OnParry;
     }
 
     private void OnDisable()
@@ -158,6 +174,14 @@ public class PlayerAction : MonoBehaviour, IDamageable
         move = context.ReadValue<Vector2>();
     }
 
+    private void Update()
+    {
+        if(parryTime > 0f)
+        {
+            parryTime -= Time.deltaTime;
+        }
+    }
+
     private void FixedUpdate()
     {
         if (isDodge)
@@ -171,6 +195,7 @@ public class PlayerAction : MonoBehaviour, IDamageable
                 rb.linearVelocity = Vector2.zero;
                 dodgeTime = 0f;
                 isDodge = false;
+                afterImage.StopAfterImage();
             }
             else
             {
@@ -281,31 +306,44 @@ public class PlayerAction : MonoBehaviour, IDamageable
         animator.ResetTrigger(AttackTriger);
     }
 
-    public int GetDamageAmount()
+    public IDamageable.DamageInfo SetDamage()
     {
-        return 100;
+        return new IDamageable.DamageInfo() { canParry = false, damage = atk };
     }
 
-    public void OnDamage(int damage)
+    public void GetDamage(IDamageable.DamageInfo damage)
     {
         if (isDodge)
         {
             return;
         }
 
+        if(parryTime > 0f && damage.canParry)
+        {
+            Debug.Log("패링성공");
+            SuccessParry?.Invoke();
+            return;
+        }
+
         CurrentState = State.Hit;
     }
 
-    public void OnDodge(InputAction.CallbackContext _)
+    private void OnDodge(InputAction.CallbackContext _)
     {
         if (CurrentState == State.Dodge)
             return;
 
         AttackEnd();
-
+        afterImage.StartAfterImage();
         dodgeStart = transform.position;
         rb.linearVelocity = Vector2.zero;
         rb.gravityScale = 0f;
         CurrentState = State.Dodge;
+    }
+
+    private void OnParry(InputAction.CallbackContext _)
+    {
+        CurrentState = State.Parry;
+        animator.SetTrigger(ParryTriger);
     }
 }
