@@ -13,6 +13,7 @@ public class PlayerAction : MonoBehaviour, IDamageable
     private static readonly int HitTriger = Animator.StringToHash("Hit");
     private static readonly int DodgeTriger = Animator.StringToHash("Dodge");
     private static readonly int ParryTriger = Animator.StringToHash("Parry");
+
     private DashAfterImage afterImage;
     private Animator animator;
     private Rigidbody2D rb;
@@ -108,21 +109,23 @@ public class PlayerAction : MonoBehaviour, IDamageable
     [SerializeField] private float moveSpeed = 5f;
     [Header("플레이어 점프 힘")]
     [SerializeField] private float jumpPower = 10f;
-    private Vector2 move;
+    [Header("")]
     [SerializeField] private Transform groundCheck;
     [SerializeField] private Transform attackZone;
-    [SerializeField] private float groundCheckRadius = 0.15f;
     [SerializeField] private LayerMask groundLayer;
+    [SerializeField] private float groundCheckRadius = 0.15f;
     [SerializeField] private float coyoteTime = 0.1f;
     [SerializeField] private float jumpBufferTime = 0.1f;
     [SerializeField] private float lowJumpMultiplier = 2f;
     [SerializeField] private float fallMultiplier = 2.5f;
     [SerializeField] private float dodgeAmount = 0f;
     [SerializeField] private float dodgeDuration = 1f;
+    [SerializeField] private float parryInterval;
+    [SerializeField] private int atk;
     private float dodgeTime = 0f;
     private Vector3 dodgeStart;
     private Vector3 dodgeEnd;
-    [SerializeField] private int atk;
+    private Vector2 move;
 
     private InputAction Jump;
     private InputAction Attack;
@@ -136,7 +139,6 @@ public class PlayerAction : MonoBehaviour, IDamageable
     private bool isDodge = false;
     private bool jumpHeld = false;
     private float originalGravityScale;
-    [SerializeField] private float parryInterval;
     private float parryTime = 0f;
 
     private void Awake()
@@ -254,7 +256,7 @@ public class PlayerAction : MonoBehaviour, IDamageable
 
         transform.position += moveSpeed * Time.fixedDeltaTime * new Vector3(move.x, 0f);
 
-        if(CurrentState == State.Jump || CurrentState == State.Fall)
+        if(CurrentState == State.Jump || CurrentState == State.Fall || CurrentState == State.Parry)
         {
             return;
         }
@@ -303,6 +305,7 @@ public class PlayerAction : MonoBehaviour, IDamageable
 
     public void ClearTrigger()
     {
+        animator.ResetTrigger(HitTriger);
         animator.ResetTrigger(AttackTriger);
     }
 
@@ -343,6 +346,9 @@ public class PlayerAction : MonoBehaviour, IDamageable
 
     private void OnParry(InputAction.CallbackContext _)
     {
+        if (CurrentState == State.Parry)
+            return;
+
         CurrentState = State.Parry;
         animator.SetTrigger(ParryTriger);
     }
