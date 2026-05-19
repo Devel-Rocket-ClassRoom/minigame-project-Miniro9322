@@ -50,6 +50,7 @@ public class Boss : MonoBehaviour, IDamageable
             {
                 case State.Idle:
                     animator.SetBool(Move, false);
+                    isRush = false;
                     currentState = value;
                     break;
                 case State.Move:
@@ -126,7 +127,7 @@ public class Boss : MonoBehaviour, IDamageable
             if(rushTime > 1f)
             {
                 transform.position = rushVector;
-                isRush = false;
+                CurrentState = State.Idle;
                 rushTime = 0f;
             }
         }
@@ -148,7 +149,6 @@ public class Boss : MonoBehaviour, IDamageable
     {
         isRush = true;
         startPoint = transform.position;
-        Debug.Log(startPoint);
         animator.SetTrigger(AttackTriger["Rush"]);
         CurrentState = State.Attack;
     }
