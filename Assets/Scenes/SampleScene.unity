@@ -119,11 +119,6 @@ NavMeshSettings:
     debug:
       m_Flags: 0
   m_NavMeshData: {fileID: 0}
---- !u!95 &161544164 stripped
-Animator:
-  m_CorrespondingSourceObject: {fileID: 3202990645697184438, guid: 132dee3d2f46bed48ad4d39434422c74, type: 3}
-  m_PrefabInstance: {fileID: 5315901615278689506}
-  m_PrefabAsset: {fileID: 0}
 --- !u!1 &519420028
 GameObject:
   m_ObjectHideFlags: 0
@@ -429,7 +424,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GameManager
   playerInput: {fileID: 762355780}
-  animator: {fileID: 161544164}
   boss: {fileID: 1868377368}
 --- !u!4 &614717273
 Transform:
@@ -541,6 +535,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 62899f850307741f2a39c98a8b639597, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Unity.InputSystem::UnityEngine.InputSystem.PlayerInput
+--- !u!4 &864062191 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 790391469155401914, guid: 07ccac6c484c4be4a86fcd91efa91c4b, type: 3}
+  m_PrefabInstance: {fileID: 28160318994055829}
+  m_PrefabAsset: {fileID: 0}
 --- !u!114 &1868377368 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 5371473612880002984, guid: 132dee3d2f46bed48ad4d39434422c74, type: 3}
@@ -661,18 +660,6 @@ PrefabInstance:
       propertyPath: m_Name
       value: Boss
       objectReference: {fileID: 0}
-    - target: {fileID: 4593878120625799652, guid: 132dee3d2f46bed48ad4d39434422c74, type: 3}
-      propertyPath: m_Enabled
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 4745622857680392330, guid: 132dee3d2f46bed48ad4d39434422c74, type: 3}
-      propertyPath: m_LocalPosition.x
-      value: -0.46
-      objectReference: {fileID: 0}
-    - target: {fileID: 4909672065160890177, guid: 132dee3d2f46bed48ad4d39434422c74, type: 3}
-      propertyPath: m_LocalScale.x
-      value: 1
-      objectReference: {fileID: 0}
     - target: {fileID: 4909672065160890177, guid: 132dee3d2f46bed48ad4d39434422c74, type: 3}
       propertyPath: m_LocalPosition.x
       value: -6.98
@@ -714,17 +701,9 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 5371473612880002984, guid: 132dee3d2f46bed48ad4d39434422c74, type: 3}
-      propertyPath: rushSpeed
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 5371473612880002984, guid: 132dee3d2f46bed48ad4d39434422c74, type: 3}
-      propertyPath: rushAmount
-      value: 10
-      objectReference: {fileID: 0}
-    - target: {fileID: 6661877332937677943, guid: 132dee3d2f46bed48ad4d39434422c74, type: 3}
-      propertyPath: m_IsActive
-      value: 1
-      objectReference: {fileID: 0}
+      propertyPath: playerPosition
+      value: 
+      objectReference: {fileID: 864062191}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
