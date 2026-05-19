@@ -139,8 +139,6 @@ public class PlayerAction : MonoBehaviour
             CurrentState = State.Fall;
         }
 
-        Debug.Log(CurrentState);
-
         switch (CurrentState)
         {
             case State.Fall:
@@ -159,7 +157,6 @@ public class PlayerAction : MonoBehaviour
             rb.linearVelocity = new Vector2(rb.linearVelocity.x, jumpPower);
             bufferCounter = 0f;
             coyoteCounter = 0f;
-            CurrentState = State.Jump;
         }
 
         if (!isJump && rb.linearVelocity.y > 0f)
@@ -201,11 +198,11 @@ public class PlayerAction : MonoBehaviour
         if (context.performed)
         {
             bufferCounter = jumpBufferTime;
-            isJump = true;
+            CurrentState = State.Jump;
         }
         if (context.canceled)
         {
-            isJump = false;
+            CurrentState = State.Fall;
         }
     }
 

@@ -1,6 +1,5 @@
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.InputSystem;
 
 [RequireComponent(typeof(Animator))]
 public class Boss : MonoBehaviour
@@ -12,6 +11,17 @@ public class Boss : MonoBehaviour
         Attack,
         Die,
     }
+
+    [SerializeField]
+    private float rushAmount;
+    [SerializeField]
+    private float rushDuration;
+    private float rushTime;
+    private Vector3 rushVector;
+    private Vector3 startPoint;
+    private bool isRush;
+    private Animator animator;
+    [SerializeField] private Transform attackZone;
 
     private static readonly Dictionary<string, int> AttackTriger = new()
     { 
@@ -44,9 +54,7 @@ public class Boss : MonoBehaviour
         }
     }
 
-    private Animator animator;
-    [SerializeField] private Transform attackZone;
-    private float rushSpeed = 5f;
+    
 
     private void OnEnable()
     {
@@ -56,7 +64,18 @@ public class Boss : MonoBehaviour
 
     private void FixedUpdate()
     {
-        
+        if (isRush)
+        {
+            rushTime += Time.fixedDeltaTime;
+            rushVector = new Vector3(startPoint.x + rushAmount, startPoint.y);
+            transform.position = Vector3.Lerp(startPoint, rushVector, rushTime / rushDuration);
+            if(rushTime > 1f)
+            {
+                transform.position = rushVector;
+                isRush = false;
+                rushTime = 0f;
+            }
+        }
     }
 
     private void Attack1()
@@ -71,6 +90,9 @@ public class Boss : MonoBehaviour
 
     private void Rush()
     {
+        isRush = true;
+        startPoint = transform.position;
+        Debug.Log(startPoint);
         animator.SetTrigger(AttackTriger["Rush"]);
     }
 
