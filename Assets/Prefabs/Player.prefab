@@ -9,7 +9,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4143365489014188193}
-  m_Layer: 6
+  m_Layer: 0
   m_Name: GroundCheck
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -48,7 +48,7 @@ GameObject:
   - component: {fileID: 1649365356642449596}
   m_Layer: 6
   m_Name: Player
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -352,6 +352,26 @@ MonoBehaviour:
       m_Calls: []
     m_ActionId: 9caa3d8a-6b2f-4e8e-8bad-6ede561bd9be
     m_ActionName: UI/TrackedDeviceOrientation
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: cf0030d4-952f-435a-9dc3-3a5084704411
+    m_ActionName: 'UI/DebugMode[/Keyboard/f11]'
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: a7b7cfa1-0b21-45c5-88c5-51a9b092ae9d
+    m_ActionName: 'Debug/BossAttack[/Keyboard/1]'
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: 0168b356-e8e5-4b5a-bc60-a140b90d0248
+    m_ActionName: 'Debug/OffDebug[/Keyboard/f11]'
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: 6dfd68b6-5d1f-4f2f-a9c6-1665d3022370
+    m_ActionName: 'Debug/BossAttack2[/Keyboard/2]'
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: 14c12677-ed50-49f0-b480-74be123ed7e3
+    m_ActionName: 'Debug/Rush[/Keyboard/3]'
   m_NeverAutoSwitchControlSchemes: 0
   m_DefaultControlScheme: Keyboard&Mouse
   m_DefaultActionMap: Player
@@ -367,7 +387,8 @@ GameObject:
   m_Component:
   - component: {fileID: 5964615425792286646}
   - component: {fileID: 6302126129524639066}
-  m_Layer: 6
+  - component: {fileID: 1260112934021699454}
+  m_Layer: 0
   m_Name: AttackZone
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -435,3 +456,16 @@ BoxCollider2D:
   m_AutoTiling: 0
   m_Size: {x: 0.47466925, y: 0.13846269}
   m_EdgeRadius: 0
+--- !u!114 &1260112934021699454
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8170456589282242010}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b2021f81270750f4089c0c35b35bb442, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::AttackZone
+  parent: {fileID: 2331030016703428476}
