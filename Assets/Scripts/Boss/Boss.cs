@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 [RequireComponent(typeof(Animator))]
-public class Boss : MonoBehaviour
+public class Boss : MonoBehaviour, IDamageable
 {
     private enum State
     {
@@ -71,8 +71,6 @@ public class Boss : MonoBehaviour
     private void Update()
     {
         if (CurrentState == State.Attack) return;
-
-        Debug.Log(CurrentState);
 
         if (playerPosition.position.x < transform.position.x)
         {
@@ -173,5 +171,15 @@ public class Boss : MonoBehaviour
         }
 
         CurrentState = State.Idle;
+    }
+
+    public void OnDamage(int damage)
+    {
+        Debug.Log(damage);
+    }
+
+    public int GetDamageAmount()
+    {
+        return 10;
     }
 }

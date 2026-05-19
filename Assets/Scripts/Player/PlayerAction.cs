@@ -3,12 +3,13 @@ using UnityEngine.InputSystem;
 
 [RequireComponent(typeof(Rigidbody2D))]
 [RequireComponent(typeof(Animator))]
-public class PlayerAction : MonoBehaviour
+public class PlayerAction : MonoBehaviour, IDamageable
 {
     private static readonly int MoveBool = Animator.StringToHash("Move");
     private static readonly int JumpTriger = Animator.StringToHash("Jump");
     private static readonly int FallTriger = Animator.StringToHash("Fall");
     private static readonly int AttackTriger = Animator.StringToHash("Attack");
+    private static readonly int HitTriger = Animator.StringToHash("Hit");
     private Animator animator;
     private Rigidbody2D rb;
 
@@ -20,6 +21,7 @@ public class PlayerAction : MonoBehaviour
         Die,
         Jump,
         Fall,
+        Hit,
     }
 
     private State currentstate;
@@ -73,6 +75,9 @@ public class PlayerAction : MonoBehaviour
                     animator.SetBool(JumpTriger, isJump);
                     animator.SetBool(FallTriger, isFall);
                     currentstate = value;
+                    break;
+                case State.Hit:
+                    animator.SetTrigger(HitTriger);
                     break;
             }
         }
@@ -130,6 +135,11 @@ public class PlayerAction : MonoBehaviour
 
     private void FixedUpdate()
     {
+        if(CurrentState == State.Hit)
+        {
+            return;
+        }
+
         Move(move);
 
         bool grounded = Physics2D.OverlapCircle(groundCheck.position, groundCheckRadius, groundLayer);
@@ -229,5 +239,16 @@ public class PlayerAction : MonoBehaviour
     public void ClearTrigger()
     {
         animator.ResetTrigger(AttackTriger);
+        CurrentState = State.Idle;
+    }
+
+    public int GetDamageAmount()
+    {
+        return 100;
+    }
+
+    public void OnDamage(int damage)
+    {
+        CurrentState = State.Hit;
     }
 }
