@@ -139,8 +139,6 @@ public class PlayerAction : MonoBehaviour
             CurrentState = State.Fall;
         }
 
-        Debug.Log(CurrentState);
-
         switch (CurrentState)
         {
             case State.Fall:

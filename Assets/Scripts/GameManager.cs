@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -5,6 +6,7 @@ public class GameManager : MonoBehaviour
 {
     private static readonly int Attack1 = Animator.StringToHash("Attack1");
     private static readonly int Attack2 = Animator.StringToHash("Attack2");
+    private static readonly int Rush = Animator.StringToHash("Rush");
 
     [SerializeField]
     private PlayerInput playerInput;
@@ -12,8 +14,10 @@ public class GameManager : MonoBehaviour
     private InputAction debugOff;
     private InputAction attack;
     private InputAction attack2;
+    private InputAction rush;
     [SerializeField]
     private Animator animator;
+    [SerializeField] private Boss boss;
 
     private void Start()
     {
@@ -27,9 +31,11 @@ public class GameManager : MonoBehaviour
         attack2 = InputSystem.actions.FindAction("BossAttack2");
         debug = InputSystem.actions.FindAction("DebugMode");
         debugOff = InputSystem.actions.FindAction("OffDebug");
+        rush = InputSystem.actions.FindAction("Rush");
 
         attack.performed += OnAttack;
         attack2.performed += OnAttack2;
+        rush.performed += OnRush;
         debug.performed += OnDebug;
         debugOff.performed += OffDebug;
     }
@@ -40,16 +46,22 @@ public class GameManager : MonoBehaviour
         attack2.performed -= OnAttack2;
         debug.performed -= OnDebug;
         debugOff.performed -= OffDebug;
+        rush.performed -= OnRush;
+    }
+
+    private void OnRush(InputAction.CallbackContext _)
+    {
+        boss.SendMessage("Rush");
     }
 
     private void OnAttack(InputAction.CallbackContext _)
     {
-        animator.SetTrigger(Attack1);
+        boss.SendMessage("Attack1");
     }
 
     private void OnAttack2(InputAction.CallbackContext _)
     {
-        animator.SetTrigger(Attack2);
+        boss.SendMessage("Attack2");
     }
 
     private void OnDebug(InputAction.CallbackContext _)
@@ -63,6 +75,6 @@ public class GameManager : MonoBehaviour
     {
         Debug.Log("디버그 모드 오프");
         playerInput.SwitchCurrentActionMap("Player");
-        playerInput.actions.FindActionMap("UI").Disable();
+        playerInput.actions.FindActionMap("UI").Enable();
     }
 }

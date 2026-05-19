@@ -1,6 +1,5 @@
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.InputSystem;
 
 [RequireComponent(typeof(Animator))]
 public class Boss : MonoBehaviour
@@ -16,8 +15,10 @@ public class Boss : MonoBehaviour
     [SerializeField]
     private float rushAmount;
     [SerializeField]
-    private float rushSpeed;
-    private Vector2 rushVector;
+    private float rushDuration;
+    private float rushTime;
+    private Vector3 rushVector;
+    private Vector3 startPoint;
     private bool isRush;
     private Animator animator;
     [SerializeField] private Transform attackZone;
@@ -65,7 +66,15 @@ public class Boss : MonoBehaviour
     {
         if (isRush)
         {
-            rushVector = new Vector2(transform.position.x + rushAmount, transform.position.y);
+            rushTime += Time.fixedDeltaTime;
+            rushVector = new Vector3(startPoint.x + rushAmount, startPoint.y);
+            transform.position = Vector3.Lerp(startPoint, rushVector, rushTime / rushDuration);
+            if(rushTime > 1f)
+            {
+                transform.position = rushVector;
+                isRush = false;
+                rushTime = 0f;
+            }
         }
     }
 
@@ -82,6 +91,8 @@ public class Boss : MonoBehaviour
     private void Rush()
     {
         isRush = true;
+        startPoint = transform.position;
+        Debug.Log(startPoint);
         animator.SetTrigger(AttackTriger["Rush"]);
     }
 
