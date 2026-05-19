@@ -16,7 +16,7 @@ GameObject:
   - component: {fileID: 793345534544423360}
   m_Layer: 7
   m_Name: Boss
-  m_TagString: Untagged
+  m_TagString: Boss
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -159,8 +159,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Boss
   rushAmount: 10
   rushDuration: 1
+  moveSpeed: 2
   attackZone: {fileID: 4745622857680392330}
-  attack2Interval: 5
+  attack2Interval: 3
   playerPosition: {fileID: 0}
 --- !u!60 &793345534544423360
 PolygonCollider2D:
@@ -232,13 +233,14 @@ GameObject:
   m_Component:
   - component: {fileID: 4745622857680392330}
   - component: {fileID: 4593878120625799652}
+  - component: {fileID: 739632506711744980}
   m_Layer: 0
   m_Name: AttackZone
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &4745622857680392330
 Transform:
   m_ObjectHideFlags: 0
@@ -300,3 +302,16 @@ BoxCollider2D:
   m_AutoTiling: 0
   m_Size: {x: 1.6778471, y: 0.62341857}
   m_EdgeRadius: 0
+--- !u!114 &739632506711744980
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6661877332937677943}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b2021f81270750f4089c0c35b35bb442, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::AttackZone
+  parent: {fileID: 2256336631168719745}
