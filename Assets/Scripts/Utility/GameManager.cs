@@ -43,6 +43,11 @@ public class GameManager : MonoBehaviour
         rush.performed -= OnRush;
     }
 
+    public void OnGameOver()
+    {
+        playerInput.actions.FindActionMap("Player").Disable();
+    }
+
     private void OnRush(InputAction.CallbackContext _)
     {
         boss.SendMessage("Rush");
