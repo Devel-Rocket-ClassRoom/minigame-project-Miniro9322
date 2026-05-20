@@ -25,9 +25,9 @@ public class BossIdle : IState
 
     public void Update()
     {
-        if (true)
+        if (boss.CurrHp <= 0f)
         {
-
+            boss.Fsm.ChangeState(new BossDeath(boss));
         }
     }
 }
