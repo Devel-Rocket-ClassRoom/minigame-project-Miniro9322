@@ -632,7 +632,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5172808667349959894, guid: 07ccac6c484c4be4a86fcd91efa91c4b, type: 3}
       propertyPath: atk
-      value: 100
+      value: 10
       objectReference: {fileID: 0}
     - target: {fileID: 5172808667349959894, guid: 07ccac6c484c4be4a86fcd91efa91c4b, type: 3}
       propertyPath: dodgeAmount
@@ -655,9 +655,29 @@ PrefabInstance:
       value: 0.16666667
       objectReference: {fileID: 0}
     - target: {fileID: 5172808667349959894, guid: 07ccac6c484c4be4a86fcd91efa91c4b, type: 3}
+      propertyPath: OnGameOver.m_PersistentCalls.m_Calls.Array.size
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 5172808667349959894, guid: 07ccac6c484c4be4a86fcd91efa91c4b, type: 3}
       propertyPath: SuccessParry.m_PersistentCalls.m_Calls.Array.size
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 5172808667349959894, guid: 07ccac6c484c4be4a86fcd91efa91c4b, type: 3}
+      propertyPath: OnGameOver.m_PersistentCalls.m_Calls.Array.data[0].m_Mode
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5172808667349959894, guid: 07ccac6c484c4be4a86fcd91efa91c4b, type: 3}
+      propertyPath: OnGameOver.m_PersistentCalls.m_Calls.Array.data[1].m_Mode
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5172808667349959894, guid: 07ccac6c484c4be4a86fcd91efa91c4b, type: 3}
+      propertyPath: OnGameOver.m_PersistentCalls.m_Calls.Array.data[0].m_Target
+      value: 
+      objectReference: {fileID: 614717272}
+    - target: {fileID: 5172808667349959894, guid: 07ccac6c484c4be4a86fcd91efa91c4b, type: 3}
+      propertyPath: OnGameOver.m_PersistentCalls.m_Calls.Array.data[1].m_Target
+      value: 
+      objectReference: {fileID: 1868377368}
     - target: {fileID: 5172808667349959894, guid: 07ccac6c484c4be4a86fcd91efa91c4b, type: 3}
       propertyPath: SuccessParry.m_PersistentCalls.m_Calls.Array.data[0].m_Mode
       value: 1
@@ -667,6 +687,22 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 1868377368}
     - target: {fileID: 5172808667349959894, guid: 07ccac6c484c4be4a86fcd91efa91c4b, type: 3}
+      propertyPath: OnGameOver.m_PersistentCalls.m_Calls.Array.data[0].m_CallState
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 5172808667349959894, guid: 07ccac6c484c4be4a86fcd91efa91c4b, type: 3}
+      propertyPath: OnGameOver.m_PersistentCalls.m_Calls.Array.data[1].m_CallState
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 5172808667349959894, guid: 07ccac6c484c4be4a86fcd91efa91c4b, type: 3}
+      propertyPath: OnGameOver.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
+      value: OnGameOver
+      objectReference: {fileID: 0}
+    - target: {fileID: 5172808667349959894, guid: 07ccac6c484c4be4a86fcd91efa91c4b, type: 3}
+      propertyPath: OnGameOver.m_PersistentCalls.m_Calls.Array.data[1].m_MethodName
+      value: OnGameOver
+      objectReference: {fileID: 0}
+    - target: {fileID: 5172808667349959894, guid: 07ccac6c484c4be4a86fcd91efa91c4b, type: 3}
       propertyPath: SuccessParry.m_PersistentCalls.m_Calls.Array.data[0].m_CallState
       value: 2
       objectReference: {fileID: 0}
@@ -675,8 +711,24 @@ PrefabInstance:
       value: GetParryed
       objectReference: {fileID: 0}
     - target: {fileID: 5172808667349959894, guid: 07ccac6c484c4be4a86fcd91efa91c4b, type: 3}
+      propertyPath: OnGameOver.m_PersistentCalls.m_Calls.Array.data[0].m_TargetAssemblyTypeName
+      value: GameManager, Assembly-CSharp
+      objectReference: {fileID: 0}
+    - target: {fileID: 5172808667349959894, guid: 07ccac6c484c4be4a86fcd91efa91c4b, type: 3}
+      propertyPath: OnGameOver.m_PersistentCalls.m_Calls.Array.data[1].m_TargetAssemblyTypeName
+      value: Boss, Assembly-CSharp
+      objectReference: {fileID: 0}
+    - target: {fileID: 5172808667349959894, guid: 07ccac6c484c4be4a86fcd91efa91c4b, type: 3}
       propertyPath: SuccessParry.m_PersistentCalls.m_Calls.Array.data[0].m_TargetAssemblyTypeName
       value: Boss, Assembly-CSharp
+      objectReference: {fileID: 0}
+    - target: {fileID: 5172808667349959894, guid: 07ccac6c484c4be4a86fcd91efa91c4b, type: 3}
+      propertyPath: OnGameOver.m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_ObjectArgumentAssemblyTypeName
+      value: UnityEngine.Object, UnityEngine
+      objectReference: {fileID: 0}
+    - target: {fileID: 5172808667349959894, guid: 07ccac6c484c4be4a86fcd91efa91c4b, type: 3}
+      propertyPath: OnGameOver.m_PersistentCalls.m_Calls.Array.data[1].m_Arguments.m_ObjectArgumentAssemblyTypeName
+      value: UnityEngine.Object, UnityEngine
       objectReference: {fileID: 0}
     - target: {fileID: 5172808667349959894, guid: 07ccac6c484c4be4a86fcd91efa91c4b, type: 3}
       propertyPath: SuccessParry.m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_ObjectArgumentAssemblyTypeName

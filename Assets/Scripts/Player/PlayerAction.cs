@@ -13,6 +13,7 @@ public class PlayerAction : MonoBehaviour, IDamageable
     private static readonly int HitTriger = Animator.StringToHash("Hit");
     private static readonly int DodgeTriger = Animator.StringToHash("Dodge");
     private static readonly int ParryTriger = Animator.StringToHash("Parry");
+    private static readonly int DieTriger = Animator.StringToHash("Die");
 
     private static readonly Color32 blinkColor = new(255, 180, 180, 255);
 
@@ -22,6 +23,7 @@ public class PlayerAction : MonoBehaviour, IDamageable
     private bool grounded;
 
     public UnityEvent SuccessParry;
+    public UnityEvent OnGameOver;
 
     private enum State
     {
@@ -73,6 +75,13 @@ public class PlayerAction : MonoBehaviour, IDamageable
                     currentstate = value;
                     break;
                 case State.Die:
+                    isJump = false;
+                    isFall = false;
+                    isMove = false;
+                    animator.SetBool(JumpBool, isJump);
+                    animator.SetBool(FallBool, isFall);
+                    animator.SetBool(MoveBool, isMove);
+                    OnGameOver?.Invoke();
                     currentstate = value;
                     break;
                 case State.Jump:
@@ -102,6 +111,7 @@ public class PlayerAction : MonoBehaviour, IDamageable
                     break;
                 case State.Parry:
                     parryTime = parryInterval;
+                    currentstate = value;
                     break;
             }
         }
@@ -124,6 +134,7 @@ public class PlayerAction : MonoBehaviour, IDamageable
     [SerializeField] private float dodgeDuration = 1f;
     [SerializeField] private float parryInterval;
     [SerializeField] private int atk;
+    [SerializeField] private int MaxHp;
     [SerializeField] private float blinkDurationInterval;
     [SerializeField] private float blinkInterval;
     private float dodgeTime = 0f;
@@ -149,6 +160,7 @@ public class PlayerAction : MonoBehaviour, IDamageable
     private float blinkduration = 0f;
     private Color defaultColor;
     private bool isblinked;
+    private int currHp;
 
     private void Awake()
     {
@@ -172,6 +184,7 @@ public class PlayerAction : MonoBehaviour, IDamageable
         Attack.performed += OnAttack;
         Dodge.performed += OnDodge;
         Parry.performed += OnParry;
+        currHp = MaxHp;
     }
 
     private void OnDisable()
@@ -225,6 +238,11 @@ public class PlayerAction : MonoBehaviour, IDamageable
 
     private void FixedUpdate()
     {
+        if(CurrentState == State.Die)
+        {
+            return;
+        }
+
         if (isDodge)
         {
             dodgeTime += Time.fixedDeltaTime;
@@ -355,7 +373,7 @@ public class PlayerAction : MonoBehaviour, IDamageable
 
     public void GetDamage(IDamageable.DamageInfo damageInfo)
     {
-        if (isDodge || blinkTime > 0f)
+        if (isDodge || blinkTime > 0f || CurrentState == State.Die)
         {
             return;
         }
@@ -368,6 +386,15 @@ public class PlayerAction : MonoBehaviour, IDamageable
         }
 
         CurrentState = State.Hit;
+
+        currHp -= damageInfo.damage;
+
+        if(currHp < 0f)
+        {
+            CurrentState = State.Die;
+            animator.SetTrigger(DieTriger);
+            return;
+        }
 
         blinkTime = blinkInterval;
         blinkduration = blinkDurationInterval;
