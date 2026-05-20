@@ -14,6 +14,8 @@ public class PlayerAction : MonoBehaviour, IDamageable
     private static readonly int DodgeTriger = Animator.StringToHash("Dodge");
     private static readonly int ParryTriger = Animator.StringToHash("Parry");
 
+    private static readonly Color32 blinkColor = new(255, 180, 180, 255);
+
     private DashAfterImage afterImage;
     private Animator animator;
     private Rigidbody2D rb;
@@ -122,6 +124,8 @@ public class PlayerAction : MonoBehaviour, IDamageable
     [SerializeField] private float dodgeDuration = 1f;
     [SerializeField] private float parryInterval;
     [SerializeField] private int atk;
+    [SerializeField] private float blinkDurationInterval;
+    [SerializeField] private float blinkInterval;
     private float dodgeTime = 0f;
     private Vector3 dodgeStart;
     private Vector3 dodgeEnd;
@@ -131,6 +135,7 @@ public class PlayerAction : MonoBehaviour, IDamageable
     private InputAction Attack;
     private InputAction Dodge;
     private InputAction Parry;
+    private SpriteRenderer sr;
     private bool isJump = false;
     private bool isFall = false;
     private bool isMove = false;
@@ -140,6 +145,10 @@ public class PlayerAction : MonoBehaviour, IDamageable
     private bool jumpHeld = false;
     private float originalGravityScale;
     private float parryTime = 0f;
+    private float blinkTime = 0f;
+    private float blinkduration = 0f;
+    private Color defaultColor;
+    private bool isblinked;
 
     private void Awake()
     {
@@ -148,6 +157,8 @@ public class PlayerAction : MonoBehaviour, IDamageable
         attackZone.gameObject.SetActive(false);
         originalGravityScale = rb.gravityScale;
         afterImage = GetComponent<DashAfterImage>();
+        defaultColor = GetComponent<SpriteRenderer>().color;
+        sr = GetComponent<SpriteRenderer>();
     }
 
     private void OnEnable()
@@ -181,6 +192,34 @@ public class PlayerAction : MonoBehaviour, IDamageable
         if(parryTime > 0f)
         {
             parryTime -= Time.deltaTime;
+        }
+
+        if(blinkTime > 0f)
+        {
+            if(blinkduration > 0f)
+            {
+                if (!isblinked)
+                {
+                    sr.color = Color.Lerp(blinkColor, sr.color, Time.deltaTime / blinkduration);
+                }
+                else
+                {
+                    sr.color = Color.Lerp(defaultColor, sr.color, Time.deltaTime / blinkduration);
+                }
+                blinkduration -= Time.deltaTime;
+            }
+            if(blinkduration <= 0f)
+            {
+                isblinked = !isblinked;
+                blinkduration = blinkDurationInterval;
+            }
+
+            blinkTime -= Time.deltaTime;
+        }
+
+        if(blinkTime <= 0f)
+        {
+            sr.color = defaultColor;
         }
     }
 
@@ -314,14 +353,14 @@ public class PlayerAction : MonoBehaviour, IDamageable
         return new IDamageable.DamageInfo() { canParry = false, damage = atk };
     }
 
-    public void GetDamage(IDamageable.DamageInfo damage)
+    public void GetDamage(IDamageable.DamageInfo damageInfo)
     {
-        if (isDodge)
+        if (isDodge || blinkTime > 0f)
         {
             return;
         }
 
-        if(parryTime > 0f && damage.canParry)
+        if(parryTime > 0f && damageInfo.canParry)
         {
             Debug.Log("패링성공");
             SuccessParry?.Invoke();
@@ -329,6 +368,9 @@ public class PlayerAction : MonoBehaviour, IDamageable
         }
 
         CurrentState = State.Hit;
+
+        blinkTime = blinkInterval;
+        blinkduration = blinkDurationInterval;
     }
 
     private void OnDodge(InputAction.CallbackContext _)
