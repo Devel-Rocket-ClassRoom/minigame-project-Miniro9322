@@ -20,6 +20,7 @@ public class Boss : MonoBehaviour, IDamageable
     };
     private static readonly int Move = Animator.StringToHash("Move");
     private static readonly int Parry = Animator.StringToHash("Parry");
+    private static readonly int Die = Animator.StringToHash("Die");
 
     
     [SerializeField] private Transform attackZone;
@@ -43,6 +44,8 @@ public class Boss : MonoBehaviour, IDamageable
     private float stunTime = 0f;
     private float rushTime;
     private float attack2CoolTime = 0f;
+    private float maxHp;
+    private float currHp;
 
 
 
@@ -84,11 +87,18 @@ public class Boss : MonoBehaviour, IDamageable
     {
         animator = GetComponent<Animator>();
         attackZone.gameObject.SetActive(false);
+        maxHp = data.Hp;
+        currHp = maxHp;
     }
 
     private void Update()
     {
-        if(stunTime > 0f)
+        if (CurrentState == State.Die)
+        {
+            return;
+        }
+
+        if (stunTime > 0f)
         {
             stunTime -= Time.deltaTime;
             return;
@@ -129,6 +139,11 @@ public class Boss : MonoBehaviour, IDamageable
 
     private void FixedUpdate()
     {
+        if (CurrentState == State.Die)
+        {
+            return;
+        }
+
         if (isRush)
         {
             rushTime += Time.fixedDeltaTime;
@@ -193,12 +208,29 @@ public class Boss : MonoBehaviour, IDamageable
             animator.ResetTrigger(triger.Value);
         }
 
+        if (CurrentState == State.Die)
+        {
+            return;
+        }
+
         CurrentState = State.Idle;
     }
 
-    public void GetDamage(IDamageable.DamageInfo damage)
+    public void GetDamage(IDamageable.DamageInfo damageInfo)
     {
+        if(CurrentState == State.Die)
+        {
+            return;
+        }
 
+        currHp -= damageInfo.damage;
+
+        if(currHp <= 0)
+        {
+            currHp = 0;
+            animator.SetTrigger(Die);
+            CurrentState = State.Die;
+        }
     }
 
     public IDamageable.DamageInfo SetDamage()
