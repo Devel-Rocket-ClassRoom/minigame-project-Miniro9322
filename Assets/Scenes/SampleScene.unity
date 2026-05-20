@@ -635,6 +635,10 @@ PrefabInstance:
       value: 10
       objectReference: {fileID: 0}
     - target: {fileID: 5172808667349959894, guid: 07ccac6c484c4be4a86fcd91efa91c4b, type: 3}
+      propertyPath: MaxHp
+      value: 100
+      objectReference: {fileID: 0}
+    - target: {fileID: 5172808667349959894, guid: 07ccac6c484c4be4a86fcd91efa91c4b, type: 3}
       propertyPath: dodgeAmount
       value: 5
       objectReference: {fileID: 0}

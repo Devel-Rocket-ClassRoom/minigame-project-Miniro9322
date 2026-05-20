@@ -17,4 +17,14 @@ public class AttackZone : MonoBehaviour
             collision.gameObject.GetComponent<IDamageable>().GetDamage(damage);
         }
     }
+
+    public void Deactivate()
+    {
+        gameObject.SetActive(false);
+    }
+
+    public void Activate()
+    {
+        gameObject.SetActive(true);
+    }
 }

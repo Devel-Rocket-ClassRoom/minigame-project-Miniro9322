@@ -47,7 +47,7 @@ public class Boss : MonoBehaviour, IDamageable
     private float attack2CoolTime = 0f;
     private float maxHp;
     private float currHp;
-
+    public Animator Animator => animator;
 
 
     private State currentState;
