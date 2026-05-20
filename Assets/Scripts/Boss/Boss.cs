@@ -40,6 +40,7 @@ public class Boss : MonoBehaviour, IDamageable
     
     private bool canParry;
     private bool isRush;
+    private bool isGameOver;
     private int atk;
     private float stunTime = 0f;
     private float rushTime;
@@ -93,7 +94,7 @@ public class Boss : MonoBehaviour, IDamageable
 
     private void Update()
     {
-        if (CurrentState == State.Die)
+        if (CurrentState == State.Die || isGameOver)
         {
             return;
         }
@@ -139,7 +140,7 @@ public class Boss : MonoBehaviour, IDamageable
 
     private void FixedUpdate()
     {
-        if (CurrentState == State.Die)
+        if (CurrentState == State.Die || isGameOver)
         {
             return;
         }
@@ -231,6 +232,12 @@ public class Boss : MonoBehaviour, IDamageable
             animator.SetTrigger(Die);
             CurrentState = State.Die;
         }
+    }
+
+    public void OnGameOver()
+    {
+        CurrentState = State.Idle;
+        isGameOver = true;
     }
 
     public IDamageable.DamageInfo SetDamage()
