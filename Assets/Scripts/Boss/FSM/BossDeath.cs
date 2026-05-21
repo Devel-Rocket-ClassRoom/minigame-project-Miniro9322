@@ -2,11 +2,11 @@ using UnityEngine;
 
 public class BossDeath : IState
 {
-    private static readonly int DeathHash = Animator.StringToHash("Death");
+    private static readonly int DeathHash = Animator.StringToHash("Die");
 
-    private BossController boss;
+    private Boss1 boss;
 
-    public BossDeath(BossController boss)
+    public BossDeath(Boss1 boss)
     {
         this.boss = boss;
     }
@@ -14,6 +14,7 @@ public class BossDeath : IState
     public void Enter()
     {
         boss.Animator.SetTrigger(DeathHash);
+        boss.SetDeath();
     }
 
     public void Exit()
