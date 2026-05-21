@@ -424,7 +424,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GameManager
   playerInput: {fileID: 762355780}
-  boss: {fileID: 1868377368}
+  boss: {fileID: 1868377370}
 --- !u!4 &614717273
 Transform:
   m_ObjectHideFlags: 0
@@ -535,6 +535,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 62899f850307741f2a39c98a8b639597, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Unity.InputSystem::UnityEngine.InputSystem.PlayerInput
+--- !u!114 &788144082 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 739632506711744980, guid: 132dee3d2f46bed48ad4d39434422c74, type: 3}
+  m_PrefabInstance: {fileID: 5315901615278689506}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b2021f81270750f4089c0c35b35bb442, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::AttackZone
 --- !u!4 &864062191 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 790391469155401914, guid: 07ccac6c484c4be4a86fcd91efa91c4b, type: 3}
@@ -567,17 +578,29 @@ SpriteRenderer:
   m_CorrespondingSourceObject: {fileID: 7775659620564201900, guid: 07ccac6c484c4be4a86fcd91efa91c4b, type: 3}
   m_PrefabInstance: {fileID: 28160318994055829}
   m_PrefabAsset: {fileID: 0}
---- !u!114 &1868377368 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 5371473612880002984, guid: 132dee3d2f46bed48ad4d39434422c74, type: 3}
+--- !u!1 &1672759755 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 2256336631168719745, guid: 132dee3d2f46bed48ad4d39434422c74, type: 3}
   m_PrefabInstance: {fileID: 5315901615278689506}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
+--- !u!114 &1868377370
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1672759755}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 0e94f1541486e0145bb3623e2487935c, type: 3}
+  m_Script: {fileID: 11500000, guid: 2ee38ebcffb65d84e95b8ec237234949, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Boss
+  m_EditorClassIdentifier: Assembly-CSharp::Boss1
+  data: {fileID: 11400000, guid: ca49e948808c28b4a859dd67d6f23a88, type: 2}
+  attackZone: {fileID: 788144082}
+  closeRange: 3
+  farRange: 8
+  periodicInterval: 5
+  stunInterval: 3
 --- !u!1001 &28160318994055829
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -681,7 +704,7 @@ PrefabInstance:
     - target: {fileID: 5172808667349959894, guid: 07ccac6c484c4be4a86fcd91efa91c4b, type: 3}
       propertyPath: OnGameOver.m_PersistentCalls.m_Calls.Array.data[1].m_Target
       value: 
-      objectReference: {fileID: 1868377368}
+      objectReference: {fileID: 1868377370}
     - target: {fileID: 5172808667349959894, guid: 07ccac6c484c4be4a86fcd91efa91c4b, type: 3}
       propertyPath: SuccessParry.m_PersistentCalls.m_Calls.Array.data[0].m_Mode
       value: 1
@@ -689,7 +712,7 @@ PrefabInstance:
     - target: {fileID: 5172808667349959894, guid: 07ccac6c484c4be4a86fcd91efa91c4b, type: 3}
       propertyPath: SuccessParry.m_PersistentCalls.m_Calls.Array.data[0].m_Target
       value: 
-      objectReference: {fileID: 1868377368}
+      objectReference: {fileID: 1868377370}
     - target: {fileID: 5172808667349959894, guid: 07ccac6c484c4be4a86fcd91efa91c4b, type: 3}
       propertyPath: OnGameOver.m_PersistentCalls.m_Calls.Array.data[0].m_CallState
       value: 2
@@ -712,7 +735,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5172808667349959894, guid: 07ccac6c484c4be4a86fcd91efa91c4b, type: 3}
       propertyPath: SuccessParry.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
-      value: GetParryed
+      value: OnParry
       objectReference: {fileID: 0}
     - target: {fileID: 5172808667349959894, guid: 07ccac6c484c4be4a86fcd91efa91c4b, type: 3}
       propertyPath: OnGameOver.m_PersistentCalls.m_Calls.Array.data[0].m_TargetAssemblyTypeName
@@ -720,11 +743,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5172808667349959894, guid: 07ccac6c484c4be4a86fcd91efa91c4b, type: 3}
       propertyPath: OnGameOver.m_PersistentCalls.m_Calls.Array.data[1].m_TargetAssemblyTypeName
-      value: Boss, Assembly-CSharp
+      value: Boss1, Assembly-CSharp
       objectReference: {fileID: 0}
     - target: {fileID: 5172808667349959894, guid: 07ccac6c484c4be4a86fcd91efa91c4b, type: 3}
       propertyPath: SuccessParry.m_PersistentCalls.m_Calls.Array.data[0].m_TargetAssemblyTypeName
-      value: Boss, Assembly-CSharp
+      value: Boss1, Assembly-CSharp
       objectReference: {fileID: 0}
     - target: {fileID: 5172808667349959894, guid: 07ccac6c484c4be4a86fcd91efa91c4b, type: 3}
       propertyPath: OnGameOver.m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_ObjectArgumentAssemblyTypeName
@@ -828,7 +851,7 @@ PrefabInstance:
       objectReference: {fileID: 11400000, guid: ca49e948808c28b4a859dd67d6f23a88, type: 2}
     - target: {fileID: 5371473612880002984, guid: 132dee3d2f46bed48ad4d39434422c74, type: 3}
       propertyPath: m_Enabled
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 5371473612880002984, guid: 132dee3d2f46bed48ad4d39434422c74, type: 3}
       propertyPath: rushRange
@@ -850,10 +873,14 @@ PrefabInstance:
       propertyPath: m_TagString
       value: Untagged
       objectReference: {fileID: 0}
-    m_RemovedComponents: []
+    m_RemovedComponents:
+    - {fileID: 5371473612880002984, guid: 132dee3d2f46bed48ad4d39434422c74, type: 3}
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 2256336631168719745, guid: 132dee3d2f46bed48ad4d39434422c74, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1868377370}
   m_SourcePrefab: {fileID: 100100000, guid: 132dee3d2f46bed48ad4d39434422c74, type: 3}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
