@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -41,6 +42,18 @@ public class GameManager : MonoBehaviour
         debug.performed -= OnDebug;
         debugOff.performed -= OffDebug;
         rush.performed -= OnRush;
+    }
+
+    public void OnHit()
+    {
+        StartCoroutine(CoHit());
+    }
+
+    private IEnumerator CoHit()
+    {
+        Time.timeScale = 0.1f;
+        yield return new WaitForSeconds(0.1f);
+        Time.timeScale = 1f;
     }
 
     public void OnGameOver()

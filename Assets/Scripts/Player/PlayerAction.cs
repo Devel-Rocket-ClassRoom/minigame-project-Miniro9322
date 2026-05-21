@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.InputSystem;
@@ -6,6 +7,7 @@ using UnityEngine.InputSystem;
 [RequireComponent(typeof(Animator))]
 public class PlayerAction : MonoBehaviour, IDamageable
 {
+    private static readonly int AttackCountHash = Animator.StringToHash("AttackCount");
     private static readonly int MoveBool = Animator.StringToHash("Move");
     private static readonly int JumpBool = Animator.StringToHash("Jump");
     private static readonly int FallBool = Animator.StringToHash("Fall");
@@ -14,21 +16,22 @@ public class PlayerAction : MonoBehaviour, IDamageable
     private static readonly int DodgeTriger = Animator.StringToHash("Dodge");
     private static readonly int ParryTriger = Animator.StringToHash("Parry");
     private static readonly int DieTriger = Animator.StringToHash("Die");
+    private static readonly int DodgeBool = Animator.StringToHash("IsDodge");
 
     private static readonly Color32 blinkColor = new(255, 180, 180, 255);
 
     private DashAfterImage afterImage;
-    private Animator animator;
+    public Animator Animator { get; private set; }
     private Rigidbody2D rb;
     private bool grounded;
 
     public UnityEvent SuccessParry;
     public UnityEvent OnGameOver;
+    public UnityEvent OnHit;
 
     private enum State
     {
         Idle,
-        Move,
         Attack,
         Die,
         Jump,
@@ -54,59 +57,53 @@ public class PlayerAction : MonoBehaviour, IDamageable
                 case State.Idle:
                     isJump = false;
                     isFall = false;
-                    isMove = false;
                     isDodge = false;
-                    animator.SetBool(JumpBool, isJump);
-                    animator.SetBool(FallBool, isFall);
-                    animator.SetBool(MoveBool, isMove);
-                    currentstate = value;
-                    break;
-                case State.Move:
-                    isJump = false;
-                    isFall = false;
-                    isMove = true;
-                    animator.SetBool(JumpBool, isJump);
-                    animator.SetBool(FallBool, isFall);
-                    animator.SetBool(MoveBool, isMove);
+                    attackCount = 0;
+                    Animator.SetInteger(AttackCountHash, attackCount);
+                    Animator.SetBool(JumpBool, isJump);
+                    Animator.SetBool(DodgeBool, isDodge);
+                    Animator.SetBool(FallBool, isFall);
                     currentstate = value;
                     break;
                 case State.Attack:
-                    animator.SetTrigger(AttackTriger);
+                    Animator.SetTrigger(AttackTriger);
                     currentstate = value;
                     break;
                 case State.Die:
                     isJump = false;
                     isFall = false;
-                    isMove = false;
-                    animator.SetBool(JumpBool, isJump);
-                    animator.SetBool(FallBool, isFall);
-                    animator.SetBool(MoveBool, isMove);
+                    Animator.SetBool(JumpBool, isJump);
+                    Animator.SetBool(FallBool, isFall);
+                    Animator.SetBool(MoveBool, false);
                     OnGameOver?.Invoke();
                     currentstate = value;
                     break;
                 case State.Jump:
                     isJump = true;
                     isMove = false;
-                    animator.SetBool(JumpBool, isJump);
-                    animator.SetBool(MoveBool, isMove);
+                    isFall = false;
+                    Animator.SetBool(JumpBool, isJump);
+                    Animator.SetBool(MoveBool, isMove);
+                    Animator.SetBool(FallBool, isFall);
                     currentstate = value;
                     break;
                 case State.Fall:
                     isJump = false;
                     isMove = false;
                     isFall = true;
-                    animator.SetBool(JumpBool, isJump);
-                    animator.SetBool(FallBool, isFall);
-                    animator.SetBool(MoveBool, isMove);
+                    Animator.SetBool(JumpBool, isJump);
+                    Animator.SetBool(FallBool, isFall);
+                    Animator.SetBool(MoveBool, isMove);
                     currentstate = value;
                     break;
                 case State.Hit:
-                    animator.SetTrigger(HitTriger);
+                    Animator.SetTrigger(HitTriger);
                     currentstate = value;
                     break;
                 case State.Dodge:
                     isDodge = true;
-                    animator.SetTrigger(DodgeTriger);
+                    Animator.SetTrigger(DodgeTriger);
+                    Animator.SetBool(DodgeBool, isDodge);
                     currentstate = value;
                     break;
                 case State.Parry:
@@ -136,7 +133,9 @@ public class PlayerAction : MonoBehaviour, IDamageable
     [SerializeField] private int atk;
     [SerializeField] private int MaxHp;
     [SerializeField] private float blinkDurationInterval;
+    [Header("피격 후 무적 시간")]
     [SerializeField] private float blinkInterval;
+    [SerializeField] private int maxJumpCount = 1;
     private float dodgeTime = 0f;
     private Vector3 dodgeStart;
     private Vector3 dodgeEnd;
@@ -147,24 +146,28 @@ public class PlayerAction : MonoBehaviour, IDamageable
     private InputAction Dodge;
     private InputAction Parry;
     private SpriteRenderer sr;
+    private Queue<string> commandQueue = new();
+    private Color defaultColor;
     private bool isJump = false;
     private bool isFall = false;
     private bool isMove = false;
-    private float coyoteCounter;
-    private float bufferCounter;
     private bool isDodge = false;
     private bool jumpHeld = false;
+    private bool isblinked;
+    private bool isQueueOpen;
     private float originalGravityScale;
+    private float coyoteCounter;
+    private float bufferCounter;
     private float parryTime = 0f;
     private float blinkTime = 0f;
     private float blinkduration = 0f;
-    private Color defaultColor;
-    private bool isblinked;
     private int currHp;
+    private int jumpCount = 0;
+    private int attackCount = 0;
 
     private void Awake()
     {
-        animator = GetComponent<Animator>();
+        Animator = GetComponent<Animator>();
         rb = GetComponent<Rigidbody2D>();
         attackZone.gameObject.SetActive(false);
         originalGravityScale = rb.gravityScale;
@@ -207,6 +210,11 @@ public class PlayerAction : MonoBehaviour, IDamageable
             parryTime -= Time.deltaTime;
         }
 
+        if (isDodge)
+        {
+            dodgeTime += Time.fixedDeltaTime;
+        }
+
         if(blinkTime > 0f)
         {
             if(blinkduration > 0f)
@@ -245,16 +253,14 @@ public class PlayerAction : MonoBehaviour, IDamageable
 
         if (isDodge)
         {
-            dodgeTime += Time.fixedDeltaTime;
-            dodgeEnd = new Vector3(dodgeStart.x + dodgeAmount * transform.localScale.x, dodgeStart.y);
             if (dodgeTime > dodgeDuration)
             {
                 transform.position = dodgeEnd;
                 rb.gravityScale = originalGravityScale;
                 rb.linearVelocity = Vector2.zero;
                 dodgeTime = 0f;
-                isDodge = false;
                 afterImage.StopAfterImage();
+                CurrentState = State.Idle;
             }
             else
             {
@@ -282,14 +288,22 @@ public class PlayerAction : MonoBehaviour, IDamageable
                 break;
         }
 
-        coyoteCounter = grounded ? coyoteTime : coyoteCounter - Time.fixedDeltaTime;
+        if (grounded)
+        {
+            jumpCount = 0;
+        }
+        else
+        {
+            coyoteCounter -= Time.fixedDeltaTime;
+        }
         bufferCounter -= Time.fixedDeltaTime;
 
-        if (bufferCounter > 0f && coyoteCounter > 0f)
+        if (bufferCounter > 0f && (coyoteCounter > 0f || jumpCount < maxJumpCount))
         {
             rb.linearVelocity = new Vector2(rb.linearVelocity.x, jumpPower);
             bufferCounter = 0f;
             coyoteCounter = 0f;
+            jumpCount++;
             CurrentState = State.Jump;
         }
 
@@ -302,29 +316,23 @@ public class PlayerAction : MonoBehaviour, IDamageable
 
     public void Move(Vector2 move)
     {
-        if (move.x < 0)
+        if (move.x < 0f)
         {
             transform.localScale = new Vector3(-1f, 1f, 1f);
+            Animator.SetBool(MoveBool, true);
+
         }
-        else if (move.x > 0)
+        else if (move.x > 0f)
         {
             transform.localScale = new Vector3(1f, 1f, 1f);
+            Animator.SetBool(MoveBool, true);
         }
-
+        else
+        {
+            Animator.SetBool(MoveBool, false);
+        }
+        
         transform.position += moveSpeed * Time.fixedDeltaTime * new Vector3(move.x, 0f);
-
-        if(CurrentState == State.Jump || CurrentState == State.Fall || CurrentState == State.Parry)
-        {
-            return;
-        }
-
-        if (move.sqrMagnitude < 0.01)
-        {
-            CurrentState = State.Idle;
-            return;
-        }
-
-        CurrentState = State.Move;
     }
 
     private void OnJump(InputAction.CallbackContext context)
@@ -340,13 +348,19 @@ public class PlayerAction : MonoBehaviour, IDamageable
         }
     }
 
-    private void OnAttack(InputAction.CallbackContext context)
+    private void OnAttack(InputAction.CallbackContext _)
     {
+        if (isQueueOpen)
+        {
+            commandQueue.Enqueue("A");
+        }
+
         if (CurrentState == State.Attack || CurrentState == State.Dodge)
         {
             return;
         }
 
+        Animator.SetInteger(AttackCountHash, attackCount);
         CurrentState = State.Attack;
     }
 
@@ -362,8 +376,19 @@ public class PlayerAction : MonoBehaviour, IDamageable
 
     public void ClearTrigger()
     {
-        animator.ResetTrigger(HitTriger);
-        animator.ResetTrigger(AttackTriger);
+        Animator.ResetTrigger(HitTriger);
+
+        if(commandQueue.Count != 0 && commandQueue.Dequeue() == "A" && attackCount < 2)
+        {
+            attackCount++;
+            Animator.SetInteger(AttackCountHash, attackCount);
+            Animator.SetTrigger(AttackTriger);
+            return;
+        }
+
+        CurrentState = State.Idle;
+        Animator.ResetTrigger(AttackTriger);
+        commandQueue.Clear();
     }
 
     public IDamageable.DamageInfo SetDamage()
@@ -389,12 +414,16 @@ public class PlayerAction : MonoBehaviour, IDamageable
 
         currHp -= damageInfo.damage;
 
-        if(currHp < 0f)
+        if(currHp <= 0f)
         {
             CurrentState = State.Die;
-            animator.SetTrigger(DieTriger);
+            Animator.SetTrigger(DieTriger);
             return;
         }
+
+        Debug.Log(1);
+
+        OnHit?.Invoke();
 
         blinkTime = blinkInterval;
         blinkduration = blinkDurationInterval;
@@ -410,6 +439,7 @@ public class PlayerAction : MonoBehaviour, IDamageable
         dodgeStart = transform.position;
         rb.linearVelocity = Vector2.zero;
         rb.gravityScale = 0f;
+        dodgeEnd = new Vector3(dodgeStart.x + dodgeAmount * transform.localScale.x, dodgeStart.y);
         CurrentState = State.Dodge;
     }
 
@@ -419,6 +449,16 @@ public class PlayerAction : MonoBehaviour, IDamageable
             return;
 
         CurrentState = State.Parry;
-        animator.SetTrigger(ParryTriger);
+        Animator.SetTrigger(ParryTriger);
+    }
+
+    public void OpenInputQueue()
+    {
+        isQueueOpen = true;
+    }
+
+    public void CloseInputQueue()
+    {
+        isQueueOpen = false;
     }
 }

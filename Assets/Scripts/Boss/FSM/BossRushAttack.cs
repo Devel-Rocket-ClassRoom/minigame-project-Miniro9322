@@ -9,7 +9,7 @@ public class BossRushAttack : IState
     private Vector3 startPoint;
     private float rushAmount = 10f;
     private float rushTime = 0f;
-    private float rushDuration = 5f;
+    private float rushDuration = 1f;
     private Vector3 rushVector;
     private float dir;
 
@@ -20,11 +20,11 @@ public class BossRushAttack : IState
 
     public void Enter()
     {
-        Debug.Log("돌진");
         boss.Animator.Play(RushHash);
         boss.CanParry = true;
         startPoint = boss.transform.position;
         dir = boss.transform.localScale.x;
+        rushVector = new Vector3(startPoint.x + rushAmount * dir, startPoint.y);
     }
 
     public void Exit()
@@ -40,8 +40,7 @@ public class BossRushAttack : IState
             boss.Fsm.ChangeState(boss.Death);
         }
 
-        rushTime += Time.fixedDeltaTime;
-        rushVector = new Vector3(startPoint.x + rushAmount * dir, startPoint.y);
+        rushTime += Time.deltaTime;
         boss.transform.position = Vector3.Lerp(startPoint, rushVector, rushTime / rushDuration);
 
         if (!boss.IsAttack)

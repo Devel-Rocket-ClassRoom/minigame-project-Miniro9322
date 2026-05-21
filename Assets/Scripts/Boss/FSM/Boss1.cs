@@ -81,6 +81,7 @@ public class Boss1 : BossController
     public override void GetDamage(IDamageable.DamageInfo damageInfo)
     {
         CurrHp -= damageInfo.damage;
+        Debug.Log(CurrHp);
     }
 
     public void OnParry()
