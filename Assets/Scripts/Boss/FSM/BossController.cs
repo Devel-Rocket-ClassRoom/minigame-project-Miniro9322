@@ -4,7 +4,7 @@ using UnityEngine;
 
 public abstract class BossController : MonoBehaviour, IDamageable
 {
-    public BossFSM Fsm { get; private set; }
+    public FSM Fsm { get; private set; }
     public Animator Animator { get; private set; }
     public float PlayerDistance { get; private set; }
     public int CurrHp { get; protected set; }
@@ -32,24 +32,26 @@ public abstract class BossController : MonoBehaviour, IDamageable
         }
         maxHp = data.Hp;
         CurrHp = maxHp;
-        Fsm = new BossFSM();
+        Fsm = new FSM();
+        attackZone.Deactivate();
         InitStates();
     }
 
     protected virtual void Update()
     {
-        if (IsAttack)
-            return;
-
         PlayerDistance = Vector3.Distance(transform.position, player.position);
-        if(player.position.x < transform.position.x)
+        if (!IsAttack)
         {
-            transform.localScale = new Vector3(-1f, 1f, 1f);
+            if (player.position.x < transform.position.x)
+            {
+                transform.localScale = new Vector3(-1f, 1f, 1f);
+            }
+            else
+            {
+                transform.localScale = new Vector3(1f, 1f, 1f);
+            }
         }
-        else
-        {
-            transform.localScale = new Vector3(1f, 1f, 1f);
-        }
+        
         Fsm.Update();
     }
 
