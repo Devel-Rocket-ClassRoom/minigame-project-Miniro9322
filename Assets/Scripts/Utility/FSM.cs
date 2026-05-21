@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public class BossFSM
+public class FSM
 {
     private IState currentState;
 
