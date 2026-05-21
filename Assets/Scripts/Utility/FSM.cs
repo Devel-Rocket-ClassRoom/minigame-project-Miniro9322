@@ -2,22 +2,24 @@ using UnityEngine;
 
 public class FSM
 {
-    private IState currentState;
+    public IState CurrentState { get; private set; }
 
     public void ChangeState(IState newState)
     {
-        currentState?.Exit();
-        currentState = newState;
-        currentState?.Enter();
+        if(CurrentState == newState)
+            return;
+        CurrentState?.Exit();
+        CurrentState = newState;
+        CurrentState?.Enter();
     }
 
     public void Update()
     {
-        currentState?.Update();
+        CurrentState?.Update();
     }
 
     public void FixedUpdate()
     {
-        currentState?.FixedUpdate();
+        CurrentState?.FixedUpdate();
     }
 }

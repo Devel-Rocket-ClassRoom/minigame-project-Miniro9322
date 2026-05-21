@@ -12,7 +12,9 @@ public class DeathState : IState
 
     public void Enter()
     {
-        player.Animator.SetTrigger(DieHash);
+        player.Animator.Play(DieHash);
+        player.OnGameOver?.Invoke();
+        player.ToggleInvincible();
     }
 
     public void Exit()
@@ -22,7 +24,7 @@ public class DeathState : IState
 
     public void FixedUpdate()
     {
-        throw new System.NotImplementedException();
+
     }
 
     public void Update()

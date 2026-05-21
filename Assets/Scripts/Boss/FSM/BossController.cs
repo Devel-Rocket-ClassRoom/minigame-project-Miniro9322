@@ -22,6 +22,7 @@ public abstract class BossController : MonoBehaviour, IDamageable
     {
         Animator = GetComponent<Animator>();
         DecideState = new DecideState(this);
+        attackZone.Deactivate();
     }
 
     private void Start()

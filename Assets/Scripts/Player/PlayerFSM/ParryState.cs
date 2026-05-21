@@ -2,7 +2,9 @@ using UnityEngine;
 
 public class ParryState : IState
 {
+    private static readonly int ParryHash = Animator.StringToHash("Parrying");
     private Player player;
+    private float parryTime;
 
     public ParryState(Player player)
     {
@@ -11,21 +13,23 @@ public class ParryState : IState
 
     public void Enter()
     {
-        throw new System.NotImplementedException();
+        player.Animator.Play(ParryHash);
+        parryTime = 0f;
+        player.ToggleParry();
     }
 
     public void Exit()
     {
-        throw new System.NotImplementedException();
+        player.ToggleParry();
     }
 
-    public void FixedUpdate()
-    {
-        throw new System.NotImplementedException();
-    }
+    public void FixedUpdate() { }
 
     public void Update()
     {
-        throw new System.NotImplementedException();
+        parryTime += Time.deltaTime;
+
+        if(parryTime > player.Data.ParryInterval)
+            player.Fsm.ChangeState(player.IdleState);
     }
 }
