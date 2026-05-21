@@ -6,6 +6,7 @@ public class BossIdle : IState
     private Boss1 boss;
     private float maxthinkTime = 2f;
     private float thinkTime;
+    private float thinkDuration;
 
     public BossIdle(Boss1 boss)
     {
@@ -14,12 +15,13 @@ public class BossIdle : IState
 
     public void Enter()
     {
-        thinkTime = Random.Range(0.5f, maxthinkTime);
+        thinkDuration = Random.Range(1f, maxthinkTime);
     }
 
     public void Exit()
     {
         boss.Animator.SetBool(MoveHash, false);
+        thinkTime = 0f;
     }
 
     public void FixedUpdate()
@@ -34,7 +36,7 @@ public class BossIdle : IState
             boss.Fsm.ChangeState(boss.Death);
         }
 
-        if(thinkTime < maxthinkTime)
+        if(thinkTime < thinkDuration)
         {
             thinkTime += Time.deltaTime;
             return;
