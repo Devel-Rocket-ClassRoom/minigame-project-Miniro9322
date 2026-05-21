@@ -1,0 +1,31 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bafff1dc77b8e5f47a9a3137e98e36bc, type: 3}
+  m_Name: PlayerData
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerData
+  GroundCheckRadius: 0.15
+  CoyoteTime: 0.1
+  JumpBufferTime: 0.1
+  LowJumpMultiplier: 2
+  FallMultiplier: 2.5
+  DodgeAmount: 5
+  DodgeDuration: 0.5
+  ParryInterval: 0.3
+  Atk: 10
+  MaxHp: 10000
+  MoveSpeed: 5
+  BlinkDurationInterval: 0.16
+  BlinkInterval: 1
+  MaxJumpCount: 2
+  MaxAttackCount: 2
+  moveSpeed: 5
+  JumpPower: 7

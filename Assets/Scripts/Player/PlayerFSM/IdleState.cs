@@ -11,21 +11,20 @@ public class IdleState : IState
 
     public void Enter()
     {
-        throw new System.NotImplementedException();
     }
 
     public void Exit()
     {
-        throw new System.NotImplementedException();
     }
 
     public void FixedUpdate()
     {
-        throw new System.NotImplementedException();
+        if (player.Rb.linearVelocity.y < 0f)
+            player.Fsm.ChangeState(player.FallState);
     }
 
     public void Update()
     {
-        throw new System.NotImplementedException();
+
     }
 }

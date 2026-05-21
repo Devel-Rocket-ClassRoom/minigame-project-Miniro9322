@@ -3,67 +3,18 @@ using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.InputSystem;
 
-public class Player : MonoBehaviour
+public class Player : MonoBehaviour, IDamageable
 {
     private static readonly int MoveBool = Animator.StringToHash("Move");
 
-    private static readonly Color32 blinkColor = new(255, 180, 180, 255);
-
-    private DashAfterImage afterImage;
-    public Animator Animator { get; private set; }
-    private Rigidbody2D rb;
-    private bool grounded;
-
-    public UnityEvent SuccessParry;
-    public UnityEvent OnGameOver;
-    public UnityEvent OnHit;
-
-    private enum State
-    {
-        Idle,
-        Attack,
-        Die,
-        Jump,
-        Fall,
-        Hit,
-        Dodge,
-        Parry,
-    }
-
-   
-
-    [Header("플레이어 이동속도")]
-    [SerializeField] private float moveSpeed = 5f;
-    [Header("플레이어 점프 힘")]
-    [SerializeField] private float jumpPower = 10f;
-    [Header("")]
     [SerializeField] private Transform groundCheck;
-    [SerializeField] private Transform attackZone;
+    [SerializeField] private AttackZone attackZone;
     [SerializeField] private LayerMask groundLayer;
-    [SerializeField] private float groundCheckRadius = 0.15f;
-    [SerializeField] private float coyoteTime = 0.1f;
-    [SerializeField] private float jumpBufferTime = 0.1f;
-    [SerializeField] private float lowJumpMultiplier = 2f;
-    [SerializeField] private float fallMultiplier = 2.5f;
-    [SerializeField] private float dodgeAmount = 0f;
-    [SerializeField] private float dodgeDuration = 1f;
-    [SerializeField] private float parryInterval;
-    [SerializeField] private int atk;
-    [SerializeField] private int MaxHp;
-    [SerializeField] private float blinkDurationInterval;
-    [Header("피격 후 무적 시간")]
-    [SerializeField] private float blinkInterval;
-    [SerializeField] private int maxJumpCount = 1;
-    private float dodgeTime = 0f;
-    private Vector3 dodgeStart;
-    private Vector3 dodgeEnd;
-    private Vector2 move;
 
-    private InputAction Jump;
-    private InputAction Attack;
-    private InputAction Dodge;
-    private InputAction Parry;
-
+    public FSM Fsm { get; private set; }
+    public DashAfterImage AfterImage { get; private set; }
+    public Animator Animator { get; private set; }
+    public Queue<string> CommandQueue { get; private set; } = new();
     public IState AttackState { get; private set; }
     public IState DeathState { get; private set; }
     public IState DodgeState { get; private set; }
@@ -71,37 +22,44 @@ public class Player : MonoBehaviour
     public IState IdleState { get; private set; }
     public IState JumpState { get; private set; }
     public IState ParryState { get; private set; }
+    public IState HitState { get; private set; }
+    public float OriginalGravityScale { get; private set; }
+    public bool JumpHeld { get; private set; } = false;
+    public bool Grounded { get; private set; }
+    public bool IsAttackEnd { get; private set; } = false;
 
-    private FSM fsm;
+    public UnityEvent SuccessParry;
+    public UnityEvent OnGameOver;
+    public UnityEvent OnHit;
+    public PlayerData Data;
+    public Rigidbody2D Rb => rb;
+    public SpriteRenderer Sr => sr;
 
     private SpriteRenderer sr;
-    private Queue<string> commandQueue = new();
-    private Color defaultColor;
-    private bool isJump = false;
-    private bool isFall = false;
-    private bool isMove = false;
-    private bool isDodge = false;
-    private bool jumpHeld = false;
-    private bool isblinked;
-    private bool isQueueOpen;
-    private float originalGravityScale;
-    private float coyoteCounter;
-    private float bufferCounter;
-    private float parryTime = 0f;
-    private float blinkTime = 0f;
-    private float blinkduration = 0f;
+    private Rigidbody2D rb;
+    private InputAction Jump;
+    private InputAction Attack;
+    private InputAction Dodge;
+    private InputAction Parry;
+
+    private Vector2 move;
     private int currHp;
     private int jumpCount = 0;
-    private int attackCount = 0;
+    private bool Invincible = false;
+    private bool parrying = false;
+    private bool isQueueOpen = false;
+    private float jumpBufferCounter = 0f;
+    private float coyoteCounter = 0f;
+    private float dodgeInterval = 1f;
+    private float dodgeCool = 0f;
 
     private void Awake()
     {
         Animator = GetComponent<Animator>();
         rb = GetComponent<Rigidbody2D>();
         attackZone.gameObject.SetActive(false);
-        originalGravityScale = rb.gravityScale;
-        afterImage = GetComponent<DashAfterImage>();
-        defaultColor = GetComponent<SpriteRenderer>().color;
+        OriginalGravityScale = rb.gravityScale;
+        AfterImage = GetComponent<DashAfterImage>();
         sr = GetComponent<SpriteRenderer>();
     }
 
@@ -119,15 +77,16 @@ public class Player : MonoBehaviour
         IdleState = new IdleState(this);
         JumpState = new JumpState(this);
         ParryState = new ParryState(this);
-        fsm = new FSM();
-
+        HitState = new HitState(this);
+        Fsm = new FSM();
 
         Jump.performed += OnJump;
         Jump.canceled += OnJump;
         Attack.performed += OnAttack;
         Dodge.performed += OnDodge;
         Parry.performed += OnParry;
-        currHp = MaxHp;
+        currHp = Data.MaxHp;
+        dodgeCool = dodgeInterval;
     }
 
     private void OnDisable()
@@ -138,130 +97,93 @@ public class Player : MonoBehaviour
         Dodge.performed -= OnDodge;
     }
 
-    private void Start()
-    {
-        fsm.ChangeState(IdleState);
-    }
+    private void Start() => Fsm.ChangeState(IdleState);
 
-    public void OnMove(InputAction.CallbackContext context)
-    {
-        move = context.ReadValue<Vector2>();
-    }
+    public void OnMove(InputAction.CallbackContext context) => move = context.ReadValue<Vector2>();
 
     private void Update()
     {
-        fsm.Update();
+        if (Fsm.CurrentState == DeathState)
+            return;
 
-        if (parryTime > 0f)
+        if(dodgeCool < dodgeInterval)
         {
-            parryTime -= Time.deltaTime;
+            dodgeCool += Time.deltaTime;
         }
 
-        if (isDodge)
-        {
-            dodgeTime += Time.fixedDeltaTime;
-        }
-
-        if (blinkTime > 0f)
-        {
-            if (blinkduration > 0f)
-            {
-                if (!isblinked)
-                {
-                    sr.color = Color.Lerp(blinkColor, sr.color, Time.deltaTime / blinkduration);
-                }
-                else
-                {
-                    sr.color = Color.Lerp(defaultColor, sr.color, Time.deltaTime / blinkduration);
-                }
-                blinkduration -= Time.deltaTime;
-            }
-            if (blinkduration <= 0f)
-            {
-                isblinked = !isblinked;
-                blinkduration = blinkDurationInterval;
-            }
-
-            blinkTime -= Time.deltaTime;
-        }
-
-        if (blinkTime <= 0f)
-        {
-            sr.color = defaultColor;
-        }
+        Fsm.Update();
     }
 
     private void FixedUpdate()
     {
+        if (Fsm.CurrentState == DeathState)
+            return;
+
+        Fsm.FixedUpdate();
+
+        if (Fsm.CurrentState == DodgeState || Fsm.CurrentState == DeathState)
+            return;
+
         Move(move);
 
-        fsm.FixedUpdate();
+        Grounded = Physics2D.OverlapCircle(groundCheck.position, Data.GroundCheckRadius, groundLayer);
 
-        if (CurrentState == State.Die)
-        {
-            return;
-        }
-
-        if (isDodge)
-        {
-            if (dodgeTime > dodgeDuration)
-            {
-                transform.position = dodgeEnd;
-                rb.gravityScale = originalGravityScale;
-                rb.linearVelocity = Vector2.zero;
-                dodgeTime = 0f;
-                afterImage.StopAfterImage();
-                CurrentState = State.Idle;
-            }
-            else
-            {
-                transform.position = Vector3.Lerp(dodgeStart, dodgeEnd, dodgeTime / dodgeDuration);
-                return;
-            }
-        }
-
-
-        grounded = Physics2D.OverlapCircle(groundCheck.position, groundCheckRadius, groundLayer);
-
-        if (rb.linearVelocityY < -0.01f && CurrentState != State.Fall)
-        {
-            CurrentState = State.Fall;
-        }
-
-        switch (CurrentState)
-        {
-            case State.Fall:
-                if (grounded)
-                {
-                    CurrentState = State.Idle;
-                }
-                break;
-        }
-
-        if (grounded)
+        if (Grounded)
         {
             jumpCount = 0;
+            coyoteCounter = Data.CoyoteTime;
         }
         else
         {
-            coyoteCounter -= Time.fixedDeltaTime;
+            if (coyoteCounter > 0f)
+            {
+                coyoteCounter -= Time.fixedDeltaTime;
+                if (coyoteCounter <= 0f && jumpCount == 0)
+                    jumpCount = 1;
+            }
         }
-        bufferCounter -= Time.fixedDeltaTime;
 
-        if (bufferCounter > 0f && (coyoteCounter > 0f || jumpCount < maxJumpCount))
+        jumpBufferCounter -= Time.fixedDeltaTime;
+
+        bool isAttacking = Fsm.CurrentState == AttackState;
+        bool isHit = Fsm.CurrentState == HitState;
+
+        if (jumpBufferCounter > 0f && (coyoteCounter > 0f || jumpCount < Data.MaxJumpCount))
         {
-            rb.linearVelocity = new Vector2(rb.linearVelocity.x, jumpPower);
-            bufferCounter = 0f;
-            coyoteCounter = 0f;
+            Rb.linearVelocity = new Vector2(Rb.linearVelocity.x, Data.JumpPower);
+
+            if (!isAttacking && !isHit && Fsm.CurrentState != JumpState)
+                Fsm.ChangeState(JumpState);
+
             jumpCount++;
-            CurrentState = State.Jump;
+            jumpBufferCounter = 0f;
+            coyoteCounter = 0f;
         }
 
-        if (!jumpHeld && rb.linearVelocity.y > 0f)
-            rb.linearVelocity += (lowJumpMultiplier - 1f) * Physics2D.gravity.y * Time.fixedDeltaTime * Vector2.up;
+        if (isAttacking || isHit)
+        {
+            if (!JumpHeld && Rb.linearVelocity.y > 0f)
+            {
+                Rb.linearVelocity += (Data.LowJumpMultiplier - 1f)
+                    * Physics2D.gravity.y * Time.fixedDeltaTime * Vector2.up;
+            }
 
-        if (rb.linearVelocity.y < 0f)
-            rb.linearVelocity += (fallMultiplier - 1f) * Physics2D.gravity.y * Time.fixedDeltaTime * Vector2.up;
+            if (Rb.linearVelocity.y < 0f)
+            {
+                Rb.linearVelocity += (Data.FallMultiplier - 1f)
+                    * Physics2D.gravity.y * Time.fixedDeltaTime * Vector2.up;
+            }
+        }
+
+        if (!isAttacking
+            && !isHit
+            && !Grounded
+            && Rb.linearVelocity.y < -0.01f
+            && Fsm.CurrentState != FallState
+            && Fsm.CurrentState != JumpState)
+        {
+            Fsm.ChangeState(FallState);
+        }
     }
 
     public void Move(Vector2 move)
@@ -278,132 +200,93 @@ public class Player : MonoBehaviour
             Animator.SetBool(MoveBool, true);
         }
         else
-        {
             Animator.SetBool(MoveBool, false);
-        }
 
-        transform.position += moveSpeed * Time.fixedDeltaTime * new Vector3(move.x, 0f);
+        transform.position += Data.MoveSpeed * Time.fixedDeltaTime * new Vector3(move.x, 0f);
     }
 
     private void OnJump(InputAction.CallbackContext context)
     {
-        fsm.ChangeState(JumpState);
+        if (Fsm.CurrentState == HitState) return;
 
         if (context.performed)
         {
-            bufferCounter = jumpBufferTime;
-            jumpHeld = true;
+            JumpHeld = true;
+            jumpBufferCounter = Data.JumpBufferTime;
         }
+
         if (context.canceled)
-        {
-            jumpHeld = false;
-        }
+            JumpHeld = false;
     }
 
     private void OnAttack(InputAction.CallbackContext _)
     {
-        fsm.ChangeState(AttackState);
+        if (Fsm.CurrentState == HitState) return;
 
         if (isQueueOpen)
         {
-            commandQueue.Enqueue("A");
-        }
-
-        if (CurrentState == State.Attack || CurrentState == State.Dodge)
-        {
+            CommandQueue.Enqueue("A");
             return;
         }
 
-        Animator.SetInteger(AttackCountHash, attackCount);
-        CurrentState = State.Attack;
+        Fsm.ChangeState(AttackState);
     }
 
     public void AttackStart()
     {
-        attackZone.gameObject.SetActive(true);
+        attackZone.Activate();
+        IsAttackEnd = false;
     }
 
     public void AttackEnd()
     {
-        attackZone.gameObject.SetActive(false);
+        attackZone.Deactivate();
+        IsAttackEnd = true;
     }
 
-    public void ClearTrigger()
-    {
-        Animator.ResetTrigger(HitTriger);
-
-        if (commandQueue.Count != 0 && commandQueue.Dequeue() == "A" && attackCount < 2)
-        {
-            attackCount++;
-            Animator.SetInteger(AttackCountHash, attackCount);
-            Animator.SetTrigger(AttackTriger);
-            return;
-        }
-
-        CurrentState = State.Idle;
-        Animator.ResetTrigger(AttackTriger);
-        commandQueue.Clear();
-    }
-
-    public IDamageable.DamageInfo SetDamage()
-    {
-        return new IDamageable.DamageInfo() { canParry = false, damage = atk };
-    }
+    public IDamageable.DamageInfo SetDamage() => new() { canParry = false, damage = Data.Atk };
 
     public void GetDamage(IDamageable.DamageInfo damageInfo)
     {
-        if (isDodge || blinkTime > 0f || CurrentState == State.Die)
+        if (Invincible)
         {
             return;
         }
 
-        if (parryTime > 0f && damageInfo.canParry)
+        if (parrying && damageInfo.canParry)
         {
-            Debug.Log("패링성공");
             SuccessParry?.Invoke();
             return;
         }
 
-        CurrentState = State.Hit;
 
         currHp -= damageInfo.damage;
 
-        if (currHp <= 0f)
+        if (currHp <= 0)
         {
-            CurrentState = State.Die;
-            Animator.SetTrigger(DieTriger);
+            currHp = 0;
+            Fsm.ChangeState(DeathState);
             return;
         }
+        
+        Fsm.ChangeState(HitState);
 
-        Debug.Log(1);
+
 
         OnHit?.Invoke();
-
-        blinkTime = blinkInterval;
-        blinkduration = blinkDurationInterval;
     }
 
     private void OnDodge(InputAction.CallbackContext _)
     {
-        if (CurrentState == State.Dodge)
-            return;
-
-        AttackEnd();
-        afterImage.StartAfterImage();
-        dodgeStart = transform.position;
-        rb.linearVelocity = Vector2.zero;
-        rb.gravityScale = 0f;
-        dodgeEnd = new Vector3(dodgeStart.x + dodgeAmount * transform.localScale.x, dodgeStart.y);
-        CurrentState = State.Dodge;
+        if (Fsm.CurrentState == HitState || dodgeCool < dodgeInterval) return;
+        dodgeCool = 0f;
+        Fsm.ChangeState(DodgeState);
     }
 
     private void OnParry(InputAction.CallbackContext _)
     {
-        if (CurrentState == State.Parry)
-            return;
-
-        CurrentState = State.Parry;
-        Animator.SetTrigger(ParryTriger);
+        if (Fsm.CurrentState == HitState) return;
+        Fsm.ChangeState(ParryState);
     }
 
     public void OpenInputQueue()
@@ -411,8 +294,11 @@ public class Player : MonoBehaviour
         isQueueOpen = true;
     }
 
-    public void CloseInputQueue()
-    {
-        isQueueOpen = false;
-    }
+    public void CloseInputQueue() => isQueueOpen = false;
+
+    public void ToggleInvincible() => Invincible = !Invincible;
+
+    public void ToggleParry() => parrying = !parrying;
+
+    public void ResetAttackEnd() => IsAttackEnd = false;
 }
