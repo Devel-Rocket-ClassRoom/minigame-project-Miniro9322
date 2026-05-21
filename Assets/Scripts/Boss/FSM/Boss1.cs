@@ -45,6 +45,11 @@ public class Boss1 : BossController
         base.Update();
     }
 
+    protected override void FixedUpdate()
+    {
+        base.FixedUpdate();
+    }
+
     public override IState ChooseNextAction()
     {
         if (periodicTimer >= periodicInterval)

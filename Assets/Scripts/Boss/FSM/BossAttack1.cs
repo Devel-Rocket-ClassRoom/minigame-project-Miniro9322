@@ -22,6 +22,10 @@ public class BossAttack1 : IState
         boss.IsAttack = false;
     }
 
+    public void FixedUpdate()
+    {
+    }
+
     public void Update()
     {
         if (boss.CurrHp <= 0f)

@@ -22,6 +22,11 @@ public class BossIdle : IState
         boss.Animator.SetBool(MoveHash, false);
     }
 
+    public void FixedUpdate()
+    {
+
+    }
+
     public void Update()
     {
         if(boss.CurrHp <= 0)

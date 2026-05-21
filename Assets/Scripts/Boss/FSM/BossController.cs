@@ -55,6 +55,11 @@ public abstract class BossController : MonoBehaviour, IDamageable
         Fsm.Update();
     }
 
+    protected virtual void FixedUpdate()
+    {
+        Fsm.FixedUpdate();
+    }
+
     protected abstract void InitStates();
     public abstract IState ChooseNextAction();
 

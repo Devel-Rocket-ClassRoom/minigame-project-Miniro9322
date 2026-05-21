@@ -22,6 +22,10 @@ public class BossDeath : IState
 
     }
 
+    public void FixedUpdate()
+    {
+    }
+
     public void Update()
     {
 

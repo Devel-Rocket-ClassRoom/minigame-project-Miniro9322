@@ -44,7 +44,7 @@ public class GameManager : MonoBehaviour
         rush.performed -= OnRush;
     }
 
-    public void OnHit()
+    public void HitStop()
     {
         StartCoroutine(CoHit());
     }
