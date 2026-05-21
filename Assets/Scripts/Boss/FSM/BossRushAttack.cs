@@ -33,6 +33,10 @@ public class BossRushAttack : IState
         rushTime = 0f;
     }
 
+    public void FixedUpdate()
+    {
+    }
+
     public void Update()
     {
         if (boss.CurrHp <= 0f)

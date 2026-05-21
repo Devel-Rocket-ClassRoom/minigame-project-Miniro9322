@@ -15,4 +15,9 @@ public class FSM
     {
         currentState?.Update();
     }
+
+    public void FixedUpdate()
+    {
+        currentState?.FixedUpdate();
+    }
 }
