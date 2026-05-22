@@ -42,6 +42,8 @@ public class BossIdle : IState
             return;
         }
 
+        Debug.Log(boss.Animator == null);
+
         boss.Animator.SetBool(MoveHash, true);
         boss.transform.position += boss.transform.localScale.x * boss.Data.moveSpeed * Time.deltaTime * Vector3.right;
 

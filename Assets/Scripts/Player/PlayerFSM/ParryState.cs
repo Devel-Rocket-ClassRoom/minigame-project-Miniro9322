@@ -15,6 +15,7 @@ public class ParryState : IState
     {
         player.Animator.Play(ParryHash);
         parryTime = 0f;
+        player.ParryStart?.Invoke();
         player.ToggleParry();
     }
 

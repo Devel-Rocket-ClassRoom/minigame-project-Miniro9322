@@ -85,8 +85,11 @@ public class Boss1 : BossController
 
     public override void GetDamage(IDamageable.DamageInfo damageInfo)
     {
+        if (isDeath)
+            return;
+
         CurrHp -= damageInfo.damage;
-        Debug.Log(CurrHp);
+        Animator.Play("Hit");
     }
 
     public void OnParry()
