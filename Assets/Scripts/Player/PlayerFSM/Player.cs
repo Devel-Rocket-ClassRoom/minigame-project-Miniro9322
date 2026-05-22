@@ -31,6 +31,7 @@ public class Player : MonoBehaviour, IDamageable
     public UnityEvent SuccessParry;
     public UnityEvent OnGameOver;
     public UnityEvent OnHit;
+    public UnityEvent ParryStart;
     public PlayerData Data;
     public Rigidbody2D Rb => rb;
     public SpriteRenderer Sr => sr;
