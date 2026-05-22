@@ -13,6 +13,7 @@ public class GameManager : MonoBehaviour
     private InputAction attack2;
     private InputAction rush;
     [SerializeField] private BossController boss;
+    [SerializeField] private Boss2Controller boss2;
 
     private void Start()
     {
