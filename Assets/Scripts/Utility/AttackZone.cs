@@ -42,5 +42,21 @@ public class AttackZone : MonoBehaviour
     }
 
     public void Deactivate() => gameObject.SetActive(false);
-    public void Activate() => gameObject.SetActive(true);
+
+    public void Activate()
+    {
+        hitTargets.Clear();
+        gameObject.SetActive(true);
+
+        // SetActive 직후 OnTriggerEnter2D가 발생 안 할 수 있어서 즉시 직접 체크
+        var col = GetComponent<Collider2D>();
+        if (col == null) return;
+
+        var results = new List<Collider2D>();
+        var filter = new ContactFilter2D();
+        filter.useTriggers = true;
+        Physics2D.OverlapCollider(col, filter, results);
+        foreach (var hit in results)
+            TryDealDamage(hit);
+    }
 }

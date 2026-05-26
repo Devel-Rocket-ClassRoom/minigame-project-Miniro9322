@@ -1,11 +1,15 @@
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using Unity.Behavior;
 using UnityEngine;
-
 [RequireComponent(typeof(BehaviorGraphAgent))]
+
+[RequireComponent(typeof(Animator))]
+[RequireComponent(typeof(SpriteRenderer))]
 public class Boss2Controller : MonoBehaviour, IDamageable
 {
+    private static readonly int StunHash = Animator.StringToHash("Stun");
     [Header("── 기본 ──")]
     [SerializeField] private float maxHP = 1000f;
 
@@ -41,23 +45,32 @@ public class Boss2Controller : MonoBehaviour, IDamageable
 
     [Header("── 층 레이저 (2페이즈) ──")]
     [SerializeField] private GameObject laserPrefab;
-    [SerializeField] private Transform[] floorLaserPositions;
-    [SerializeField] private float laserWarningDuration = 1f;
+    [SerializeField] private Transform[] floorLaserLeftPositions;
+    [SerializeField] private Transform[] floorLaserRightPositions;
+    [SerializeField] private float laserWarningDuration = 1.5f;
     [SerializeField] private float laserActiveDuration = 2f;
+    [SerializeField] private float laserMoveSpeed = 10f;
 
     [Header("── 그로기 패턴 (2페이즈) ──")]
     [SerializeField] private GameObject groggyPartPrefab;
     [SerializeField] private Transform[] groggyPartSpawnPoints;
+    [SerializeField] private Transform groggyCenterPosition;
     [SerializeField] private float groggyTimeLimit = 15f;
     [SerializeField] private float groggyDuration = 3f;
     [SerializeField] private float groggyHPRecoveryAmount = 200f;
 
     [Header("── 시각 효과 ──")]
-    [SerializeField] private SpriteRenderer spriteRenderer;
-    [SerializeField] private Color phase2Color = new Color(1f, 0.3f, 0.3f);
+    private SpriteRenderer spriteRenderer;
+    [SerializeField] private Color phase2Color = new(1f, 0.3f, 0.3f);
     [SerializeField] private ParticleSystem phase2Particles;
     [SerializeField] private AudioSource audioSource;
     [SerializeField] private AudioClip phase2SFX;
+
+    [Header("── 피격 효과 ──")]
+    [Tooltip("피격 시 흰 플래시 유지 시간 (초)")]
+    [SerializeField] private float hitFlashDuration = 0.08f;
+    [Tooltip("피격 히트스탑 지속 시간 (초, unscaled)")]
+    [SerializeField] private float hitStopDuration = 0.04f;
 
     public bool IsActing { get; private set; } = false;
     public bool IsGroggy { get; private set; } = false;
@@ -74,15 +87,37 @@ public class Boss2Controller : MonoBehaviour, IDamageable
 
     private int groggyPartsTotal = 0;
     private int groggyPartsDestroyed = 0;
+    private List<GameObject> spawnedGroggyParts = new();
+    private List<GameObject> spawnedObjects = new();
+    private GameObject player;
+    private Animator animator;
+
     private void Awake()
     {
+        player = GameObject.FindGameObjectWithTag("Player");
         CurrentHP = maxHP;
         behaviorAgent = GetComponent<BehaviorGraphAgent>();
+        spriteRenderer = GetComponent<SpriteRenderer>();
+        animator = GetComponent<Animator>();
         SetupTeleportPositions();
     }
 
     private void Update()
     {
+        if (IsDead) return;
+
+        if (player != null)
+        {
+            float diff = player.transform.position.x - transform.position.x;
+            float facing = transform.localScale.x; // 1 = 오른쪽, -1 = 왼쪽
+
+            // 현재 바라보는 방향 반대쪽으로 0.5 이상 벗어났을 때만 전환
+            if (facing > 0f && diff < -0.5f)
+                transform.localScale = new Vector3(-1f, 1f, 1f);
+            else if (facing < 0f && diff > 0.5f)
+                transform.localScale = new Vector3(1f, 1f, 1f);
+        }
+
         if (!phase2Triggered && IsPhase2 && !IsDead)
         {
             phase2Triggered = true;
@@ -95,6 +130,11 @@ public class Boss2Controller : MonoBehaviour, IDamageable
     public void GetDamage(IDamageable.DamageInfo damageInfo)
     {
         TakeDamage(damageInfo.damage);
+        if (!IsDead)
+        {
+            StartCoroutine(HitFlashCoroutine());
+            StartCoroutine(HitStopCoroutine());
+        }
     }
 
     public void TakeDamage(int damage)
@@ -130,6 +170,18 @@ public class Boss2Controller : MonoBehaviour, IDamageable
         Debug.Log("[Boss2] 사망");
         behaviorAgent.BlackboardReference.SetVariableValue("IsDead", true);
         StopAllCoroutines();
+        DestroyAllSpawnedObjects();
+    }
+
+    private void DestroyAllSpawnedObjects()
+    {
+        foreach (var obj in spawnedObjects)
+            if (obj) Destroy(obj);
+        spawnedObjects.Clear();
+
+        foreach (var obj in spawnedGroggyParts)
+            if (obj) Destroy(obj);
+        spawnedGroggyParts.Clear();
     }
 
     private void SetupTeleportPositions()
@@ -145,6 +197,24 @@ public class Boss2Controller : MonoBehaviour, IDamageable
                 teleportPositions[i, 1] = floorCenterPositions[i].position;
             if (i < floorRightPositions.Length && floorRightPositions[i])
                 teleportPositions[i, 2] = floorRightPositions[i].position;
+        }
+    }
+
+    private IEnumerator TeleportToPosition(Vector3 target)
+    {
+        if (spriteRenderer)
+        {
+            spriteRenderer.enabled = false;
+            yield return new WaitForSeconds(teleportDuration * 0.5f);
+            transform.position = target;
+            yield return new WaitForSeconds(teleportDuration * 0.5f);
+            spriteRenderer.enabled = true;
+        }
+        else
+        {
+            yield return new WaitForSeconds(teleportDuration * 0.5f);
+            transform.position = target;
+            yield return new WaitForSeconds(teleportDuration * 0.5f);
         }
     }
 
@@ -193,6 +263,7 @@ public class Boss2Controller : MonoBehaviour, IDamageable
                     dir.x * Mathf.Sin(spread) + dir.y * Mathf.Cos(spread)).normalized;
 
                 var go = Instantiate(parriableProjectilePrefab, transform.position, Quaternion.identity);
+                spawnedObjects.Add(go);
                 if (go.TryGetComponent<Rigidbody2D>(out var rb)) rb.linearVelocity = fd * projectileSpeed;
                 if (go.TryGetComponent<ParriableProjectile>(out var pp)) pp.Initialize(this);
             }
@@ -223,6 +294,7 @@ public class Boss2Controller : MonoBehaviour, IDamageable
                     UnityEngine.Random.Range(-3f, 3f), 0f, 0f);
 
                 var warning = Instantiate(firePillarWarningPrefab, spawnPos, Quaternion.identity);
+                spawnedObjects.Add(warning);
                 float delay = firePillarWarningDuration - 0.25f * i;
                 StartCoroutine(FirePillarExplode(spawnPos, warning, Mathf.Max(0.5f, delay)));
 
@@ -262,6 +334,7 @@ public class Boss2Controller : MonoBehaviour, IDamageable
                 float angle = i * step * Mathf.Deg2Rad;
                 Vector3 dir = new Vector3(Mathf.Cos(angle), Mathf.Sin(angle), 0f);
                 var bullet = Instantiate(bulletPrefab, transform.position, Quaternion.identity);
+                spawnedObjects.Add(bullet);
                 if (bullet.TryGetComponent<Rigidbody2D>(out var rb)) rb.linearVelocity = dir * bulletSpeed;
                 Destroy(bullet, 5f);
             }
@@ -279,18 +352,37 @@ public class Boss2Controller : MonoBehaviour, IDamageable
         IsActing = true;
         Debug.Log("[Boss2] 층 레이저 공격");
 
-        if (laserPrefab && floorLaserPositions is { Length: > 0 })
+        bool bossOnLeft = transform.position.x <= 0f;
+        Transform[] spawnPoints = bossOnLeft ? floorLaserLeftPositions : floorLaserRightPositions;
+
+        if (laserPrefab && spawnPoints is { Length: > 0 })
         {
-            int[] order = ShuffledOrder(floorLaserPositions.Length);
-            foreach (int idx in order)
+            int[] order = ShuffledOrder(spawnPoints.Length);
+            var lasers = new FloorLaser[spawnPoints.Length];
+
+            for (int i = 0; i < order.Length; i++)
             {
-                if (!floorLaserPositions[idx]) continue;
-                var laser = Instantiate(laserPrefab, floorLaserPositions[idx].position, Quaternion.identity);
-                if (laser.TryGetComponent<FloorLaser>(out var fl))
-                    fl.Initialize(laserWarningDuration, laserActiveDuration);
+                int idx = order[i];
+                if (!spawnPoints[idx]) continue;
+
+                var go = Instantiate(laserPrefab, spawnPoints[idx].position, Quaternion.identity);
+                spawnedObjects.Add(go);
+                if (go.TryGetComponent<FloorLaser>(out var fl))
+                {
+                    fl.StartWarning();
+                    lasers[i] = fl;
+                }
                 yield return new WaitForSeconds(0.3f);
             }
-            yield return new WaitForSeconds(laserActiveDuration + 0.5f);
+
+            yield return new WaitForSeconds(laserWarningDuration);
+
+            foreach (var laser in lasers)
+            {
+                if (laser == null) continue;
+                laser.Activate(laserActiveDuration);
+                yield return new WaitForSeconds(laserActiveDuration + 0.2f);
+            }
         }
         else
         {
@@ -308,8 +400,12 @@ public class Boss2Controller : MonoBehaviour, IDamageable
         IsActing = true;
         Debug.Log("[Boss2] 그로기 패턴! 파츠를 파괴하세요!");
 
+        if (groggyCenterPosition != null)
+            yield return StartCoroutine(TeleportToPosition(groggyCenterPosition.position));
+
         groggyPartsTotal = groggyPartSpawnPoints?.Length ?? 0;
         groggyPartsDestroyed = 0;
+        spawnedGroggyParts.Clear();
 
         if (groggyPartPrefab && groggyPartSpawnPoints is { Length: > 0 })
         {
@@ -317,6 +413,8 @@ public class Boss2Controller : MonoBehaviour, IDamageable
             {
                 if (!pt) continue;
                 var part = Instantiate(groggyPartPrefab, pt.position, Quaternion.identity);
+                spawnedGroggyParts.Add(part);
+                spawnedObjects.Add(part);
                 if (part.TryGetComponent<GroggyPart>(out var gp)) gp.Initialize(this);
             }
         }
@@ -332,12 +430,17 @@ public class Boss2Controller : MonoBehaviour, IDamageable
         {
             Debug.Log("[Boss2] 파츠 파괴 성공 → 그로기!");
             IsGroggy = true;
+            animator.SetBool(StunHash, IsGroggy);
+            animator.Play(StunHash);
             yield return new WaitForSeconds(groggyDuration);
             IsGroggy = false;
         }
         else
         {
             Debug.Log("[Boss2] 파츠 파괴 실패 → HP 회복");
+            foreach (var part in spawnedGroggyParts)
+                if (part) Destroy(part);
+            spawnedGroggyParts.Clear();
             HealHP(groggyHPRecoveryAmount);
         }
 
@@ -351,6 +454,28 @@ public class Boss2Controller : MonoBehaviour, IDamageable
     {
         groggyPartsDestroyed++;
         Debug.Log($"[Boss2] 파츠 {groggyPartsDestroyed}/{groggyPartsTotal} 파괴");
+    }
+
+    private IEnumerator HitFlashCoroutine()
+    {
+        if (!spriteRenderer) yield break;
+
+        Color current = spriteRenderer.color;
+        spriteRenderer.color = Color.black;
+        yield return new WaitForSecondsRealtime(hitFlashDuration);
+        spriteRenderer.color = current;
+    }
+
+    private IEnumerator HitStopCoroutine()
+    {
+        Time.timeScale = 0.05f;
+        float elapsed = 0f;
+        while (elapsed < hitStopDuration)
+        {
+            elapsed += Time.unscaledDeltaTime;
+            yield return null;
+        }
+        Time.timeScale = 1f;
     }
 
     private int[] ShuffledOrder(int count)

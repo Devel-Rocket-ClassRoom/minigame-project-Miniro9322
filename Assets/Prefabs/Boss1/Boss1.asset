@@ -14,5 +14,5 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::BossData
   bossName: 
   atk: 10
-  Hp: 100
+  Hp: 10000
   moveSpeed: 3

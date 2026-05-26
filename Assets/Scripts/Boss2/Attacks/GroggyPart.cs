@@ -82,8 +82,7 @@ public class GroggyPart : MonoBehaviour, IDamageable
 
         private void OnTriggerEnter2D(Collider2D other)
         {
-            if (!other.CompareTag("PlayerWeapon")) return;
-            var weapon = other.GetComponent<IDamageable>();
-            if (weapon != null) GetDamage(weapon.SetDamage());
+            if (!other.CompareTag("Player")) return;
+            if (other.TryGetComponent<IDamageable>(out var weapon)) GetDamage(weapon.SetDamage());
         }
 }
