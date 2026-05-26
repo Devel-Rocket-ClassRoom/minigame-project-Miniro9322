@@ -15,10 +15,10 @@ using UnityEngine;
 public partial class WeightedRandomSelector : Composite
 {
     [Tooltip("각 자식 노드의 기본 가중치 (자식 순서와 일치)")]
-    public List<float> BaseWeights = new List<float>();
+    public List<float> BaseWeights = new();
 
     [Tooltip("미선택 시 가중치 증가량 (자식 순서와 일치)")]
-    public List<float> WeightIncrements = new List<float>();
+    public List<float> WeightIncrements = new();
 
     private List<float> m_CurrentWeights;
     private int         m_ActiveIndex = -1;

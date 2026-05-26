@@ -23,4 +23,7 @@ public class PlayerData : ScriptableObject
     public float moveSpeed = 5f;
     [Header("플레이어 점프 힘")]
     public float JumpPower = 10f;
+    [Header("넉백")]
+    public float KnockbackForceX = 5f;
+    public float KnockbackForceY = 4f;
 }

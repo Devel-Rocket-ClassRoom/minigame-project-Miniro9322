@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
@@ -27,10 +28,13 @@ public class Player : MonoBehaviour, IDamageable
     public bool JumpHeld { get; private set; } = false;
     public bool Grounded { get; private set; }
     public bool IsAttackEnd { get; private set; } = false;
+    public Vector2 KnockbackDir { get; private set; }
 
     public UnityEvent SuccessParry;
     public UnityEvent OnGameOver;
     public UnityEvent OnHit;
+    public UnityEvent<int, int> OnHpChange;
+    public GameObject Effect;
     public UnityEvent ParryStart;
     public PlayerData Data;
     public Rigidbody2D Rb => rb;
@@ -62,6 +66,7 @@ public class Player : MonoBehaviour, IDamageable
         OriginalGravityScale = rb.gravityScale;
         AfterImage = GetComponent<DashAfterImage>();
         sr = GetComponent<SpriteRenderer>();
+        Effect.SetActive(false);
     }
 
     private void OnEnable()
@@ -88,6 +93,7 @@ public class Player : MonoBehaviour, IDamageable
         Parry.performed += OnParry;
         currHp = Data.MaxHp;
         dodgeCool = dodgeInterval;
+        OnHpChange?.Invoke(currHp, Data.MaxHp);
     }
 
     private void OnDisable()
@@ -208,7 +214,7 @@ public class Player : MonoBehaviour, IDamageable
 
     private void OnJump(InputAction.CallbackContext context)
     {
-        if (Fsm.CurrentState == HitState) return;
+        if (Fsm.CurrentState == HitState || Fsm.CurrentState == DodgeState) return;
 
         if (context.performed)
         {
@@ -222,7 +228,7 @@ public class Player : MonoBehaviour, IDamageable
 
     private void OnAttack(InputAction.CallbackContext _)
     {
-        if (Fsm.CurrentState == HitState) return;
+        if (Fsm.CurrentState == HitState || Fsm.CurrentState == DodgeState) return;
 
         if (isQueueOpen)
         {
@@ -261,6 +267,7 @@ public class Player : MonoBehaviour, IDamageable
         }
 
 
+        KnockbackDir = damageInfo.knockbackDir;
         currHp -= damageInfo.damage;
 
         if (currHp <= 0)
@@ -272,9 +279,8 @@ public class Player : MonoBehaviour, IDamageable
         
         Fsm.ChangeState(HitState);
 
-
-
         OnHit?.Invoke();
+        OnHpChange?.Invoke(currHp, Data.MaxHp);
     }
 
     private void OnDodge(InputAction.CallbackContext _)
@@ -286,7 +292,7 @@ public class Player : MonoBehaviour, IDamageable
 
     private void OnParry(InputAction.CallbackContext _)
     {
-        if (Fsm.CurrentState == HitState) return;
+        if (Fsm.CurrentState == HitState || Fsm.CurrentState == DodgeState) return;
         Fsm.ChangeState(ParryState);
     }
 
@@ -302,4 +308,16 @@ public class Player : MonoBehaviour, IDamageable
     public void ToggleParry() => parrying = !parrying;
 
     public void ResetAttackEnd() => IsAttackEnd = false;
+
+    private void ToggleEffect()
+    {
+        if(Effect.activeSelf == true)
+        {
+            Effect.SetActive(false);
+        }
+        else
+        {
+            Effect.SetActive(true);
+        }
+    }
 }

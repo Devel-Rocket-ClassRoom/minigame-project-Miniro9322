@@ -33,7 +33,7 @@ public class DodgeState : IState
 
     public void Exit()
     {
-        player.transform.position = dodgeEnd;
+        player.Rb.MovePosition(dodgeEnd);
         player.Rb.linearVelocity = Vector2.zero;
         player.Rb.gravityScale = player.OriginalGravityScale;
         dodgeTime = 0f;
@@ -51,8 +51,7 @@ public class DodgeState : IState
 
         dodgeTime += Time.fixedDeltaTime;
 
-        player.transform.position = Vector3.Lerp(
-            dodgeStart, dodgeEnd, dodgeTime / player.Data.DodgeDuration);
+        player.Rb.MovePosition(Vector3.Lerp(dodgeStart, dodgeEnd, dodgeTime / player.Data.DodgeDuration));
     }
 
     public void Update() { }

@@ -37,6 +37,15 @@ AnimationClip:
     classID: 212
     script: {fileID: 0}
     flags: 2
+  - serializedVersion: 2
+    curve:
+    - time: 0.16666667
+      value: {fileID: 7196007545918220231, guid: 17827ca769fe1a04ca1f0361aa1a2a7f, type: 3}
+    attribute: m_Sprite
+    path: Effect
+    classID: 212
+    script: {fileID: 0}
+    flags: 2
   m_SampleRate: 12
   m_WrapMode: 0
   m_Bounds:
@@ -53,6 +62,15 @@ AnimationClip:
       isPPtrCurve: 1
       isIntCurve: 0
       isSerializeReferenceCurve: 0
+    - serializedVersion: 2
+      path: 2982974660
+      attribute: 0
+      script: {fileID: 0}
+      typeID: 212
+      customType: 23
+      isPPtrCurve: 1
+      isIntCurve: 0
+      isSerializeReferenceCurve: 0
     pptrCurveMapping:
     - {fileID: 777004894465733808, guid: 7add4df58b00ab44eb87a42f0be34ec3, type: 3}
     - {fileID: -7934386505623311594, guid: 7add4df58b00ab44eb87a42f0be34ec3, type: 3}
@@ -60,6 +78,7 @@ AnimationClip:
     - {fileID: 5366651068946242955, guid: 7add4df58b00ab44eb87a42f0be34ec3, type: 3}
     - {fileID: 9007432202468453270, guid: 7add4df58b00ab44eb87a42f0be34ec3, type: 3}
     - {fileID: 7917035999179557887, guid: 7add4df58b00ab44eb87a42f0be34ec3, type: 3}
+    - {fileID: 7196007545918220231, guid: 17827ca769fe1a04ca1f0361aa1a2a7f, type: 3}
   m_AnimationClipSettings:
     serializedVersion: 2
     m_AdditiveReferencePoseClip: {fileID: 0}
@@ -94,6 +113,20 @@ AnimationClip:
     messageOptions: 0
   - time: 0.083333336
     functionName: AttackStart
+    data: 
+    objectReferenceParameter: {fileID: 0}
+    floatParameter: 0
+    intParameter: 0
+    messageOptions: 0
+  - time: 0.16666667
+    functionName: ToggleEffect
+    data: 
+    objectReferenceParameter: {fileID: 0}
+    floatParameter: 0
+    intParameter: 0
+    messageOptions: 0
+  - time: 0.25
+    functionName: ToggleEffect
     data: 
     objectReferenceParameter: {fileID: 0}
     floatParameter: 0

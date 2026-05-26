@@ -14,7 +14,7 @@ GameObject:
   - component: {fileID: 3915041370160032258}
   - component: {fileID: 5788939629137208428}
   - component: {fileID: -2376451309818107675}
-  - component: {fileID: 7064333656354329767}
+  - component: {fileID: 102219395348585035}
   m_Layer: 7
   m_Name: Boss2
   m_TagString: Boss
@@ -84,10 +84,10 @@ SpriteRenderer:
   m_GlobalIlluminationMeshLod: 0
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 0
+  m_SortingOrder: 1
   m_MaskInteraction: 0
-  m_Sprite: {fileID: 7482667652216324306, guid: 311925a002f4447b3a28927169b83ea6, type: 3}
-  m_Color: {r: 0.46226418, g: 0.16353686, b: 0.16353686, a: 1}
+  m_Sprite: {fileID: 1979232534141036308, guid: 1ba6eb04d195d5d47ae327a856e2c604, type: 3}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
@@ -199,27 +199,35 @@ MonoBehaviour:
   bulletCurtainCount: 12
   bulletSpeed: 6
   laserPrefab: {fileID: 2627341481519218128, guid: 69bb5da72cc538446a7ae7b09ef992b1, type: 3}
-  floorLaserPositions:
+  floorLaserLeftPositions:
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  floorLaserRightPositions:
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
   laserWarningDuration: 1
   laserActiveDuration: 2
-  groggyPartPrefab: {fileID: 0}
+  laserMoveSpeed: 50
+  groggyPartPrefab: {fileID: 3681340975392442611, guid: 3b360df7077fa3946933e331e2992cd7, type: 3}
   groggyPartSpawnPoints:
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
+  groggyCenterPosition: {fileID: 0}
   groggyTimeLimit: 15
   groggyDuration: 3
   groggyHPRecoveryAmount: 200
-  spriteRenderer: {fileID: 0}
   phase2Color: {r: 1, g: 0.3, b: 0.3, a: 1}
   phase2Particles: {fileID: 0}
   audioSource: {fileID: 0}
   phase2SFX: {fileID: 0}
+  hitFlashDuration: 0.08
+  hitStopDuration: 0.04
 --- !u!50 &-2376451309818107675
 Rigidbody2D:
   serializedVersion: 5
@@ -247,7 +255,7 @@ Rigidbody2D:
   m_SleepingMode: 1
   m_CollisionDetection: 0
   m_Constraints: 4
---- !u!61 &7064333656354329767
+--- !u!61 &102219395348585035
 BoxCollider2D:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -281,15 +289,15 @@ BoxCollider2D:
   m_UsedByEffector: 0
   m_CompositeOperation: 0
   m_CompositeOrder: 0
-  m_Offset: {x: 0, y: 0}
+  m_Offset: {x: -0.78388286, y: -1.259317}
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0.5, y: 0.5}
-    oldSize: {x: 1, y: 1}
+    oldSize: {x: 3.85, y: 5.25}
     newSize: {x: 1, y: 1}
     adaptiveTilingThreshold: 0.5
     drawMode: 0
     adaptiveTiling: 0
   m_AutoTiling: 0
-  m_Size: {x: 1, y: 1}
+  m_Size: {x: 2.2822342, y: 2.6555994}
   m_EdgeRadius: 0

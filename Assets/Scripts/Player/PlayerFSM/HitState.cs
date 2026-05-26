@@ -27,6 +27,19 @@ public class HitState : IState
         isBlinked = false;
 
         player.ToggleInvincible();
+        ApplyKnockback();
+    }
+
+    private void ApplyKnockback()
+    {
+        // knockbackDir 이 zero 면 플레이어가 바라보는 반대 방향으로 날림
+        Vector2 dir = player.KnockbackDir;
+        float xSign = dir == Vector2.zero ? -player.transform.localScale.x : Mathf.Sign(dir.x);
+
+        player.Rb.linearVelocity = new Vector2(
+            xSign * player.Data.KnockbackForceX,
+            player.Data.KnockbackForceY
+        );
     }
 
     public void Exit()
