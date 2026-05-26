@@ -2789,26 +2789,6 @@ PrefabInstance:
       propertyPath: m_Name
       value: Boss2
       objectReference: {fileID: 0}
-    - target: {fileID: 2787374644475203533, guid: 37231d2c28822174cbbbaf5aa047014b, type: 3}
-      propertyPath: m_Sprite
-      value: 
-      objectReference: {fileID: 1979232534141036308, guid: 1ba6eb04d195d5d47ae327a856e2c604, type: 3}
-    - target: {fileID: 2787374644475203533, guid: 37231d2c28822174cbbbaf5aa047014b, type: 3}
-      propertyPath: m_Color.b
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 2787374644475203533, guid: 37231d2c28822174cbbbaf5aa047014b, type: 3}
-      propertyPath: m_Color.g
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 2787374644475203533, guid: 37231d2c28822174cbbbaf5aa047014b, type: 3}
-      propertyPath: m_Color.r
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 2787374644475203533, guid: 37231d2c28822174cbbbaf5aa047014b, type: 3}
-      propertyPath: m_SortingOrder
-      value: 1
-      objectReference: {fileID: 0}
     - target: {fileID: 3616610199987483051, guid: 37231d2c28822174cbbbaf5aa047014b, type: 3}
       propertyPath: m_LocalPosition.x
       value: 9.15
@@ -2850,14 +2830,6 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 5788939629137208428, guid: 37231d2c28822174cbbbaf5aa047014b, type: 3}
-      propertyPath: laserMoveSpeed
-      value: 50
-      objectReference: {fileID: 0}
-    - target: {fileID: 5788939629137208428, guid: 37231d2c28822174cbbbaf5aa047014b, type: 3}
-      propertyPath: groggyPartPrefab
-      value: 
-      objectReference: {fileID: 3681340975392442611, guid: 3b360df7077fa3946933e331e2992cd7, type: 3}
-    - target: {fileID: 5788939629137208428, guid: 37231d2c28822174cbbbaf5aa047014b, type: 3}
       propertyPath: groggyCenterPosition
       value: 
       objectReference: {fileID: 640741311}
@@ -2866,22 +2838,6 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 1854328979}
     - target: {fileID: 5788939629137208428, guid: 37231d2c28822174cbbbaf5aa047014b, type: 3}
-      propertyPath: 'floorLaserPositions.Array.data[0]'
-      value: 
-      objectReference: {fileID: 1289139867}
-    - target: {fileID: 5788939629137208428, guid: 37231d2c28822174cbbbaf5aa047014b, type: 3}
-      propertyPath: 'floorLaserPositions.Array.data[1]'
-      value: 
-      objectReference: {fileID: 1998702763}
-    - target: {fileID: 5788939629137208428, guid: 37231d2c28822174cbbbaf5aa047014b, type: 3}
-      propertyPath: 'floorLaserPositions.Array.data[2]'
-      value: 
-      objectReference: {fileID: 1286249543}
-    - target: {fileID: 5788939629137208428, guid: 37231d2c28822174cbbbaf5aa047014b, type: 3}
-      propertyPath: 'floorLaserPositions.Array.data[3]'
-      value: 
-      objectReference: {fileID: 1480021974}
-    - target: {fileID: 5788939629137208428, guid: 37231d2c28822174cbbbaf5aa047014b, type: 3}
       propertyPath: 'floorRightPositions.Array.data[0]'
       value: 
       objectReference: {fileID: 1840931916}
@@ -2889,14 +2845,6 @@ PrefabInstance:
       propertyPath: 'floorCenterPositions.Array.data[0]'
       value: 
       objectReference: {fileID: 640741311}
-    - target: {fileID: 5788939629137208428, guid: 37231d2c28822174cbbbaf5aa047014b, type: 3}
-      propertyPath: floorLaserLeftPositions.Array.size
-      value: 4
-      objectReference: {fileID: 0}
-    - target: {fileID: 5788939629137208428, guid: 37231d2c28822174cbbbaf5aa047014b, type: 3}
-      propertyPath: floorLaserRightPositions.Array.size
-      value: 4
-      objectReference: {fileID: 0}
     - target: {fileID: 5788939629137208428, guid: 37231d2c28822174cbbbaf5aa047014b, type: 3}
       propertyPath: 'groggyPartSpawnPoints.Array.data[0]'
       value: 
@@ -2945,10 +2893,6 @@ PrefabInstance:
       propertyPath: 'floorLaserRightPositions.Array.data[3]'
       value: 
       objectReference: {fileID: 1480021974}
-    - target: {fileID: 7064333656354329767, guid: 37231d2c28822174cbbbaf5aa047014b, type: 3}
-      propertyPath: m_IsTrigger
-      value: 0
-      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
