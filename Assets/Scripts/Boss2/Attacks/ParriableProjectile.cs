@@ -28,6 +28,14 @@ public class ParriableProjectile : MonoBehaviour, IDamageable
 
     public void GetDamage(IDamageable.DamageInfo damageInfo) { }
 
+    private void FixedUpdate()
+    {
+        if (rb && rb.linearVelocity.sqrMagnitude > 0.01f)
+        {
+            rb.rotation = Mathf.Atan2(rb.linearVelocity.y, rb.linearVelocity.x) * Mathf.Rad2Deg;
+        }
+    }
+
     public void Initialize(Boss2Controller boss)
     {
         this.boss = boss;

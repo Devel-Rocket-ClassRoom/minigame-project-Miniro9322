@@ -360,7 +360,7 @@ public class Boss2Controller : MonoBehaviour, IDamageable
         yield return new WaitForSeconds(delay);
         if (warning) Destroy(warning);
         if (firePillarExplosionPrefab)
-            Destroy(Instantiate(firePillarExplosionPrefab, pos, Quaternion.identity), 1.5f);
+            Instantiate(firePillarExplosionPrefab, pos, Quaternion.identity);
     }
 
     public IEnumerator AttackBulletCurtain(Action<bool> callback)
@@ -416,7 +416,10 @@ public class Boss2Controller : MonoBehaviour, IDamageable
                 int idx = order[i];
                 if (!spawnPoints[idx]) continue;
 
-                var go = Instantiate(laserPrefab, spawnPoints[idx].position, Quaternion.identity);
+                float laserHalfLength = laserPrefab.transform.localScale.x * 0.4f;
+                float offsetX = bossOnLeft ? laserHalfLength : -laserHalfLength;
+                Vector3 spawnPos = new(spawnPoints[idx].position.x + offsetX, spawnPoints[idx].position.y, 0f);
+                var go = Instantiate(laserPrefab, spawnPos, Quaternion.identity);
                 spawnedObjects.Add(go);
                 if (go.TryGetComponent<FloorLaser>(out var fl))
                 {
@@ -555,4 +558,9 @@ public class Boss2Controller : MonoBehaviour, IDamageable
     }
 
     public float HPPercent => CurrentHP / maxHP;
+
+    private void DestroyIt()
+    {
+        Destroy(gameObject);
+    }
 }

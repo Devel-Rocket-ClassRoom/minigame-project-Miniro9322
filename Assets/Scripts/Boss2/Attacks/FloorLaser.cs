@@ -1,21 +1,23 @@
-using System.Collections;
 using UnityEngine;
-[RequireComponent(typeof(SpriteRenderer))]
+using System.Collections;
 
-[RequireComponent(typeof(Collider2D))]
 public class FloorLaser : MonoBehaviour
 {
-    [Header("시각 효과")]
-    [SerializeField] private Color warningColor = new Color(1f, 0.5f, 0f, 0.4f);
-    [SerializeField] private Color activeColor = new Color(1f, 0.1f, 0.1f, 1f);
+    [Header("두께")]
+    [Tooltip("경고 실선 두께")]
+    [SerializeField] private float warningThickness = 0.04f;
+    [Tooltip("발사 시 최대 두께")]
+    [SerializeField] private float activeThickness = 1.2f;
+    [Tooltip("얇은 선 → 굵은 선 확장 시간 (초)")]
+    [SerializeField] private float expandDuration = 0.07f;
 
     [Header("피해")]
-    [SerializeField] private float damagePerSecond = 30f;
+    [SerializeField] private int damage = 30;
 
     private SpriteRenderer sr;
     private Collider2D col;
-    private float damageAccum = 0f;
     private bool isActive = false;
+    private Coroutine flickerCoroutine;
 
     private void Awake()
     {
@@ -25,28 +27,47 @@ public class FloorLaser : MonoBehaviour
 
     public void StartWarning()
     {
-        if (sr) sr.color = warningColor;
         if (col) col.enabled = false;
+
+        SetThickness(warningThickness);
     }
 
     public void Activate(float activeDuration)
     {
-        if (sr) sr.color = activeColor;
+        if (flickerCoroutine != null) StopCoroutine(flickerCoroutine);
+        StartCoroutine(ActivateCoroutine(activeDuration));
+    }
+
+    private IEnumerator ActivateCoroutine(float activeDuration)
+    {
+        float elapsed = 0f;
+        while (elapsed < expandDuration)
+        {
+            elapsed += Time.deltaTime;
+            SetThickness(Mathf.Lerp(warningThickness, activeThickness, elapsed / expandDuration));
+            yield return null;
+        }
+        SetThickness(activeThickness);
+
         if (col) col.enabled = true;
         isActive = true;
+
         Destroy(gameObject, activeDuration);
     }
 
-    private void OnTriggerStay2D(Collider2D other)
+    private void OnTriggerEnter2D(Collider2D other)
     {
         if (!isActive) return;
         if (!other.CompareTag("Player")) return;
 
-        damageAccum += Time.deltaTime;
-        if (damageAccum < 1f) return;
-
-        damageAccum -= 1f;
-        var info = new IDamageable.DamageInfo { damage = (int)damagePerSecond, canParry = false };
+        var info = new IDamageable.DamageInfo { damage = damage, canParry = false };
         other.GetComponent<IDamageable>()?.GetDamage(info);
+    }
+
+    private void SetThickness(float thickness)
+    {
+        Vector3 s = transform.localScale;
+        s.y = thickness;
+        transform.localScale = s;
     }
 }
