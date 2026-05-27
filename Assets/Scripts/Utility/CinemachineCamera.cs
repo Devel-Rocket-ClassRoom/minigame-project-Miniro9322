@@ -19,29 +19,18 @@ public class CinemachineCamera : MonoBehaviour
     [SerializeField] private float zoomOutDuration = 0.3f;
 
     private float defaultSize;
-    private Transform originalFollow;
-    private GameObject zoomFocus;
     private Coroutine zoomCoroutine;
+    private CinemachineConfiner confiner;
 
     private void Awake()
     {
         virtualCamera = GetComponent<CinemachineVirtualCamera>();
         if (virtualCamera != null)
         {
-            noise = virtualCamera.GetCinemachineComponent<CinemachineBasicMultiChannelPerlin>();
+            noise       = virtualCamera.GetCinemachineComponent<CinemachineBasicMultiChannelPerlin>();
             defaultSize = virtualCamera.m_Lens.OrthographicSize;
-            originalFollow = virtualCamera.Follow;
         }
-
-        zoomFocus = new GameObject("_ZoomFocus");
-        zoomFocus.hideFlags = HideFlags.HideInHierarchy;
-        DontDestroyOnLoad(zoomFocus);
-    }
-
-    private void OnDestroy()
-    {
-        if (zoomFocus != null)
-            Destroy(zoomFocus);
+        confiner = GetComponent<CinemachineConfiner>();
     }
 
     private void OnEnable()
@@ -58,31 +47,24 @@ public class CinemachineCamera : MonoBehaviour
 
     public void TriggerZoom()
     {
-        if (virtualCamera == null || player == null) return;
+        if (virtualCamera == null) return;
 
         if (zoomCoroutine != null) StopCoroutine(zoomCoroutine);
-        zoomCoroutine = StartCoroutine(ZoomCoroutine(player.transform.position));
+        zoomCoroutine = StartCoroutine(ZoomCoroutine(Vector3.zero));
     }
 
     private IEnumerator ZoomCoroutine(Vector3 parryPosition)
     {
-        // 패링 위치에 포커스 고정
-        zoomFocus.transform.position = parryPosition;
-        virtualCamera.Follow = zoomFocus.transform;
-        virtualCamera.LookAt = zoomFocus.transform;
-
-        // 줌인
-        float elapsed = 0f;
+        float elapsed   = 0f;
         float startSize = virtualCamera.m_Lens.OrthographicSize;
         while (elapsed < zoomInDuration)
         {
             elapsed += Time.unscaledDeltaTime;
-            virtualCamera.m_Lens.OrthographicSize = Mathf.Lerp(startSize, zoomSize, elapsed / zoomInDuration);
+            virtualCamera.m_Lens.OrthographicSize = Mathf.Lerp(startSize, zoomSize, Mathf.Clamp01(elapsed / zoomInDuration));
             yield return null;
         }
         virtualCamera.m_Lens.OrthographicSize = zoomSize;
 
-        // 유지
         float held = 0f;
         while (held < holdDuration)
         {
@@ -90,20 +72,15 @@ public class CinemachineCamera : MonoBehaviour
             yield return null;
         }
 
-        // 줌아웃 + 플레이어 추적 복원
-        virtualCamera.Follow = originalFollow;
-        virtualCamera.LookAt = originalFollow;
-
-        elapsed = 0f;
+        elapsed   = 0f;
         startSize = virtualCamera.m_Lens.OrthographicSize;
         while (elapsed < zoomOutDuration)
         {
             elapsed += Time.unscaledDeltaTime;
-            virtualCamera.m_Lens.OrthographicSize = Mathf.Lerp(startSize, defaultSize, elapsed / zoomOutDuration);
+            virtualCamera.m_Lens.OrthographicSize = Mathf.Lerp(startSize, defaultSize, Mathf.Clamp01(elapsed / zoomOutDuration));
             yield return null;
         }
         virtualCamera.m_Lens.OrthographicSize = defaultSize;
-
         zoomCoroutine = null;
     }
 

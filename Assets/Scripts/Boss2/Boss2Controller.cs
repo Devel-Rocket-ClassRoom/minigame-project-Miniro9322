@@ -138,13 +138,15 @@ public class Boss2Controller : MonoBehaviour, IDamageable
         if (player != null)
         {
             float diff = player.transform.position.x - transform.position.x;
-            float facing = transform.localScale.x; // 1 = 오른쪽, -1 = 왼쪽
+            float facing = transform.localScale.x; // 양수 = 오른쪽, 음수 = 왼쪽
 
             // 현재 바라보는 방향 반대쪽으로 0.5 이상 벗어났을 때만 전환
+            // Abs로 원래 크기 유지 (하드코딩 1f 대신)
+            float absX = Mathf.Abs(facing);
             if (facing > 0f && diff < -0.5f)
-                transform.localScale = new Vector3(-1f, 1f, 1f);
+                transform.localScale = new Vector3(-absX, transform.localScale.y, transform.localScale.z);
             else if (facing < 0f && diff > 0.5f)
-                transform.localScale = new Vector3(1f, 1f, 1f);
+                transform.localScale = new Vector3(absX, transform.localScale.y, transform.localScale.z);
         }
 
         if (!phase2Triggered && IsPhase2 && !IsDead)
@@ -250,12 +252,20 @@ public class Boss2Controller : MonoBehaviour, IDamageable
 
     private IEnumerator TeleportToRandomPosition()
     {
-        int newFloor = UnityEngine.Random.Range(0, 4);
-        int newSide = UnityEngine.Random.Range(0, 3);
-        if (newFloor == currentFloor && newSide == currentSide)
-            newSide = (newSide + 1) % 3;
+        // 실제로 위치가 지정된 슬롯만 후보로 추림
+        var candidates = new List<(int floor, int side)>();
+        for (int f = 0; f < 4; f++)
+            for (int s = 0; s < 3; s++)
+                if (teleportPositions[f, s] != Vector3.zero)
+                    candidates.Add((f, s));
 
-        Vector3 target = teleportPositions[newFloor, newSide];
+        // 현재 위치 제외
+        candidates.RemoveAll(c => c.floor == currentFloor && c.side == currentSide);
+
+        if (candidates.Count == 0) yield break;  // 이동 가능한 위치 없으면 스킵
+
+        var pick = candidates[UnityEngine.Random.Range(0, candidates.Count)];
+        Vector3 target = teleportPositions[pick.floor, pick.side];
 
         if (spriteRenderer)
         {
@@ -272,8 +282,8 @@ public class Boss2Controller : MonoBehaviour, IDamageable
             yield return new WaitForSeconds(teleportDuration * 0.5f);
         }
 
-        currentFloor = newFloor;
-        currentSide = newSide;
+        currentFloor = pick.floor;
+        currentSide  = pick.side;
     }
 
     public IEnumerator AttackParriableProjectile(Action<bool> callback)
