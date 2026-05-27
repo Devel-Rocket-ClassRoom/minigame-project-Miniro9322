@@ -2830,6 +2830,10 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 5788939629137208428, guid: 37231d2c28822174cbbbaf5aa047014b, type: 3}
+      propertyPath: laserActiveDuration
+      value: 0.8
+      objectReference: {fileID: 0}
+    - target: {fileID: 5788939629137208428, guid: 37231d2c28822174cbbbaf5aa047014b, type: 3}
       propertyPath: groggyCenterPosition
       value: 
       objectReference: {fileID: 640741311}

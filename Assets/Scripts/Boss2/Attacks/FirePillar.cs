@@ -20,4 +20,9 @@ public class FirePillar : MonoBehaviour, IDamageable
             hasHit = true;
         }
     }
+
+    private void DestroyIt()
+    {
+        Destroy(gameObject);
+    }
 }
