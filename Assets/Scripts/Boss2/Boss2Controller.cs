@@ -9,9 +9,24 @@ using UnityEngine;
 [RequireComponent(typeof(SpriteRenderer))]
 public class Boss2Controller : MonoBehaviour, IDamageable
 {
+    private static readonly int ActingHash = Animator.StringToHash("Acting");
+    private static readonly int LaserHash = Animator.StringToHash("Laser");
+    private static readonly int BigAttackHash = Animator.StringToHash("BigAttack");
+    private static readonly int FireBallHash = Animator.StringToHash("FireBall");
+    private static readonly int SpreadFireBallHash = Animator.StringToHash("SpreadFireBall");
+    private static readonly int FireWallHash = Animator.StringToHash("FireWall");
+    private static readonly int DeathHash = Animator.StringToHash("Death");
     private static readonly int StunHash = Animator.StringToHash("Stun");
     [Header("── 기본 ──")]
     [SerializeField] private float maxHP = 1000f;
+
+    [Header("── 스폰 ──")]
+    [Tooltip("시작 층 (0=평지, 1=1층, 2=2층, 3=3층)")]
+    [SerializeField] private int spawnFloor = 0;
+    [Tooltip("시작 위치 (0=왼쪽, 1=중앙, 2=오른쪽)")]
+    [SerializeField] private int spawnSide = 1;
+    [Tooltip("체크하면 왼쪽/중앙/오른쪽 중 랜덤 스폰")]
+    [SerializeField] private bool randomSpawn = false;
 
     [Header("── 패턴 인터벌 ──")]
     [Tooltip("공격 후 다음 패턴까지 대기 시간")]
@@ -49,7 +64,6 @@ public class Boss2Controller : MonoBehaviour, IDamageable
     [SerializeField] private Transform[] floorLaserRightPositions;
     [SerializeField] private float laserWarningDuration = 1.5f;
     [SerializeField] private float laserActiveDuration = 2f;
-    [SerializeField] private float laserMoveSpeed = 10f;
 
     [Header("── 그로기 패턴 (2페이즈) ──")]
     [SerializeField] private GameObject groggyPartPrefab;
@@ -89,6 +103,7 @@ public class Boss2Controller : MonoBehaviour, IDamageable
     private int groggyPartsDestroyed = 0;
     private List<GameObject> spawnedGroggyParts = new();
     private List<GameObject> spawnedObjects = new();
+    private bool fireSignalReceived = false;
     private GameObject player;
     private Animator animator;
 
@@ -100,6 +115,20 @@ public class Boss2Controller : MonoBehaviour, IDamageable
         spriteRenderer = GetComponent<SpriteRenderer>();
         animator = GetComponent<Animator>();
         SetupTeleportPositions();
+    }
+
+    private void Start()
+    {
+        int floor = Mathf.Clamp(spawnFloor, 0, 3);
+        int side  = randomSpawn ? UnityEngine.Random.Range(0, 3) : Mathf.Clamp(spawnSide, 0, 2);
+
+        Vector3 spawnPos = teleportPositions[floor, side];
+        if (spawnPos != Vector3.zero)
+        {
+            transform.position = spawnPos;
+            currentFloor = floor;
+            currentSide  = side;
+        }
     }
 
     private void Update()
@@ -169,6 +198,7 @@ public class Boss2Controller : MonoBehaviour, IDamageable
     {
         Debug.Log("[Boss2] 사망");
         behaviorAgent.BlackboardReference.SetVariableValue("IsDead", true);
+        animator.Play(DeathHash);
         StopAllCoroutines();
         DestroyAllSpawnedObjects();
     }
@@ -252,6 +282,12 @@ public class Boss2Controller : MonoBehaviour, IDamageable
 
         var playerTf = GameObject.FindGameObjectWithTag("Player")?.transform;
 
+        fireSignalReceived = false;
+        animator.Play(FireBallHash);
+
+        // 애니메이션 이벤트 OnFireSignal() 대기
+        yield return new WaitUntil(() => fireSignalReceived);
+
         for (int i = 0; i < projectileCount; i++)
         {
             if (parriableProjectilePrefab && playerTf)
@@ -285,6 +321,12 @@ public class Boss2Controller : MonoBehaviour, IDamageable
         Debug.Log("[Boss2] 불기둥 공격");
 
         var playerTf = GameObject.FindGameObjectWithTag("Player")?.transform;
+
+        fireSignalReceived = false;
+        animator.Play(FireWallHash);
+
+        // 애니메이션 이벤트 OnFireSignal() 대기
+        yield return new WaitUntil(() => fireSignalReceived);
 
         if (firePillarWarningPrefab && playerTf)
         {
@@ -326,6 +368,12 @@ public class Boss2Controller : MonoBehaviour, IDamageable
         IsActing = true;
         Debug.Log("[Boss2] 탄막 공격");
 
+        fireSignalReceived = false;
+        animator.Play(SpreadFireBallHash);
+
+        // 애니메이션 이벤트 OnFireSignal() 대기
+        yield return new WaitUntil(() => fireSignalReceived);
+
         if (bulletPrefab)
         {
             float step = 360f / bulletCurtainCount;
@@ -354,6 +402,9 @@ public class Boss2Controller : MonoBehaviour, IDamageable
 
         bool bossOnLeft = transform.position.x <= 0f;
         Transform[] spawnPoints = bossOnLeft ? floorLaserLeftPositions : floorLaserRightPositions;
+
+        animator.SetBool(ActingHash, IsActing);
+        animator.Play(LaserHash);
 
         if (laserPrefab && spawnPoints is { Length: > 0 })
         {
@@ -389,19 +440,25 @@ public class Boss2Controller : MonoBehaviour, IDamageable
             yield return new WaitForSeconds(3f);
         }
 
+        IsActing = false;
+        animator.SetBool(ActingHash, IsActing);
+
         yield return StartCoroutine(TeleportToRandomPosition());
         yield return new WaitForSeconds(postAttackDelay);
-        IsActing = false;
+        
         callback?.Invoke(true);
     }
 
     public IEnumerator AttackGroggyPattern(Action<bool> callback)
     {
         IsActing = true;
+        animator.SetBool(ActingHash, IsActing);
         Debug.Log("[Boss2] 그로기 패턴! 파츠를 파괴하세요!");
 
         if (groggyCenterPosition != null)
             yield return StartCoroutine(TeleportToPosition(groggyCenterPosition.position));
+
+        animator.Play(BigAttackHash);
 
         groggyPartsTotal = groggyPartSpawnPoints?.Length ?? 0;
         groggyPartsDestroyed = 0;
@@ -434,6 +491,7 @@ public class Boss2Controller : MonoBehaviour, IDamageable
             animator.Play(StunHash);
             yield return new WaitForSeconds(groggyDuration);
             IsGroggy = false;
+            animator.SetBool(StunHash, IsGroggy);
         }
         else
         {
@@ -444,11 +502,17 @@ public class Boss2Controller : MonoBehaviour, IDamageable
             HealHP(groggyHPRecoveryAmount);
         }
 
+        IsActing = false;
+        animator.SetBool(ActingHash, IsActing);
+
         yield return StartCoroutine(TeleportToRandomPosition());
         yield return new WaitForSeconds(postAttackDelay);
-        IsActing = false;
+        
         callback?.Invoke(true);
     }
+
+    /// <summary>애니메이션 이벤트에서 호출 — 발사 타이밍 신호</summary>
+    public void OnFireSignal() => fireSignalReceived = true;
 
     public void OnGroggyPartDestroyed()
     {
