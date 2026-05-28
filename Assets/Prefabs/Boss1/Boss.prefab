@@ -1,5 +1,36 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
+--- !u!1 &1218850253864082562
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1416117969047230266}
+  m_Layer: 7
+  m_Name: LookAtZone
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1416117969047230266
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1218850253864082562}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 4909672065160890177}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &2256336631168719745
 GameObject:
   m_ObjectHideFlags: 0
@@ -12,8 +43,8 @@ GameObject:
   - component: {fileID: 1201556389953787884}
   - component: {fileID: 8790416511585791375}
   - component: {fileID: 3202990645697184438}
-  - component: {fileID: 793345534544423360}
   - component: {fileID: 1747165898470147809}
+  - component: {fileID: 5691118610067623508}
   m_Layer: 7
   m_Name: Boss
   m_TagString: Boss
@@ -35,6 +66,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 4745622857680392330}
+  - {fileID: 1416117969047230266}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!212 &1201556389953787884
@@ -145,8 +177,27 @@ Animator:
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
   m_WriteDefaultValuesOnDisable: 0
---- !u!60 &793345534544423360
-PolygonCollider2D:
+--- !u!114 &1747165898470147809
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2256336631168719745}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2ee38ebcffb65d84e95b8ec237234949, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Boss1
+  LookAtZone: {fileID: 1416117969047230266}
+  data: {fileID: 11400000, guid: ca49e948808c28b4a859dd67d6f23a88, type: 2}
+  attackZone: {fileID: 739632506711744980}
+  closeRange: 3
+  farRange: 5
+  periodicInterval: 5
+  stunInterval: 3
+--- !u!70 &5691118610067623508
+CapsuleCollider2D:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
@@ -179,50 +230,9 @@ PolygonCollider2D:
   m_UsedByEffector: 0
   m_CompositeOperation: 0
   m_CompositeOrder: 0
-  m_Offset: {x: 0, y: 0}
-  m_SpriteTilingProperty:
-    border: {x: 0, y: 0, z: 0, w: 0}
-    pivot: {x: 0.5, y: 0.5}
-    oldSize: {x: 12.35, y: 4.35}
-    newSize: {x: 3.75, y: 2.9266925}
-    adaptiveTilingThreshold: 0.5
-    drawMode: 0
-    adaptiveTiling: 0
-  m_AutoTiling: 0
-  m_Points:
-    m_Paths:
-    - - {x: -0.075, y: 0.52500004}
-      - {x: -0.475, y: 0.77500004}
-      - {x: -1.025, y: 0.77500004}
-      - {x: -1.375, y: 0.375}
-      - {x: -1.575, y: -0.52500004}
-      - {x: -1.775, y: -1.475}
-      - {x: -3.125, y: -1.775}
-      - {x: -3.825, y: -1.975}
-      - {x: -3.925, y: -2.125}
-      - {x: -3.925, y: -2.175}
-      - {x: -0.425, y: -2.175}
-      - {x: -0.22500001, y: -1.625}
-      - {x: -0.075, y: -0.52500004}
-  m_UseDelaunayMesh: 1
---- !u!114 &1747165898470147809
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2256336631168719745}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 2ee38ebcffb65d84e95b8ec237234949, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Boss1
-  data: {fileID: 11400000, guid: ca49e948808c28b4a859dd67d6f23a88, type: 2}
-  attackZone: {fileID: 739632506711744980}
-  closeRange: 3
-  farRange: 8
-  periodicInterval: 5
-  stunInterval: 3
+  m_Offset: {x: 0.12683797, y: 0.3845302}
+  m_Size: {x: 1.4808578, y: 2.9107559}
+  m_Direction: 0
 --- !u!1 &6661877332937677943
 GameObject:
   m_ObjectHideFlags: 0
@@ -250,7 +260,7 @@ Transform:
   m_GameObject: {fileID: 6661877332937677943}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -2.48, y: -1.69, z: 0}
+  m_LocalPosition: {x: -1.63, y: -0.6, z: 0}
   m_LocalScale: {x: -1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []

@@ -3,6 +3,7 @@ using UnityEngine;
 
 public class Boss1 : BossController
 {
+    private static readonly int HitHash = Animator.StringToHash("Hit");
     private static readonly int ParryHash = Animator.StringToHash("Parry");
 
     public IState Idle { get; private set; }
@@ -89,7 +90,7 @@ public class Boss1 : BossController
             return;
 
         CurrHp -= damageInfo.damage;
-        Animator.Play("Hit");
+        Animator.Play(HitHash);
     }
 
     public void OnParry()
