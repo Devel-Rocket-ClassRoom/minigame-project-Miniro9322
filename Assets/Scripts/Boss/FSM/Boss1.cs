@@ -1,5 +1,6 @@
 using Unity.IO.LowLevel.Unsafe;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class Boss1 : BossController
 {
@@ -18,6 +19,7 @@ public class Boss1 : BossController
     public float periodicInterval = 5f;
     private float periodicTimer;
     [SerializeField] private float stunInterval = 3f;
+    [SerializeField] private GameObject warning;
     private float stunTime = 0f;
     private bool isGameOver;
     private bool isStuned;
@@ -104,5 +106,22 @@ public class Boss1 : BossController
     public void SetDeath()
     {
         isDeath = true;
+    }
+
+    private void OnDeath()
+    {
+        SceneManager.LoadScene("Boss2");
+    }
+
+    private void ToggleWarning()
+    {
+        if (warning.activeSelf)
+        {
+            warning.SetActive(false);
+        }
+        else
+        {
+            warning.SetActive(true);
+        }
     }
 }
