@@ -63,7 +63,7 @@ public class CinemachineCamera : MonoBehaviour
             elapsed += Time.unscaledDeltaTime;
             virtualCamera.m_Lens.OrthographicSize = Mathf.Lerp(startSize, zoomSize, Mathf.Clamp01(elapsed / zoomInDuration));
             confiner.InvalidatePathCache();
-            yield return null;
+            yield return new WaitForEndOfFrame();
         }
         virtualCamera.m_Lens.OrthographicSize = zoomSize;
         confiner.InvalidatePathCache();
