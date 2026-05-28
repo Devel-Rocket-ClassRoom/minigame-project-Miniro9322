@@ -10,6 +10,7 @@ public abstract class BossController : MonoBehaviour, IDamageable
     public int CurrHp { get; protected set; }
     public bool IsAttack { get; set; }
     public DecideState DecideState { get; protected set; }
+    public Transform LookAtZone;
 
     [SerializeField] private BossData data;
     public BossData Data => data;

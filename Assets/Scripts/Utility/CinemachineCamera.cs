@@ -1,8 +1,9 @@
 using UnityEngine;
 using Cinemachine;
 using System.Collections;
-
 [RequireComponent(typeof(CinemachineVirtualCamera))]
+
+[RequireComponent(typeof(CinemachineConfiner))]
 public class CinemachineCamera : MonoBehaviour
 {
     private CinemachineVirtualCamera virtualCamera;
@@ -61,9 +62,11 @@ public class CinemachineCamera : MonoBehaviour
         {
             elapsed += Time.unscaledDeltaTime;
             virtualCamera.m_Lens.OrthographicSize = Mathf.Lerp(startSize, zoomSize, Mathf.Clamp01(elapsed / zoomInDuration));
+            confiner.InvalidatePathCache();
             yield return null;
         }
         virtualCamera.m_Lens.OrthographicSize = zoomSize;
+        confiner.InvalidatePathCache();
 
         float held = 0f;
         while (held < holdDuration)
@@ -78,9 +81,12 @@ public class CinemachineCamera : MonoBehaviour
         {
             elapsed += Time.unscaledDeltaTime;
             virtualCamera.m_Lens.OrthographicSize = Mathf.Lerp(startSize, defaultSize, Mathf.Clamp01(elapsed / zoomOutDuration));
-            yield return null;
+            confiner.InvalidatePathCache();
+            yield return new WaitForEndOfFrame();
         }
         virtualCamera.m_Lens.OrthographicSize = defaultSize;
+        confiner.InvalidatePathCache();
+        yield return new WaitForEndOfFrame();
         zoomCoroutine = null;
     }
 

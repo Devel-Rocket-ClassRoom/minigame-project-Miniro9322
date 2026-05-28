@@ -17,7 +17,7 @@ public class BossBullet : MonoBehaviour, IDamageable
     }
 
     public IDamageable.DamageInfo SetDamage() =>
-        new IDamageable.DamageInfo { damage = damage, canParry = false };
+        new() { damage = damage, canParry = false };
 
     public void GetDamage(IDamageable.DamageInfo damageInfo) { }
 

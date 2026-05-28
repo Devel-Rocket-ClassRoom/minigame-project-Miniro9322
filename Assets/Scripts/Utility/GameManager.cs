@@ -1,7 +1,10 @@
+using Cinemachine;
 using System;
 using System.Collections;
+using TMPro;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.SceneManagement;
 
 public class GameManager : MonoBehaviour
 {
@@ -14,6 +17,8 @@ public class GameManager : MonoBehaviour
     private InputAction rush;
     [SerializeField] private BossController boss;
     [SerializeField] private Boss2Controller boss2;
+    [SerializeField] private CinemachineVirtualCamera mainCamera;
+    [SerializeField] private TextMeshProUGUI bossName;
 
     private void Start()
     {
