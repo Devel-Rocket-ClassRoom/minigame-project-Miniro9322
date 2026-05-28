@@ -17,8 +17,6 @@ public class Boss2Controller : MonoBehaviour, IDamageable
     private static readonly int FireWallHash = Animator.StringToHash("FireWall");
     private static readonly int DeathHash = Animator.StringToHash("Death");
     private static readonly int StunHash = Animator.StringToHash("Stun");
-    [Header("── 기본 ──")]
-    [SerializeField] private float maxHP = 1000f;
 
     [Header("── 스폰 ──")]
     [Tooltip("시작 층 (0=평지, 1=1층, 2=2층, 3=3층)")]
@@ -90,6 +88,7 @@ public class Boss2Controller : MonoBehaviour, IDamageable
     public bool IsGroggy { get; private set; } = false;
     public float CurrentHP { get; private set; }
     public float MaxHP => maxHP;
+    public BossData Data => data;
     public bool IsDead => CurrentHP <= 0f;
     public bool IsPhase2 => CurrentHP <= maxHP * 0.5f;
 
@@ -106,10 +105,14 @@ public class Boss2Controller : MonoBehaviour, IDamageable
     private bool fireSignalReceived = false;
     private GameObject player;
     private Animator animator;
+    [SerializeField] private BossData data;
+    public Transform LookAtZone;
+    private int maxHP;
 
     private void Awake()
     {
         player = GameObject.FindGameObjectWithTag("Player");
+        maxHP = data.Hp;
         CurrentHP = maxHP;
         behaviorAgent = GetComponent<BehaviorGraphAgent>();
         spriteRenderer = GetComponent<SpriteRenderer>();
@@ -436,7 +439,7 @@ public class Boss2Controller : MonoBehaviour, IDamageable
                     fl.StartWarning();
                     lasers[i] = fl;
                 }
-                yield return new WaitForSeconds(0.3f);
+                yield return new WaitForSeconds(0.5f);
             }
 
             yield return new WaitForSeconds(laserWarningDuration);
