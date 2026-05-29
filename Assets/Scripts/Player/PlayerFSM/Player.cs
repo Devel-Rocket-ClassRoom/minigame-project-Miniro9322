@@ -253,12 +253,14 @@ public class Player : MonoBehaviour, IDamageable
     public void AttackStart()
     {
         attackZone.Activate();
+        Debug.Log(1);
         IsAttackEnd = false;
     }
 
     public void AttackEnd()
     {
         attackZone.Deactivate();
+        Debug.Log(2);
         IsAttackEnd = true;
     }
 
@@ -333,15 +335,11 @@ public class Player : MonoBehaviour, IDamageable
 
     public void ResetAttackEnd() => IsAttackEnd = false;
 
+    public void EnableEffect()  => Effect.SetActive(true);
+    public void DisableEffect() => Effect.SetActive(false);
+
     private void ToggleEffect()
     {
-        if(Effect.activeSelf == true)
-        {
-            Effect.SetActive(false);
-        }
-        else
-        {
-            Effect.SetActive(true);
-        }
+        Effect.SetActive(!Effect.activeSelf);
     }
 }
