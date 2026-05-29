@@ -31,6 +31,10 @@ public class BossRushAttack : IState
     {
         boss.IsAttack = false;
         rushTime = 0f;
+        if(boss.CanRush == true)
+        {
+            boss.RushAvailable();
+        }
     }
 
     public void FixedUpdate()
@@ -43,6 +47,8 @@ public class BossRushAttack : IState
         {
             boss.Fsm.ChangeState(boss.Death);
         }
+
+        if (!boss.CanRush) return;
 
         rushTime += Time.deltaTime;
         boss.transform.position = Vector3.Lerp(startPoint, rushVector, rushTime / rushDuration);

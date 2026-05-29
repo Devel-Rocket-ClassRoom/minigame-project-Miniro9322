@@ -13,6 +13,8 @@ public class Boss1 : BossController
     public IState Rush { get; private set; }
     public IState Death { get; private set; }
     public bool CanParry { get; set; }
+    public bool CanRush { get; private set; } = false;
+
 
     public float closeRange = 3f;
     public float farRange = 8f;
@@ -123,5 +125,10 @@ public class Boss1 : BossController
         {
             warning.SetActive(true);
         }
+    }
+
+    public void RushAvailable()
+    {
+        CanRush = !CanRush;
     }
 }

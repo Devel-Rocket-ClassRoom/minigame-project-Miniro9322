@@ -1,9 +1,9 @@
 using UnityEngine;
 using Cinemachine;
 using System.Collections;
-[RequireComponent(typeof(CinemachineVirtualCamera))]
 
-[RequireComponent(typeof(CinemachineConfiner))]
+[RequireComponent(typeof(CinemachineVirtualCamera))]
+[RequireComponent(typeof(CinemachineConfiner2D))]
 public class CinemachineCamera : MonoBehaviour
 {
     private CinemachineVirtualCamera virtualCamera;
@@ -21,7 +21,7 @@ public class CinemachineCamera : MonoBehaviour
 
     private float defaultSize;
     private Coroutine zoomCoroutine;
-    private CinemachineConfiner confiner;
+    private CinemachineConfiner2D confiner;
 
     private void Awake()
     {
@@ -31,7 +31,7 @@ public class CinemachineCamera : MonoBehaviour
             noise       = virtualCamera.GetCinemachineComponent<CinemachineBasicMultiChannelPerlin>();
             defaultSize = virtualCamera.m_Lens.OrthographicSize;
         }
-        confiner = GetComponent<CinemachineConfiner>();
+        confiner = GetComponent<CinemachineConfiner2D>();
     }
 
     private void OnEnable()
@@ -62,11 +62,12 @@ public class CinemachineCamera : MonoBehaviour
         {
             elapsed += Time.unscaledDeltaTime;
             virtualCamera.m_Lens.OrthographicSize = Mathf.Lerp(startSize, zoomSize, Mathf.Clamp01(elapsed / zoomInDuration));
-            confiner.InvalidatePathCache();
+            confiner.InvalidateCache();
             yield return new WaitForEndOfFrame();
         }
         virtualCamera.m_Lens.OrthographicSize = zoomSize;
-        confiner.InvalidatePathCache();
+        confiner.InvalidateCache();
+        yield return new WaitForEndOfFrame();
 
         float held = 0f;
         while (held < holdDuration)
@@ -81,11 +82,11 @@ public class CinemachineCamera : MonoBehaviour
         {
             elapsed += Time.unscaledDeltaTime;
             virtualCamera.m_Lens.OrthographicSize = Mathf.Lerp(startSize, defaultSize, Mathf.Clamp01(elapsed / zoomOutDuration));
-            confiner.InvalidatePathCache();
+            confiner.InvalidateCache();
             yield return new WaitForEndOfFrame();
         }
         virtualCamera.m_Lens.OrthographicSize = defaultSize;
-        confiner.InvalidatePathCache();
+        confiner.InvalidateCache();
         yield return new WaitForEndOfFrame();
         zoomCoroutine = null;
     }

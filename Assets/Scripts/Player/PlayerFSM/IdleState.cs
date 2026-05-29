@@ -9,17 +9,13 @@ public class IdleState : IState
         this.player = player;
     }
 
-    public void Enter()
-    {
-    }
+    public void Enter() { }
 
-    public void Exit()
-    {
-    }
+    public void Exit() { }
 
     public void FixedUpdate()
     {
-        if (player.Rb.linearVelocity.y < 0f)
+        if (!player.Grounded && player.Rb.linearVelocity.y < 0f)
             player.Fsm.ChangeState(player.FallState);
     }
 
