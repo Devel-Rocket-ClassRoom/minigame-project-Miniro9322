@@ -134,7 +134,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: dadc6b2fd3e7b904e917732ffb33ac29, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BossBullet
-  damage: 15
+  damage: 10
 --- !u!61 &1612801144055876074
 BoxCollider2D:
   m_ObjectHideFlags: 0

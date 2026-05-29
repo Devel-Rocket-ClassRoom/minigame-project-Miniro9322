@@ -152,7 +152,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 668479e4e12e808489ef78ef1e457234, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::FirePillar
-  damage: 25
+  damage: 10
 --- !u!95 &271040155715700632
 Animator:
   serializedVersion: 7

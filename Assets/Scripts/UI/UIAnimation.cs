@@ -11,11 +11,13 @@ public class UIAnimation : MonoBehaviour
     [SerializeField] private CinemachineVirtualCamera mainCamera;
     [SerializeField] private CinemachineConfiner2D confiner;
     [SerializeField] private TextMeshProUGUI bossName;
+    [SerializeField] private GameObject pauseMenu;
     private Animator animator;
 
     private void Awake()
     {
         animator = GetComponent<Animator>();
+        pauseMenu.SetActive(false);
     }
 
     public void OnBossSpawn()
@@ -57,5 +59,33 @@ public class UIAnimation : MonoBehaviour
         mainCamera.m_Follow = player.transform;
         mainCamera.m_Lens.OrthographicSize = 6;
         confiner.InvalidateCache();
+    }
+
+    public void OnPause()
+    {
+        if (pauseMenu.activeSelf == false)
+        {
+            pauseMenu.SetActive(true);
+        }
+        else
+        {
+            pauseMenu.SetActive(false);
+        }
+    }
+
+    public void OnMain()
+    {
+        SceneManager.LoadScene("Title");
+    }
+
+    public void OnResume()
+    {
+        Time.timeScale = 1f;
+        pauseMenu.SetActive(false);
+    }
+
+    public void OnQuit()
+    {
+        Application.Quit();
     }
 }

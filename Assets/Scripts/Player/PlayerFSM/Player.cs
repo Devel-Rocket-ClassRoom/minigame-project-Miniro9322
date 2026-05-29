@@ -36,6 +36,7 @@ public class Player : MonoBehaviour, IDamageable
     public UnityEvent<int, int> OnHpChange;
     public GameObject Effect;
     public UnityEvent ParryStart;
+    public UnityEvent GamePause;
     public PlayerData Data;
     public Rigidbody2D Rb => rb;
     public SpriteRenderer Sr => sr;
@@ -46,6 +47,7 @@ public class Player : MonoBehaviour, IDamageable
     private InputAction Attack;
     private InputAction Dodge;
     private InputAction Parry;
+    private InputAction Pause;
 
     private Vector2 move;
     private int currHp;
@@ -57,6 +59,7 @@ public class Player : MonoBehaviour, IDamageable
     private float coyoteCounter = 0f;
     private float dodgeInterval = 1f;
     private float dodgeCool = 0f;
+    private int notGroundedFrames = 0;  // 연속으로 공중에 있던 프레임 수
 
     private void Awake()
     {
@@ -75,6 +78,7 @@ public class Player : MonoBehaviour, IDamageable
         Attack = InputSystem.actions.FindAction("Attack");
         Dodge = InputSystem.actions.FindAction("Dodge");
         Parry = InputSystem.actions.FindAction("Parry");
+        Pause = InputSystem.actions.FindAction("Pause");
 
         AttackState = new AttackState(this);
         DeathState = new DeathState(this);
@@ -91,6 +95,7 @@ public class Player : MonoBehaviour, IDamageable
         Attack.performed += OnAttack;
         Dodge.performed += OnDodge;
         Parry.performed += OnParry;
+        Pause.performed += OnPause;
         currHp = Data.MaxHp;
         dodgeCool = dodgeInterval;
         OnHpChange?.Invoke(currHp, Data.MaxHp);
@@ -126,6 +131,9 @@ public class Player : MonoBehaviour, IDamageable
         if (Fsm.CurrentState == DeathState)
             return;
 
+        // Grounded를 먼저 갱신해야 같은 프레임에서 FallState가 올바른 값을 참조함
+        Grounded = Physics2D.OverlapCircle(groundCheck.position, Data.GroundCheckRadius, groundLayer);
+
         Fsm.FixedUpdate();
 
         if (Fsm.CurrentState == DodgeState || Fsm.CurrentState == DeathState)
@@ -133,15 +141,15 @@ public class Player : MonoBehaviour, IDamageable
 
         Move(move);
 
-        Grounded = Physics2D.OverlapCircle(groundCheck.position, Data.GroundCheckRadius, groundLayer);
-
         if (Grounded)
         {
             jumpCount = 0;
             coyoteCounter = Data.CoyoteTime;
+            notGroundedFrames = 0;
         }
         else
         {
+            notGroundedFrames++;
             if (coyoteCounter > 0f)
             {
                 coyoteCounter -= Time.fixedDeltaTime;
@@ -184,7 +192,7 @@ public class Player : MonoBehaviour, IDamageable
 
         if (!isAttacking
             && !isHit
-            && !Grounded
+            && notGroundedFrames > 2        // 2프레임 이상 연속으로 공중일 때만 전환 (1프레임 깜빡임 무시)
             && Rb.linearVelocity.y < -0.01f
             && Fsm.CurrentState != FallState
             && Fsm.CurrentState != JumpState)
@@ -199,7 +207,6 @@ public class Player : MonoBehaviour, IDamageable
         {
             transform.localScale = new Vector3(-1f, 1f, 1f);
             Animator.SetBool(MoveBool, true);
-
         }
         else if (move.x > 0f)
         {
@@ -207,7 +214,11 @@ public class Player : MonoBehaviour, IDamageable
             Animator.SetBool(MoveBool, true);
         }
         else
+        {
             Animator.SetBool(MoveBool, false);
+            // 입력 없을 때 x 속도 제거 → 발판 끝 미끄러짐 방지
+            rb.linearVelocity = new Vector2(0f, rb.linearVelocity.y);
+        }
 
         transform.position += Data.MoveSpeed * Time.fixedDeltaTime * new Vector3(move.x, 0f);
     }
@@ -294,6 +305,19 @@ public class Player : MonoBehaviour, IDamageable
     {
         if (Fsm.CurrentState == HitState || Fsm.CurrentState == DodgeState) return;
         Fsm.ChangeState(ParryState);
+    }
+
+    private void OnPause(InputAction.CallbackContext _)
+    {
+        if(Time.timeScale > 0f)
+        {
+            Time.timeScale = 0f;
+        }
+        else
+        {
+            Time.timeScale = 1f;
+        }
+        GamePause?.Invoke();
     }
 
     public void OpenInputQueue()

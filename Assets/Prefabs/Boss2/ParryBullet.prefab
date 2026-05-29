@@ -108,8 +108,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ParriableProjectile
   lifetime: 6
-  playerDamage: 20
-  parriedDamage: 50
+  playerDamage: 10
+  parriedDamage: 10
   reflectSpeedMult: 1.5
   normalColor: {r: 1, g: 1, b: 1, a: 1}
   parriedColor: {r: 0, g: 1, b: 1, a: 1}

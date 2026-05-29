@@ -108,7 +108,7 @@ MonoBehaviour:
   warningThickness: 0.1
   activeThickness: 4
   expandDuration: 0.07
-  damage: 30
+  damage: 10
 --- !u!61 &-656082493188505683
 BoxCollider2D:
   m_ObjectHideFlags: 0

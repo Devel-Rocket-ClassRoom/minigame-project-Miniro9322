@@ -20,8 +20,8 @@ MonoBehaviour:
   DodgeAmount: 5
   DodgeDuration: 0.5
   ParryInterval: 0.3
-  Atk: 50
-  MaxHp: 10000
+  Atk: 10
+  MaxHp: 200
   MoveSpeed: 5
   BlinkDurationInterval: 0.16
   BlinkInterval: 1

@@ -106,7 +106,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 52a5719cd29fe8a44a8f69135319b462, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GroggyPart
-  maxHP: 100
+  maxHP: 30
   hpBarSlider: {fileID: 0}
   hitEffect: {fileID: 0}
   destroyEffect: {fileID: 0}
