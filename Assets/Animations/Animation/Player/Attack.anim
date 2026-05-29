@@ -119,14 +119,14 @@ AnimationClip:
     intParameter: 0
     messageOptions: 0
   - time: 0.16666667
-    functionName: ToggleEffect
+    functionName: EnableEffect
     data: 
     objectReferenceParameter: {fileID: 0}
     floatParameter: 0
     intParameter: 0
     messageOptions: 0
   - time: 0.25
-    functionName: ToggleEffect
+    functionName: DisableEffect
     data: 
     objectReferenceParameter: {fileID: 0}
     floatParameter: 0

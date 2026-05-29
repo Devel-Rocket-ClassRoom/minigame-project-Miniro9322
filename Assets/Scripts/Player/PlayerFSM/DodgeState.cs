@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 public class DodgeState : IState
 {
@@ -7,6 +8,8 @@ public class DodgeState : IState
     private float dodgeTime;
     private Vector3 dodgeEnd;
     private Vector3 dodgeStart;
+    private float dodgeAttackInterval = 0.2f;
+    private bool dodgeAttacked = false;
 
     public DodgeState(Player player)
     {
@@ -39,6 +42,7 @@ public class DodgeState : IState
         dodgeTime = 0f;
         player.AfterImage.StopAfterImage();
         player.ToggleInvincible();
+        dodgeAttacked = false;
     }
 
     public void FixedUpdate()
@@ -54,5 +58,15 @@ public class DodgeState : IState
         player.Rb.MovePosition(Vector3.Lerp(dodgeStart, dodgeEnd, dodgeTime / player.Data.DodgeDuration));
     }
 
-    public void Update() { }
+    public void Update()
+    {
+        if (!dodgeAttacked && dodgeTime < dodgeAttackInterval)
+        {
+            if (player.GetComponent<PlayerInput>().actions["Attack"].WasPerformedThisFrame())
+            {
+                player.Animator.Play("DodgeAttack");
+                dodgeAttacked = true;
+            }
+        }
+    }
 }
