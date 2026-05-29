@@ -253,14 +253,13 @@ public class Player : MonoBehaviour, IDamageable
     public void AttackStart()
     {
         attackZone.Activate();
-        Debug.Log(1);
         IsAttackEnd = false;
     }
 
     public void AttackEnd()
     {
         attackZone.Deactivate();
-        Debug.Log(2);
+        if (Fsm.CurrentState != AttackState) return;  // AttackState 외부에서 온 이벤트 무시
         IsAttackEnd = true;
     }
 
