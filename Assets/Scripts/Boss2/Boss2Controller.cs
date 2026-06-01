@@ -106,6 +106,7 @@ public class Boss2Controller : MonoBehaviour, IDamageable
     private GameObject player;
     private Animator animator;
     [SerializeField] private BossData data;
+    [SerializeField] private GameObject parryWarning;
     public Transform LookAtZone;
     private int maxHP;
 
@@ -575,5 +576,20 @@ public class Boss2Controller : MonoBehaviour, IDamageable
     private void DestroyIt()
     {
         Destroy(gameObject);
+    }
+
+    private void EnableWarning()
+    {
+        parryWarning.SetActive(true);
+    }
+
+    private void DisableWarning()
+    {
+        parryWarning.SetActive(false);
+    }
+
+    public void OnGameOver()
+    {
+        behaviorAgent.BlackboardReference.SetVariableValue("IsGameOver", true);
     }
 }
