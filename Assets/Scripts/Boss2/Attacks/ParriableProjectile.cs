@@ -56,8 +56,6 @@ public class ParriableProjectile : MonoBehaviour, IDamageable
             float speed = rb.linearVelocity.magnitude;
             rb.linearVelocity = dir * speed * reflectSpeedMult;
         }
-
-        Debug.Log("[ParriableProjectile] 패링! 보스에게 반사");
     }
 
     private void OnTriggerEnter2D(Collider2D other)

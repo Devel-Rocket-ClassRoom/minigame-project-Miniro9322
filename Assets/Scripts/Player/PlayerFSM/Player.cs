@@ -35,6 +35,8 @@ public class Player : MonoBehaviour, IDamageable
     public UnityEvent OnHit;
     public UnityEvent<int, int> OnHpChange;
     public GameObject Effect;
+    public GameObject Effect2;
+    public GameObject Effect3;
     public UnityEvent ParryStart;
     public UnityEvent GamePause;
     public PlayerData Data;
@@ -70,6 +72,8 @@ public class Player : MonoBehaviour, IDamageable
         AfterImage = GetComponent<DashAfterImage>();
         sr = GetComponent<SpriteRenderer>();
         Effect.SetActive(false);
+        Effect2.SetActive(false);
+        Effect3.SetActive(false);
     }
 
     private void OnEnable()
@@ -107,6 +111,7 @@ public class Player : MonoBehaviour, IDamageable
         Jump.canceled -= OnJump;
         Attack.performed -= OnAttack;
         Dodge.performed -= OnDodge;
+        Parry.performed -= OnParry;
     }
 
     private void Start() => Fsm.ChangeState(IdleState);
@@ -241,9 +246,10 @@ public class Player : MonoBehaviour, IDamageable
     {
         if (Fsm.CurrentState == HitState || Fsm.CurrentState == DodgeState) return;
 
-        if (isQueueOpen)
+        if (Fsm.CurrentState == AttackState)
         {
-            CommandQueue.Enqueue("A");
+            // isQueueOpen 타이밍 무관하게 1개만 버퍼링
+            if (CommandQueue.Count == 0) CommandQueue.Enqueue("A");
             return;
         }
 
@@ -253,14 +259,13 @@ public class Player : MonoBehaviour, IDamageable
     public void AttackStart()
     {
         attackZone.Activate();
-        IsAttackEnd = false;
+        if (Fsm.CurrentState == AttackState) IsAttackEnd = false;
     }
 
     public void AttackEnd()
     {
         attackZone.Deactivate();
-        if (Fsm.CurrentState != AttackState) return;  // AttackState 외부에서 온 이벤트 무시
-        IsAttackEnd = true;
+        if (Fsm.CurrentState == AttackState) IsAttackEnd = true;
     }
 
     public IDamageable.DamageInfo SetDamage() => new() { canParry = false, damage = Data.Atk };
@@ -282,6 +287,8 @@ public class Player : MonoBehaviour, IDamageable
         KnockbackDir = damageInfo.knockbackDir;
         currHp -= damageInfo.damage;
 
+        OnHpChange?.Invoke(currHp, Data.MaxHp);
+
         if (currHp <= 0)
         {
             currHp = 0;
@@ -292,7 +299,6 @@ public class Player : MonoBehaviour, IDamageable
         Fsm.ChangeState(HitState);
 
         OnHit?.Invoke();
-        OnHpChange?.Invoke(currHp, Data.MaxHp);
     }
 
     private void OnDodge(InputAction.CallbackContext _)
@@ -334,8 +340,16 @@ public class Player : MonoBehaviour, IDamageable
 
     public void ResetAttackEnd() => IsAttackEnd = false;
 
-    public void EnableEffect()  => Effect.SetActive(true);
+    public void EnableEffect()
+    {
+        if (Fsm.CurrentState != AttackState) return;  // AttackState 외부 이벤트 무시
+        Effect.SetActive(true);
+    }
     public void DisableEffect() => Effect.SetActive(false);
+    public void EnableEffect2()  => Effect2.SetActive(true);
+    public void DisableEffect2() => Effect2.SetActive(false);
+    public void EnableEffect3()  => Effect3.SetActive(true);
+    public void DisableEffect3() => Effect3.SetActive(false);
 
     private void ToggleEffect()
     {
