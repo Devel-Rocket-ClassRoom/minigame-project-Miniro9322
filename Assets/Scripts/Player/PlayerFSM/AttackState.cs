@@ -28,12 +28,17 @@ public class AttackState : IState
         player.CloseInputQueue();
         player.Animator.ResetTrigger(AttackHash);
         player.Effect.SetActive(false);
+        player.Effect2.SetActive(false);
+        player.Effect3.SetActive(false);
     }
 
     public void FixedUpdate() { }
 
     public void Update()
     {
+        if (attackCount > player.Data.MaxAttackCount)
+            player.Fsm.ChangeState(player.IdleState);
+
         if (player.IsAttackEnd)
         {
             if(player.CommandQueue.Count == 0)
@@ -52,8 +57,5 @@ public class AttackState : IState
                 return;
             }
         }
-
-        if (attackCount > player.Data.MaxAttackCount)
-            player.Fsm.ChangeState(player.IdleState);
     }
 }
