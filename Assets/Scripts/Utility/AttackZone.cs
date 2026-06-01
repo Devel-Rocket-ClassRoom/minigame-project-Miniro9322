@@ -24,21 +24,16 @@ public class AttackZone : MonoBehaviour
 
     private void TryDealDamage(Collider2D collision)
     {
-        if (hitTargets.Contains(collision.gameObject))
-            return;
+        if (hitTargets.Contains(collision.gameObject)) return;
 
-        if (collision.gameObject.CompareTag("Player") && parent.CompareTag("Boss"))
-        {
-            var damage = parent.GetComponent<IDamageable>().SetDamage();
-            collision.gameObject.GetComponent<IDamageable>().GetDamage(damage);
-            hitTargets.Add(collision.gameObject);
-        }
-        else if (collision.gameObject.CompareTag("Boss") && parent.CompareTag("Player"))
-        {
-            var damage = parent.GetComponent<IDamageable>().SetDamage();
-            collision.gameObject.GetComponent<IDamageable>().GetDamage(damage);
-            hitTargets.Add(collision.gameObject);
-        }
+        bool valid = (collision.gameObject.CompareTag("Player") && parent.CompareTag("Boss"))
+                  || (collision.gameObject.CompareTag("Boss")   && parent.CompareTag("Player"));
+
+        if (!valid) return;
+
+        var damage = parent.GetComponent<IDamageable>().SetDamage();
+        collision.gameObject.GetComponent<IDamageable>().GetDamage(damage);
+        hitTargets.Add(collision.gameObject);
     }
 
     public void Deactivate() => gameObject.SetActive(false);

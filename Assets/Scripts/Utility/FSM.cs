@@ -1,5 +1,3 @@
-using UnityEngine;
-
 public class FSM
 {
     public IState CurrentState { get; private set; }

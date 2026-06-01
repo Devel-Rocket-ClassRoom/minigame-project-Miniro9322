@@ -2,11 +2,14 @@ using UnityEngine;
 
 public class BossBullet : MonoBehaviour, IDamageable
 {
-    [SerializeField] private int damage = 15;
+    [SerializeField] private float damageMultiplier = 1f;
+    private int damage;
 
     private Rigidbody2D rb;
 
     private void Awake() => rb = GetComponent<Rigidbody2D>();
+
+    public void Init(int baseAtk) => damage = Mathf.RoundToInt(baseAtk * damageMultiplier);
 
     private void FixedUpdate()
     {

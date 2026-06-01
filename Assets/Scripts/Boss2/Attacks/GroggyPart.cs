@@ -2,87 +2,86 @@ using UnityEngine;
 using UnityEngine.UI;
 
 public class GroggyPart : MonoBehaviour, IDamageable
+{
+    [Header("설정")]
+    [SerializeField] private float maxHP = 100f;
+
+    [Header("UI (선택)")]
+    [SerializeField] private Slider hpBarSlider;
+
+    [Header("시각 효과")]
+    [SerializeField] private ParticleSystem hitEffect;
+    [SerializeField] private ParticleSystem destroyEffect;
+    [SerializeField] private Color damagedColor = Color.red;
+
+    private Boss2Controller boss;
+    private float currentHP;
+    private SpriteRenderer sr;
+    private Color originalColor;
+    private bool isDestroyed = false;
+
+    private void Awake()
     {
-        [Header("설정")]
-        [SerializeField] private float maxHP = 100f;
+        sr = GetComponent<SpriteRenderer>();
+        if (sr) originalColor = sr.color;
+    }
 
-        [Header("UI (선택)")]
-        [SerializeField] private Slider hpBarSlider;
+    public void Initialize(Boss2Controller boss)
+    {
+        this.boss = boss;
+        currentHP = maxHP;
+        UpdateHPBar();
+    }
 
-        [Header("시각 효과")]
-        [SerializeField] private ParticleSystem hitEffect;
-        [SerializeField] private ParticleSystem destroyEffect;
-        [SerializeField] private Color          damagedColor = Color.red;
+    public IDamageable.DamageInfo SetDamage() => default;
 
-        private Boss2Controller boss;
-        private float           currentHP;
-        private SpriteRenderer  sr;
-        private Color           originalColor;
-        private bool            isDestroyed = false;
+    public void GetDamage(IDamageable.DamageInfo damageInfo)
+    {
+        TakeDamage(damageInfo.damage);
+    }
 
-        private void Awake()
+    public void TakeDamage(int damage)
+    {
+        if (isDestroyed) return;
+
+        currentHP = Mathf.Max(0f, currentHP - damage);
+        UpdateHPBar();
+
+        if (hitEffect) hitEffect.Play();
+        if (sr)
         {
-            sr = GetComponent<SpriteRenderer>();
-            if (sr) originalColor = sr.color;
+            sr.color = damagedColor;
+            CancelInvoke(nameof(ResetColor));
+            Invoke(nameof(ResetColor), 0.1f);
         }
 
-        public void Initialize(Boss2Controller boss)
-        {
-            this.boss  = boss;
-            currentHP  = maxHP;
-            UpdateHPBar();
-        }
+        if (currentHP <= 0f) DestroyPart();
+    }
 
-        public IDamageable.DamageInfo SetDamage() => default;
+    private void DestroyPart()
+    {
+        isDestroyed = true;
+        boss?.OnGroggyPartDestroyed();
 
-        public void GetDamage(IDamageable.DamageInfo damageInfo)
-        {
-            TakeDamage(damageInfo.damage);
-        }
+        if (destroyEffect)
+            Instantiate(destroyEffect, transform.position, Quaternion.identity);
 
-        public void TakeDamage(int damage)
-        {
-            if (isDestroyed) return;
+        Destroy(gameObject);
+    }
 
-            currentHP -= damage;
-            currentHP  = Mathf.Max(0f, currentHP);
-            UpdateHPBar();
+    private void UpdateHPBar()
+    {
+        if (hpBarSlider) hpBarSlider.value = currentHP / maxHP;
+    }
 
-            if (hitEffect) hitEffect.Play();
-            if (sr)
-            {
-                sr.color = damagedColor;
-                CancelInvoke(nameof(ResetColor));
-                Invoke(nameof(ResetColor), 0.1f);
-            }
+    private void ResetColor()
+    {
+        if (sr) sr.color = originalColor;
+    }
 
-            if (currentHP <= 0f) DestroyPart();
-        }
-
-        private void DestroyPart()
-        {
-            isDestroyed = true;
-            boss?.OnGroggyPartDestroyed();
-
-            if (destroyEffect)
-                Instantiate(destroyEffect, transform.position, Quaternion.identity);
-
-            Destroy(gameObject);
-        }
-
-        private void UpdateHPBar()
-        {
-            if (hpBarSlider) hpBarSlider.value = currentHP / maxHP;
-        }
-
-        private void ResetColor()
-        {
-            if (sr) sr.color = originalColor;
-        }
-
-        private void OnTriggerEnter2D(Collider2D other)
-        {
-            if (!other.CompareTag("Player")) return;
-            if (other.TryGetComponent<IDamageable>(out var weapon)) GetDamage(weapon.SetDamage());
-        }
+    private void OnTriggerEnter2D(Collider2D other)
+    {
+        if (!other.CompareTag("Player")) return;
+        if (other.TryGetComponent<IDamageable>(out var weapon)) GetDamage(weapon.SetDamage());
+    }
 }

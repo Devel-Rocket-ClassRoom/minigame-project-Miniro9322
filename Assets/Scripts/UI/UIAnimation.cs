@@ -38,7 +38,6 @@ public class UIAnimation : MonoBehaviour
                 mainCamera.m_Follow = boss.LookAtZone;
                 mainCamera.ForceCameraPosition(new Vector3(boss.LookAtZone.position.x, boss.LookAtZone.position.y, mainCamera.transform.position.z), Quaternion.identity);
                 confiner.InvalidateCache();
-                Debug.Log(boss.LookAtZone.position);
                 animator.Play("BossSpawn");
                 break;
             case "Boss2":
@@ -63,17 +62,7 @@ public class UIAnimation : MonoBehaviour
         confiner.InvalidateCache();
     }
 
-    public void OnPause()
-    {
-        if (pauseMenu.activeSelf == false)
-        {
-            pauseMenu.SetActive(true);
-        }
-        else
-        {
-            pauseMenu.SetActive(false);
-        }
-    }
+    public void OnPause() => pauseMenu.SetActive(!pauseMenu.activeSelf);
 
     public void OnMain()
     {

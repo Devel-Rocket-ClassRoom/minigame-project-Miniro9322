@@ -79,10 +79,14 @@ public class Boss2Controller : MonoBehaviour, IDamageable
     [SerializeField] private AudioClip phase2SFX;
 
     [Header("── 피격 효과 ──")]
-    [Tooltip("피격 시 흰 플래시 유지 시간 (초)")]
     [SerializeField] private float hitFlashDuration = 0.08f;
-    [Tooltip("피격 히트스탑 지속 시간 (초, unscaled)")]
     [SerializeField] private float hitStopDuration = 0.04f;
+
+    [Header("── 사망 연출 ──")]
+    [SerializeField] private float deathStopDuration = 0.3f;
+    [SerializeField] private float deathSlowScale = 0.2f;
+    [SerializeField] private float deathSlowDuration = 1.0f;
+    [SerializeField] private ParticleSystem deathParticle;
 
     public bool IsActing { get; private set; } = false;
     public bool IsGroggy { get; private set; } = false;
@@ -107,7 +111,8 @@ public class Boss2Controller : MonoBehaviour, IDamageable
     private Animator animator;
     [SerializeField] private BossData data;
     [SerializeField] private GameObject parryWarning;
-    public Transform LookAtZone;
+    [SerializeField] private Transform lookAtZone;
+    public Transform LookAtZone => lookAtZone;
     private int maxHP;
 
     private void Awake()
@@ -165,11 +170,6 @@ public class Boss2Controller : MonoBehaviour, IDamageable
     public void GetDamage(IDamageable.DamageInfo damageInfo)
     {
         TakeDamage(damageInfo.damage);
-        if (!IsDead)
-        {
-            StartCoroutine(HitFlashCoroutine());
-            StartCoroutine(HitStopCoroutine());
-        }
     }
 
     public void TakeDamage(int damage)
@@ -177,10 +177,15 @@ public class Boss2Controller : MonoBehaviour, IDamageable
         if (IsDead) return;
         CurrentHP = Mathf.Max(0f, CurrentHP - damage);
 
-        if (IsDead)
+        if (!IsDead)
+        {
+            StartCoroutine(HitFlashCoroutine());
+            StartCoroutine(HitStopCoroutine());
+        }
+        else
         {
             behaviorAgent.BlackboardReference.SetVariableValue("IsDead", true);
-            OnDeath();
+            StartCoroutine(DeathEffectCoroutine());
         }
     }
 
@@ -191,7 +196,6 @@ public class Boss2Controller : MonoBehaviour, IDamageable
 
     private void OnPhase2Start()
     {
-        Debug.Log("[Boss2] ★ 2페이즈 전환 ★");
 
         behaviorAgent.BlackboardReference.SetVariableValue("IsPhase2", true);
 
@@ -202,7 +206,6 @@ public class Boss2Controller : MonoBehaviour, IDamageable
 
     private void OnDeath()
     {
-        Debug.Log("[Boss2] 사망");
         behaviorAgent.BlackboardReference.SetVariableValue("IsDead", true);
         animator.Play(DeathHash);
         StopAllCoroutines();
@@ -236,55 +239,34 @@ public class Boss2Controller : MonoBehaviour, IDamageable
         }
     }
 
+    private IEnumerator DoTeleport(Vector3 target)
+    {
+        if (spriteRenderer) spriteRenderer.enabled = false;
+        yield return new WaitForSeconds(teleportDuration * 0.5f);
+        transform.position = target;
+        yield return new WaitForSeconds(teleportDuration * 0.5f);
+        if (spriteRenderer) spriteRenderer.enabled = true;
+    }
+
     private IEnumerator TeleportToPosition(Vector3 target)
     {
-        if (spriteRenderer)
-        {
-            spriteRenderer.enabled = false;
-            yield return new WaitForSeconds(teleportDuration * 0.5f);
-            transform.position = target;
-            yield return new WaitForSeconds(teleportDuration * 0.5f);
-            spriteRenderer.enabled = true;
-        }
-        else
-        {
-            yield return new WaitForSeconds(teleportDuration * 0.5f);
-            transform.position = target;
-            yield return new WaitForSeconds(teleportDuration * 0.5f);
-        }
+        yield return StartCoroutine(DoTeleport(target));
     }
 
     private IEnumerator TeleportToRandomPosition()
     {
-        // 실제로 위치가 지정된 슬롯만 후보로 추림
         var candidates = new List<(int floor, int side)>();
         for (int f = 0; f < 4; f++)
             for (int s = 0; s < 3; s++)
                 if (teleportPositions[f, s] != Vector3.zero)
                     candidates.Add((f, s));
 
-        // 현재 위치 제외
         candidates.RemoveAll(c => c.floor == currentFloor && c.side == currentSide);
 
-        if (candidates.Count == 0) yield break;  // 이동 가능한 위치 없으면 스킵
+        if (candidates.Count == 0) yield break;
 
         var pick = candidates[UnityEngine.Random.Range(0, candidates.Count)];
-        Vector3 target = teleportPositions[pick.floor, pick.side];
-
-        if (spriteRenderer)
-        {
-            spriteRenderer.enabled = false;
-            yield return new WaitForSeconds(teleportDuration * 0.5f);
-            transform.position = target;
-            yield return new WaitForSeconds(teleportDuration * 0.5f);
-            spriteRenderer.enabled = true;
-        }
-        else
-        {
-            yield return new WaitForSeconds(teleportDuration * 0.5f);
-            transform.position = target;
-            yield return new WaitForSeconds(teleportDuration * 0.5f);
-        }
+        yield return StartCoroutine(DoTeleport(teleportPositions[pick.floor, pick.side]));
 
         currentFloor = pick.floor;
         currentSide  = pick.side;
@@ -294,7 +276,7 @@ public class Boss2Controller : MonoBehaviour, IDamageable
     {
         IsActing = true;
 
-        var playerTf = GameObject.FindGameObjectWithTag("Player")?.transform;
+        var playerTf = player?.transform;
 
         fireSignalReceived = false;
         animator.Play(FireBallHash);
@@ -315,13 +297,12 @@ public class Boss2Controller : MonoBehaviour, IDamageable
                 var go = Instantiate(parriableProjectilePrefab, transform.position, Quaternion.identity);
                 spawnedObjects.Add(go);
                 if (go.TryGetComponent<Rigidbody2D>(out var rb)) rb.linearVelocity = fd * projectileSpeed;
-                if (go.TryGetComponent<ParriableProjectile>(out var pp)) pp.Initialize(this);
+                if (go.TryGetComponent<ParriableProjectile>(out var pp)) pp.Initialize(this, data.atk);
             }
             yield return new WaitForSeconds(projectileInterval);
         }
 
-        yield return new WaitForSeconds(0.3f);
-        yield return new WaitForSeconds(parryWindowDelay);
+        yield return new WaitForSeconds(0.3f + parryWindowDelay);
         yield return StartCoroutine(TeleportToRandomPosition());
         yield return new WaitForSeconds(postAttackDelay);
 
@@ -332,9 +313,8 @@ public class Boss2Controller : MonoBehaviour, IDamageable
     public IEnumerator AttackFirePillar(Action<bool> callback)
     {
         IsActing = true;
-        Debug.Log("[Boss2] 불기둥 공격");
 
-        var playerTf = GameObject.FindGameObjectWithTag("Player")?.transform;
+        var playerTf = player?.transform;
 
         fireSignalReceived = false;
         animator.Play(FireWallHash);
@@ -374,13 +354,15 @@ public class Boss2Controller : MonoBehaviour, IDamageable
         yield return new WaitForSeconds(delay);
         if (warning) Destroy(warning);
         if (firePillarExplosionPrefab)
-            Instantiate(firePillarExplosionPrefab, pos, Quaternion.identity);
+        {
+            var explosion = Instantiate(firePillarExplosionPrefab, pos, Quaternion.identity);
+            if (explosion.TryGetComponent<FirePillar>(out var fp)) fp.Init(data.atk);
+        }
     }
 
     public IEnumerator AttackBulletCurtain(Action<bool> callback)
     {
         IsActing = true;
-        Debug.Log("[Boss2] 탄막 공격");
 
         fireSignalReceived = false;
         animator.Play(SpreadFireBallHash);
@@ -398,6 +380,7 @@ public class Boss2Controller : MonoBehaviour, IDamageable
                 var bullet = Instantiate(bulletPrefab, transform.position, Quaternion.identity);
                 spawnedObjects.Add(bullet);
                 if (bullet.TryGetComponent<Rigidbody2D>(out var rb)) rb.linearVelocity = dir * bulletSpeed;
+                if (bullet.TryGetComponent<BossBullet>(out var bb)) bb.Init(data.atk);
                 Destroy(bullet, 5f);
             }
         }
@@ -412,7 +395,6 @@ public class Boss2Controller : MonoBehaviour, IDamageable
     public IEnumerator AttackFloorLaser(Action<bool> callback)
     {
         IsActing = true;
-        Debug.Log("[Boss2] 층 레이저 공격");
 
         bool bossOnLeft = transform.position.x <= 0f;
         Transform[] spawnPoints = bossOnLeft ? floorLaserLeftPositions : floorLaserRightPositions;
@@ -437,6 +419,7 @@ public class Boss2Controller : MonoBehaviour, IDamageable
                 spawnedObjects.Add(go);
                 if (go.TryGetComponent<FloorLaser>(out var fl))
                 {
+                    fl.Init(data.atk);
                     fl.StartWarning();
                     lasers[i] = fl;
                 }
@@ -470,7 +453,6 @@ public class Boss2Controller : MonoBehaviour, IDamageable
     {
         IsActing = true;
         animator.SetBool(ActingHash, IsActing);
-        Debug.Log("[Boss2] 그로기 패턴! 파츠를 파괴하세요!");
 
         if (groggyCenterPosition != null)
             yield return StartCoroutine(TeleportToPosition(groggyCenterPosition.position));
@@ -502,7 +484,6 @@ public class Boss2Controller : MonoBehaviour, IDamageable
 
         if (groggyPartsDestroyed >= groggyPartsTotal)
         {
-            Debug.Log("[Boss2] 파츠 파괴 성공 → 그로기!");
             IsGroggy = true;
             animator.SetBool(StunHash, IsGroggy);
             animator.Play(StunHash);
@@ -512,7 +493,6 @@ public class Boss2Controller : MonoBehaviour, IDamageable
         }
         else
         {
-            Debug.Log("[Boss2] 파츠 파괴 실패 → HP 회복");
             foreach (var part in spawnedGroggyParts)
                 if (part) Destroy(part);
             spawnedGroggyParts.Clear();
@@ -534,17 +514,15 @@ public class Boss2Controller : MonoBehaviour, IDamageable
     public void OnGroggyPartDestroyed()
     {
         groggyPartsDestroyed++;
-        Debug.Log($"[Boss2] 파츠 {groggyPartsDestroyed}/{groggyPartsTotal} 파괴");
     }
 
     private IEnumerator HitFlashCoroutine()
     {
         if (!spriteRenderer) yield break;
-
-        Color current = spriteRenderer.color;
+        Color baseColor = IsPhase2 ? phase2Color : Color.white;
         spriteRenderer.color = Color.black;
         yield return new WaitForSecondsRealtime(hitFlashDuration);
-        spriteRenderer.color = current;
+        spriteRenderer.color = baseColor;
     }
 
     private IEnumerator HitStopCoroutine()
@@ -557,6 +535,25 @@ public class Boss2Controller : MonoBehaviour, IDamageable
             yield return null;
         }
         Time.timeScale = 1f;
+    }
+
+    private IEnumerator DeathEffectCoroutine()
+    {
+        Time.timeScale = 0f;
+        yield return new WaitForSecondsRealtime(deathStopDuration);
+
+        Time.timeScale = deathSlowScale;
+        if (deathParticle) deathParticle.Play();
+
+        float elapsed = 0f;
+        while (elapsed < deathSlowDuration)
+        {
+            elapsed += Time.unscaledDeltaTime;
+            yield return null;
+        }
+
+        Time.timeScale = 1f;
+        OnDeath();  // 연출 완료 후 사망 처리
     }
 
     private int[] ShuffledOrder(int count)

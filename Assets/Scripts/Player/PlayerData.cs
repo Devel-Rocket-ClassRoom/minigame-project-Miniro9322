@@ -11,6 +11,7 @@ public class PlayerData : ScriptableObject
     public float FallMultiplier = 2.5f;
     public float DodgeAmount = 5f;
     public float DodgeDuration = 0.5f;
+    public float DodgeCooldown = 1f;
     public float ParryInterval = 0.3f;
     public int Atk;
     public int MaxHp;
@@ -19,8 +20,6 @@ public class PlayerData : ScriptableObject
     public float BlinkInterval = 1f;
     public int MaxJumpCount = 1;
     public int MaxAttackCount = 2;
-    [Header("플레이어 이동속도")]
-    public float moveSpeed = 5f;
     [Header("플레이어 점프 힘")]
     public float JumpPower = 10f;
     [Header("넉백")]

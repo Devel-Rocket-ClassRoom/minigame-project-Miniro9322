@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
@@ -54,12 +53,11 @@ public class Player : MonoBehaviour, IDamageable
     private Vector2 move;
     private int currHp;
     private int jumpCount = 0;
-    private bool Invincible = false;
+    private bool invincible = false;
     private bool parrying = false;
     private bool isQueueOpen = false;
     private float jumpBufferCounter = 0f;
     private float coyoteCounter = 0f;
-    private float dodgeInterval = 1f;
     private float dodgeCool = 0f;
     private int notGroundedFrames = 0;  // 연속으로 공중에 있던 프레임 수
 
@@ -101,7 +99,7 @@ public class Player : MonoBehaviour, IDamageable
         Parry.performed += OnParry;
         Pause.performed += OnPause;
         currHp = Data.MaxHp;
-        dodgeCool = dodgeInterval;
+        dodgeCool = Data.DodgeCooldown;
         OnHpChange?.Invoke(currHp, Data.MaxHp);
     }
 
@@ -112,6 +110,7 @@ public class Player : MonoBehaviour, IDamageable
         Attack.performed -= OnAttack;
         Dodge.performed -= OnDodge;
         Parry.performed -= OnParry;
+        Pause.performed -= OnPause;
     }
 
     private void Start() => Fsm.ChangeState(IdleState);
@@ -123,7 +122,7 @@ public class Player : MonoBehaviour, IDamageable
         if (Fsm.CurrentState == DeathState)
             return;
 
-        if(dodgeCool < dodgeInterval)
+        if(dodgeCool < Data.DodgeCooldown)
         {
             dodgeCool += Time.deltaTime;
         }
@@ -272,7 +271,7 @@ public class Player : MonoBehaviour, IDamageable
 
     public void GetDamage(IDamageable.DamageInfo damageInfo)
     {
-        if (Invincible)
+        if (invincible)
         {
             return;
         }
@@ -303,7 +302,7 @@ public class Player : MonoBehaviour, IDamageable
 
     private void OnDodge(InputAction.CallbackContext _)
     {
-        if (Fsm.CurrentState == HitState || dodgeCool < dodgeInterval) return;
+        if (Fsm.CurrentState == HitState || dodgeCool < Data.DodgeCooldown) return;
         dodgeCool = 0f;
         Fsm.ChangeState(DodgeState);
     }
@@ -334,7 +333,7 @@ public class Player : MonoBehaviour, IDamageable
 
     public void CloseInputQueue() => isQueueOpen = false;
 
-    public void ToggleInvincible() => Invincible = !Invincible;
+    public void ToggleInvincible() => invincible = !invincible;
 
     public void ToggleParry() => parrying = !parrying;
 
@@ -350,9 +349,4 @@ public class Player : MonoBehaviour, IDamageable
     public void DisableEffect2() => Effect2.SetActive(false);
     public void EnableEffect3()  => Effect3.SetActive(true);
     public void DisableEffect3() => Effect3.SetActive(false);
-
-    private void ToggleEffect()
-    {
-        Effect.SetActive(!Effect.activeSelf);
-    }
 }

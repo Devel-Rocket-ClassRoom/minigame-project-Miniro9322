@@ -12,12 +12,14 @@ public class FloorLaser : MonoBehaviour
     [SerializeField] private float expandDuration = 0.07f;
 
     [Header("피해")]
-    [SerializeField] private int damage = 30;
+    [SerializeField] private float damageMultiplier = 1f;
+    private int damage;
+
+    public void Init(int baseAtk) => damage = Mathf.RoundToInt(baseAtk * damageMultiplier);
 
     private SpriteRenderer sr;
     private Collider2D col;
     private bool isActive = false;
-    private Coroutine flickerCoroutine;
 
     private void Awake()
     {
@@ -34,7 +36,6 @@ public class FloorLaser : MonoBehaviour
 
     public void Activate(float activeDuration)
     {
-        if (flickerCoroutine != null) StopCoroutine(flickerCoroutine);
         StartCoroutine(ActivateCoroutine(activeDuration));
     }
 
