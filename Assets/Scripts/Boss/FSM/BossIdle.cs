@@ -24,10 +24,7 @@ public class BossIdle : IState
         thinkTime = 0f;
     }
 
-    public void FixedUpdate()
-    {
-
-    }
+    public void FixedUpdate() { }
 
     public void Update()
     {
@@ -45,7 +42,7 @@ public class BossIdle : IState
         boss.Animator.SetBool(MoveHash, true);
         boss.transform.position += boss.transform.localScale.x * boss.Data.moveSpeed * Time.deltaTime * Vector3.right;
 
-        if (boss.PlayerDistance <= boss.closeRange || boss.PlayerDistance >= boss.farRange)
+        if (boss.PlayerDistance <= boss.CloseRange || boss.PlayerDistance >= boss.FarRange)
             boss.Fsm.ChangeState(boss.DecideState);
     }
 }

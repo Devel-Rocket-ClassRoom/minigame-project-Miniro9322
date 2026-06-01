@@ -5,9 +5,12 @@ public class ParriableProjectile : MonoBehaviour, IDamageable
 {
     [Header("설정")]
     [SerializeField] private float lifetime = 6f;
-    [SerializeField] private float playerDamage = 20f;
-    [SerializeField] private float parriedDamage = 50f;
+    [SerializeField] private float playerDamageMultiplier = 1f;
+    [SerializeField] private float parriedDamageMultiplier = 2.5f;
     [SerializeField] private float reflectSpeedMult = 1.5f;
+
+    private int playerDamage;
+    private int parriedDamage;
 
     [Header("시각 효과")]
     [SerializeField] private Color normalColor = new Color(1f, 0.8f, 0f);
@@ -24,7 +27,7 @@ public class ParriableProjectile : MonoBehaviour, IDamageable
         sr = GetComponent<SpriteRenderer>();
     }
 
-    public IDamageable.DamageInfo SetDamage() => new() { damage = (int)playerDamage, canParry = true };
+    public IDamageable.DamageInfo SetDamage() => new() { damage = playerDamage, canParry = true };
 
     public void GetDamage(IDamageable.DamageInfo damageInfo) { }
 
@@ -36,9 +39,11 @@ public class ParriableProjectile : MonoBehaviour, IDamageable
         }
     }
 
-    public void Initialize(Boss2Controller boss)
+    public void Initialize(Boss2Controller boss, int baseAtk)
     {
-        this.boss = boss;
+        this.boss    = boss;
+        playerDamage  = Mathf.RoundToInt(baseAtk * playerDamageMultiplier);
+        parriedDamage = Mathf.RoundToInt(baseAtk * parriedDamageMultiplier);
         if (sr) sr.color = normalColor;
         Destroy(gameObject, lifetime);
     }
@@ -50,12 +55,21 @@ public class ParriableProjectile : MonoBehaviour, IDamageable
 
         if (sr) sr.color = parriedColor;
 
-        if (boss != null && rb != null)
+        if (boss == null || rb == null) return;
+
+        // 이미 보스와 겹쳐있으면 즉시 데미지
+        var col = GetComponent<Collider2D>();
+        var bossCol = boss.GetComponent<Collider2D>();
+        if (col != null && bossCol != null && col.IsTouching(bossCol))
         {
-            Vector3 dir = (boss.transform.position - transform.position).normalized;
-            float speed = rb.linearVelocity.magnitude;
-            rb.linearVelocity = dir * speed * reflectSpeedMult;
+            boss.TakeDamage(parriedDamage);
+            Destroy(gameObject);
+            return;
         }
+
+        Vector3 dir = (boss.transform.position - transform.position).normalized;
+        float speed = rb.linearVelocity.magnitude;
+        rb.linearVelocity = dir * speed * reflectSpeedMult;
     }
 
     private void OnTriggerEnter2D(Collider2D other)
@@ -64,7 +78,7 @@ public class ParriableProjectile : MonoBehaviour, IDamageable
         {
             if (other.CompareTag("Boss"))
             {
-                boss?.TakeDamage((int)parriedDamage);
+                boss?.TakeDamage(parriedDamage);
                 Destroy(gameObject);
             }
         }

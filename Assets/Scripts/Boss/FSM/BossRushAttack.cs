@@ -1,5 +1,4 @@
 using UnityEngine;
-using static UnityEngine.RuleTile.TilingRuleOutput;
 
 public class BossRushAttack : IState
 {
@@ -31,15 +30,10 @@ public class BossRushAttack : IState
     {
         boss.IsAttack = false;
         rushTime = 0f;
-        if(boss.CanRush == true)
-        {
-            boss.RushAvailable();
-        }
+        if (boss.CanRush) boss.RushAvailable();
     }
 
-    public void FixedUpdate()
-    {
-    }
+    public void FixedUpdate() { }
 
     public void Update()
     {
@@ -54,8 +48,6 @@ public class BossRushAttack : IState
         boss.transform.position = Vector3.Lerp(startPoint, rushVector, rushTime / rushDuration);
 
         if (!boss.IsAttack)
-        {
             boss.Fsm.ChangeState(boss.Idle);
-        }
     }
 }

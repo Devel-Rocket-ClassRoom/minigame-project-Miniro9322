@@ -3,9 +3,12 @@ using UnityEngine;
 
 public class FirePillar : MonoBehaviour, IDamageable
 {
-    [SerializeField] private int damage = 25;
+    [SerializeField] private float damageMultiplier = 1f;
+    private int damage;
 
     private bool hasHit = false;
+
+    public void Init(int baseAtk) => damage = Mathf.RoundToInt(baseAtk * damageMultiplier);
 
     public IDamageable.DamageInfo SetDamage() => new() { damage = damage, canParry = false };
 

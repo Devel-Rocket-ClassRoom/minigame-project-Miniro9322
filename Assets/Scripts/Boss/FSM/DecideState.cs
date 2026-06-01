@@ -13,7 +13,5 @@ public class DecideState : IState
     public void Update() { }
     public void Exit() { }
 
-    public void FixedUpdate()
-    {
-    }
+    public void FixedUpdate() { }
 }

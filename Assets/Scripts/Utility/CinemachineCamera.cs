@@ -51,10 +51,10 @@ public class CinemachineCamera : MonoBehaviour
         if (virtualCamera == null) return;
 
         if (zoomCoroutine != null) StopCoroutine(zoomCoroutine);
-        zoomCoroutine = StartCoroutine(ZoomCoroutine(Vector3.zero));
+        zoomCoroutine = StartCoroutine(ZoomCoroutine());
     }
 
-    private IEnumerator ZoomCoroutine(Vector3 parryPosition)
+    private IEnumerator ZoomCoroutine()
     {
         float elapsed   = 0f;
         float startSize = virtualCamera.m_Lens.OrthographicSize;
@@ -102,11 +102,9 @@ public class CinemachineCamera : MonoBehaviour
         noise.m_AmplitudeGain = intensity;
 
         float elapsed = 0f;
-
         while (elapsed < duration)
         {
             elapsed += Time.unscaledDeltaTime;
-
             yield return null;
         }
 

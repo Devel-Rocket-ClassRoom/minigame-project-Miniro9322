@@ -1,6 +1,4 @@
-using Unity.IO.LowLevel.Unsafe;
 using UnityEngine;
-using UnityEngine.SceneManagement;
 
 public class Boss1 : BossController
 {
@@ -16,12 +14,21 @@ public class Boss1 : BossController
     public bool CanRush { get; private set; } = false;
 
 
-    public float closeRange = 3f;
-    public float farRange = 8f;
-    public float periodicInterval = 5f;
+    [SerializeField] private float closeRange = 3f;
+    [SerializeField] private float farRange = 8f;
+    [SerializeField] private float periodicInterval = 5f;
+    public float CloseRange => closeRange;
+    public float FarRange => farRange;
+
+    [Header("── 패턴 가중치 ──")]
+    [SerializeField] private float weightAttack1 = 50f;
+    [SerializeField] private float weightRush = 30f;
+    [SerializeField] private float weightIdle = 20f;
+
     private float periodicTimer;
     [SerializeField] private float stunInterval = 3f;
     [SerializeField] private GameObject warning;
+    [SerializeField] private SceneTransitionWall transitionWall;
     private float stunTime = 0f;
     private bool isGameOver;
     private bool isStuned;
@@ -50,11 +57,6 @@ public class Boss1 : BossController
         base.Update();
     }
 
-    protected override void FixedUpdate()
-    {
-        base.FixedUpdate();
-    }
-
     public override IState ChooseNextAction()
     {
         if (periodicTimer >= periodicInterval)
@@ -63,8 +65,11 @@ public class Boss1 : BossController
             return Attack2;
         }
 
-        if (PlayerDistance <= closeRange) return Attack1;
-        if (PlayerDistance >= farRange) return Rush;
+        float total = weightAttack1 + weightRush + weightIdle;
+        float roll = Random.Range(0f, total);
+
+        if (roll < weightAttack1) return Attack1;
+        if (roll < weightAttack1 + weightRush) return Rush;
         return Idle;
     }
 
@@ -90,11 +95,17 @@ public class Boss1 : BossController
 
     public override void GetDamage(IDamageable.DamageInfo damageInfo)
     {
-        if (isDeath)
-            return;
+        if (isDeath) return;
 
-        CurrHp -= damageInfo.damage;
+        base.GetDamage(damageInfo);
         Animator.Play(HitHash);
+
+        if (CurrHp <= 0)
+        {
+            isDeath = true;
+            TriggerDeathEffect();
+            Fsm.ChangeState(Death);
+        }
     }
 
     public void OnParry()
@@ -112,20 +123,11 @@ public class Boss1 : BossController
 
     private void OnDeath()
     {
-        SceneManager.LoadScene("Boss2");
+        if (transitionWall != null)
+            transitionWall.Activate();
     }
 
-    private void ToggleWarning()
-    {
-        if (warning.activeSelf)
-        {
-            warning.SetActive(false);
-        }
-        else
-        {
-            warning.SetActive(true);
-        }
-    }
+    private void ToggleWarning() => warning.SetActive(!warning.activeSelf);
 
     public void RushAvailable()
     {

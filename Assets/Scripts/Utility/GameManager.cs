@@ -1,24 +1,17 @@
-using Cinemachine;
-using System;
 using System.Collections;
-using TMPro;
 using UnityEngine;
 using UnityEngine.InputSystem;
-using UnityEngine.SceneManagement;
 
 public class GameManager : MonoBehaviour
 {
-    [SerializeField]
-    private PlayerInput playerInput;
+    [SerializeField] private PlayerInput playerInput;
+    [SerializeField] private BossController boss;
+
     private InputAction debug;
     private InputAction debugOff;
     private InputAction attack;
     private InputAction attack2;
     private InputAction rush;
-    [SerializeField] private BossController boss;
-    [SerializeField] private Boss2Controller boss2;
-    [SerializeField] private CinemachineVirtualCamera mainCamera;
-    [SerializeField] private TextMeshProUGUI bossName;
 
     private void Start()
     {
@@ -28,32 +21,29 @@ public class GameManager : MonoBehaviour
 
     private void OnEnable()
     {
-        attack = InputSystem.actions.FindAction("BossAttack");
-        attack2 = InputSystem.actions.FindAction("BossAttack2");
-        debug = InputSystem.actions.FindAction("DebugMode");
-        debugOff = InputSystem.actions.FindAction("OffDebug");
-        rush = InputSystem.actions.FindAction("Rush");
+        attack    = InputSystem.actions.FindAction("BossAttack");
+        attack2   = InputSystem.actions.FindAction("BossAttack2");
+        debug     = InputSystem.actions.FindAction("DebugMode");
+        debugOff  = InputSystem.actions.FindAction("OffDebug");
+        rush      = InputSystem.actions.FindAction("Rush");
 
-        attack.performed += OnAttack;
-        attack2.performed += OnAttack2;
-        rush.performed += OnRush;
-        debug.performed += OnDebug;
+        attack.performed   += OnAttack;
+        attack2.performed  += OnAttack2;
+        rush.performed     += OnRush;
+        debug.performed    += OnDebug;
         debugOff.performed += OffDebug;
     }
 
     private void OnDisable()
     {
-        attack.performed -= OnAttack;
-        attack2.performed -= OnAttack2;
-        debug.performed -= OnDebug;
+        attack.performed   -= OnAttack;
+        attack2.performed  -= OnAttack2;
+        debug.performed    -= OnDebug;
         debugOff.performed -= OffDebug;
-        rush.performed -= OnRush;
+        rush.performed     -= OnRush;
     }
 
-    public void HitStop()
-    {
-        StartCoroutine(CoHit());
-    }
+    public void HitStop() => StartCoroutine(CoHit());
 
     private IEnumerator CoHit()
     {
@@ -67,20 +57,9 @@ public class GameManager : MonoBehaviour
         playerInput.actions.FindActionMap("Player").Disable();
     }
 
-    private void OnRush(InputAction.CallbackContext _)
-    {
-        boss.SendMessage("Rush");
-    }
-
-    private void OnAttack(InputAction.CallbackContext _)
-    {
-        boss.SendMessage("Attack1");
-    }
-
-    private void OnAttack2(InputAction.CallbackContext _)
-    {
-        boss.SendMessage("Attack2");
-    }
+    private void OnRush(InputAction.CallbackContext _)   => boss.SendMessage("Rush");
+    private void OnAttack(InputAction.CallbackContext _)  => boss.SendMessage("Attack1");
+    private void OnAttack2(InputAction.CallbackContext _) => boss.SendMessage("Attack2");
 
     private void OnDebug(InputAction.CallbackContext _)
     {

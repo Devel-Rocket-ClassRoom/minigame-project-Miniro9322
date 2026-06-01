@@ -2,6 +2,7 @@ using System.IO;
 using TMPro;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.UI;
 
 public class KeySetting : MonoBehaviour
 {
@@ -18,179 +19,78 @@ public class KeySetting : MonoBehaviour
     [SerializeField] private TextMeshProUGUI attacktext;
     [SerializeField] private TextMeshProUGUI parrytext;
 
+    [SerializeField] private Button leftButton;
+    [SerializeField] private Button rightButton;
+    [SerializeField] private Button jumpButton;
+    [SerializeField] private Button dodgeButton;
+    [SerializeField] private Button attackButton;
+    [SerializeField] private Button parryButton;
+
     private string path;
 
     private void Awake()
     {
-        move = InputSystem.actions.FindAction("Move");
-        jump = InputSystem.actions.FindAction("Jump");
-        dodge = InputSystem.actions.FindAction("Dodge");
+        move   = InputSystem.actions.FindAction("Move");
+        jump   = InputSystem.actions.FindAction("Jump");
+        dodge  = InputSystem.actions.FindAction("Dodge");
         attack = InputSystem.actions.FindAction("Attack");
-        parry = InputSystem.actions.FindAction("Parry");
+        parry  = InputSystem.actions.FindAction("Parry");
 
         path = Application.persistentDataPath + "/keybindings.json";
 
         if (File.Exists(path))
-        {
-            string json = File.ReadAllText(path);
-            InputSystem.actions.LoadBindingOverridesFromJson(json);
-        }
+            InputSystem.actions.LoadBindingOverridesFromJson(File.ReadAllText(path));
 
-        lefttext.text = move.GetBindingDisplayString(1);
-        righttext.text = move.GetBindingDisplayString(2);
-        jumptext.text = jump.GetBindingDisplayString(0);
-        dodgetext.text = dodge.GetBindingDisplayString(0);
+        lefttext.text   = move.GetBindingDisplayString(1);
+        righttext.text  = move.GetBindingDisplayString(2);
+        jumptext.text   = jump.GetBindingDisplayString(0);
+        dodgetext.text  = dodge.GetBindingDisplayString(0);
         attacktext.text = attack.GetBindingDisplayString(0);
-        parrytext.text = parry.GetBindingDisplayString(0);
+        parrytext.text  = parry.GetBindingDisplayString(0);
     }
 
-    public void OnButtonLeft()
+    public void OnButtonLeft()   => StartRebind(move,   1, lefttext);
+    public void OnButtonRight()  => StartRebind(move,   2, righttext);
+    public void OnButtonJump()   => StartRebind(jump,   0, jumptext);
+    public void OnButtonDodge()  => StartRebind(dodge,  0, dodgetext);
+    public void OnButtonAttack() => StartRebind(attack, 0, attacktext);
+    public void OnButtonParry()  => StartRebind(parry,  0, parrytext);
+
+    private void StartRebind(InputAction action, int bindingIndex, TextMeshProUGUI label)
     {
-        lefttext.text = "Esc to Cancel";
+        label.text = "Esc to Cancel";
+        action.Disable();
+        SetButtonsInteractable(false);
 
-        move.Disable();
-
-        var rebind = move.PerformInteractiveRebinding()
-            .WithTargetBinding(1)
+        action.PerformInteractiveRebinding()
+            .WithTargetBinding(bindingIndex)
             .WithControlsExcluding("<Mouse>")
             .WithCancelingThrough("<Keyboard>/escape")
-            .OnComplete(op => {
+            .OnComplete(op =>
+            {
                 op.Dispose();
-                lefttext.text = move.GetBindingDisplayString(1);
-                string json = InputSystem.actions.SaveBindingOverridesAsJson();
-                File.WriteAllText(path, json);
-                move.Enable();
+                label.text = action.GetBindingDisplayString(bindingIndex);
+                File.WriteAllText(path, InputSystem.actions.SaveBindingOverridesAsJson());
+                action.Enable();
+                SetButtonsInteractable(true);
             })
-            .OnCancel(op => {
+            .OnCancel(op =>
+            {
                 op.Dispose();
-                lefttext.text = move.GetBindingDisplayString(1);
-                move.Enable();
+                label.text = action.GetBindingDisplayString(bindingIndex);
+                action.Enable();
+                SetButtonsInteractable(true);
             })
             .Start();
     }
 
-    public void OnButtonRight()
+    private void SetButtonsInteractable(bool interactable)
     {
-        righttext.text = "Esc to Cancel";
-        
-        move.Disable();
-
-        var rebind = move.PerformInteractiveRebinding()
-            .WithTargetBinding(2)
-            .WithControlsExcluding("<Mouse>")
-            .WithCancelingThrough("<Keyboard>/escape")
-            .OnComplete(op => {
-                op.Dispose();
-                righttext.text = move.GetBindingDisplayString(2);
-                string json = InputSystem.actions.SaveBindingOverridesAsJson();
-                File.WriteAllText(path, json);
-                move.Enable();
-            })
-            .OnCancel(op => {
-                op.Dispose();
-                righttext.text = move.GetBindingDisplayString(2);
-                move.Enable();
-            })
-            .Start();
-    }
-
-    public void OnButtonJump()
-    {
-        jumptext.text = "Esc to Cancel";
-
-        jump.Disable();
-
-        var rebind = jump.PerformInteractiveRebinding()
-            .WithTargetBinding(0)
-            .WithControlsExcluding("<Mouse>")
-            .WithCancelingThrough("<Keyboard>/escape")
-            .OnComplete(op => {
-                op.Dispose();
-                jumptext.text = jump.GetBindingDisplayString(0);
-                string json = InputSystem.actions.SaveBindingOverridesAsJson();
-                File.WriteAllText(path, json);
-                jump.Enable();
-            })
-            .OnCancel(op => {
-                op.Dispose();
-                jumptext.text = jump.GetBindingDisplayString(0);
-                jump.Enable();
-            })
-            .Start();
-    }
-
-    public void OnButtonDodge()
-    {
-        dodgetext.text = "Esc to Cancel";
-
-        dodge.Disable();
-
-        var rebind = dodge.PerformInteractiveRebinding()
-            .WithTargetBinding(0)
-            .WithControlsExcluding("<Mouse>")
-            .WithCancelingThrough("<Keyboard>/escape")
-            .OnComplete(op => {
-                op.Dispose();
-                dodgetext.text = dodge.GetBindingDisplayString(0);
-                string json = InputSystem.actions.SaveBindingOverridesAsJson();
-                File.WriteAllText(path, json);
-                dodge.Enable();
-            })
-            .OnCancel(op => {
-                op.Dispose();
-                dodgetext.text = dodge.GetBindingDisplayString(0);
-                dodge.Enable();
-            })
-            .Start();
-    }
-
-    public void OnButtonAttack()
-    {
-        attacktext.text = "Esc to Cancel";
-
-        attack.Disable();
-
-        var rebind = attack.PerformInteractiveRebinding()
-            .WithTargetBinding(0)
-            .WithControlsExcluding("<Mouse>")
-            .WithCancelingThrough("<Keyboard>/escape")
-            .OnComplete(op => {
-                op.Dispose();
-                attacktext.text = attack.GetBindingDisplayString(0);
-                string json = InputSystem.actions.SaveBindingOverridesAsJson();
-                File.WriteAllText(path, json);
-                attack.Enable();
-            })
-            .OnCancel(op => {
-                op.Dispose();
-                attacktext.text = attack.GetBindingDisplayString(0);
-                attack.Enable();
-            })
-            .Start();
-    }
-
-    public void OnButtonParry()
-    {
-        parrytext.text = "Esc to Cancel";
-
-        parry.Disable();
-
-        var rebind = parry.PerformInteractiveRebinding()
-            .WithTargetBinding(0)
-            .WithControlsExcluding("<Mouse>")
-            .WithCancelingThrough("<Keyboard>/escape")
-            .OnComplete(op => {
-                op.Dispose();
-                parrytext.text = parry.GetBindingDisplayString(0);
-                string json = InputSystem.actions.SaveBindingOverridesAsJson();
-                File.WriteAllText(path, json);
-                parry.Enable();
-            })
-            .OnCancel(op => {
-                op.Dispose();
-                parrytext.text = parry.GetBindingDisplayString(0);
-                parry.Enable();
-            })
-            .Start();
+        leftButton.interactable   = interactable;
+        rightButton.interactable  = interactable;
+        jumpButton.interactable   = interactable;
+        dodgeButton.interactable  = interactable;
+        attackButton.interactable = interactable;
+        parryButton.interactable  = interactable;
     }
 }

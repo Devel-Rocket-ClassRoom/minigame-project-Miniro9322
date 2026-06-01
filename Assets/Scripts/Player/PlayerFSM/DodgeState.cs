@@ -5,6 +5,7 @@ public class DodgeState : IState
 {
     private static readonly int DodgeHash = Animator.StringToHash("Dodge");
     private Player player;
+    private PlayerInput playerInput;
     private float dodgeTime;
     private Vector3 dodgeEnd;
     private Vector3 dodgeStart;
@@ -14,6 +15,7 @@ public class DodgeState : IState
     public DodgeState(Player player)
     {
         this.player = player;
+        playerInput = player.GetComponent<PlayerInput>();
     }
 
     public void Enter()
@@ -67,7 +69,7 @@ public class DodgeState : IState
     {
         if (!dodgeAttacked && dodgeTime < dodgeAttackInterval)
         {
-            if (player.GetComponent<PlayerInput>().actions["Attack"].WasPerformedThisFrame())
+            if (playerInput.actions["Attack"].WasPerformedThisFrame())
             {
                 player.Animator.Play("DodgeAttack");
                 dodgeAttacked = true;

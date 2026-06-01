@@ -17,17 +17,7 @@ public class BossDeath : IState
         boss.SetDeath();
     }
 
-    public void Exit()
-    {
-
-    }
-
-    public void FixedUpdate()
-    {
-    }
-
-    public void Update()
-    {
-
-    }
+    public void Exit() { }
+    public void FixedUpdate() { }
+    public void Update() { }
 }

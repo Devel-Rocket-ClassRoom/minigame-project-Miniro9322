@@ -13,7 +13,7 @@ public class Spawner : MonoBehaviour
     [SerializeField] private GameObject interactUI;
     [SerializeField] private Transform spawnPoint;
     private bool isInteracted;
-    private bool playerInRange = false;
+    private bool playerInRange;
     private PlayerInput playerInput;
 
     public UnityEvent BossSpawn;
@@ -21,7 +21,6 @@ public class Spawner : MonoBehaviour
     private void Awake()
     {
         animator = GetComponent<Animator>();
-        isInteracted = false;
     }
 
     private void Update()
