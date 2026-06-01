@@ -12,12 +12,14 @@ public class UIAnimation : MonoBehaviour
     [SerializeField] private CinemachineConfiner2D confiner;
     [SerializeField] private TextMeshProUGUI bossName;
     [SerializeField] private GameObject pauseMenu;
+    [SerializeField] private GameObject optionMenu;
     private Animator animator;
 
     private void Awake()
     {
         animator = GetComponent<Animator>();
         pauseMenu.SetActive(false);
+        optionMenu.SetActive(false);
     }
 
     public void OnBossSpawn()
@@ -82,6 +84,11 @@ public class UIAnimation : MonoBehaviour
     {
         Time.timeScale = 1f;
         pauseMenu.SetActive(false);
+    }
+
+    public void OnOption()
+    {
+        optionMenu.SetActive(true);
     }
 
     public void OnQuit()

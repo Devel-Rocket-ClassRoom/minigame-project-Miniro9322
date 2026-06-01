@@ -42,6 +42,11 @@ public class DodgeState : IState
         dodgeTime = 0f;
         player.AfterImage.StopAfterImage();
         player.ToggleInvincible();
+        if (dodgeAttacked)
+        {
+            player.AttackEnd();                   // hitbox 강제 종료
+            player.Animator.Play("Idle", 0, 0f);  // DodgeAttack 이벤트 차단 (Update(0f) 없이)
+        }
         dodgeAttacked = false;
     }
 
