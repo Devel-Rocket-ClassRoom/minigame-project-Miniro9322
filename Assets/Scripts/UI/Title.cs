@@ -1,15 +1,16 @@
 using UnityEngine;
+using UnityEngine.InputSystem;
 using UnityEngine.SceneManagement;
 
 public class Title : MonoBehaviour
 {
-    [SerializeField]
-    private GameObject option;
+    [SerializeField] private GameObject option;
 
     private void Awake()
     {
         Time.timeScale = 1f;
         option.SetActive(false);
+        InputSystem.actions.FindActionMap("UI").Enable();
     }
 
     public void OnStart()
