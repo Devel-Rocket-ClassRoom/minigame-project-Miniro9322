@@ -19,6 +19,7 @@ MonoBehaviour:
   FallMultiplier: 2.5
   DodgeAmount: 5
   DodgeDuration: 0.5
+  DodgeCooldown: 1
   ParryInterval: 0.3
   Atk: 10
   MaxHp: 200
@@ -27,7 +28,12 @@ MonoBehaviour:
   BlinkInterval: 1
   MaxJumpCount: 2
   MaxAttackCount: 2
-  moveSpeed: 5
   JumpPower: 7
   KnockbackForceX: 3
   KnockbackForceY: 2
+  PlungeSpeed: 20
+  StandColliderHeight: 1.5
+  StandColliderOffsetY: 0
+  CrouchColliderHeight: 0.75
+  CrouchColliderOffsetY: -0.4
+  CrouchSpeedMultiplier: 0.4

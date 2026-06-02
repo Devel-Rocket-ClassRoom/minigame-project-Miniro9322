@@ -742,7 +742,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &7604263236022261754
 RectTransform:
   m_ObjectHideFlags: 0
@@ -911,8 +911,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: Button
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
-  m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 05c40b09e7f0fdd4a84c0aa82ca290c5, type: 2}
+  m_sharedMaterial: {fileID: -1064171877942739740, guid: 05c40b09e7f0fdd4a84c0aa82ca290c5, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -936,8 +936,8 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 24
-  m_fontSizeBase: 24
+  m_fontSize: 20
+  m_fontSizeBase: 20
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
@@ -994,7 +994,7 @@ GameObject:
   - component: {fileID: 4373343933073078695}
   - component: {fileID: 1776372110295262002}
   m_Layer: 5
-  m_Name: Button (2)
+  m_Name: DodgeButton
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1101,7 +1101,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 4373343933073078695}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 0}
+        m_TargetAssemblyTypeName: KeySetting, Assembly-CSharp
+        m_MethodName: OnButtonDodge
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!1 &1404853805393762289
 GameObject:
   m_ObjectHideFlags: 0
@@ -1113,7 +1125,7 @@ GameObject:
   - component: {fileID: 7483764948716094274}
   - component: {fileID: 2132819697082730114}
   m_Layer: 5
-  m_Name: GameObject (2)
+  m_Name: Parry
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1178,7 +1190,7 @@ GameObject:
   - component: {fileID: 2512938295657602195}
   - component: {fileID: 4017613748418502815}
   m_Layer: 5
-  m_Name: SFX
+  m_Name: Right
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1316,7 +1328,7 @@ GameObject:
   - component: {fileID: 106997876553592482}
   - component: {fileID: 2320225151046086730}
   m_Layer: 5
-  m_Name: Button (1)
+  m_Name: RightButton
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1423,7 +1435,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 106997876553592482}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 0}
+        m_TargetAssemblyTypeName: KeySetting, Assembly-CSharp
+        m_MethodName: OnButtonRight
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!1 &1674294200211391103
 GameObject:
   m_ObjectHideFlags: 0
@@ -1491,8 +1515,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: Button
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
-  m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 05c40b09e7f0fdd4a84c0aa82ca290c5, type: 2}
+  m_sharedMaterial: {fileID: -1064171877942739740, guid: 05c40b09e7f0fdd4a84c0aa82ca290c5, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -1516,8 +1540,8 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 24
-  m_fontSizeBase: 24
+  m_fontSize: 20
+  m_fontSizeBase: 20
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
@@ -1574,6 +1598,7 @@ GameObject:
   - component: {fileID: 1602598439592839765}
   - component: {fileID: 4250096071725023935}
   - component: {fileID: 202294465883666297}
+  - component: {fileID: 3055980957573998915}
   m_Layer: 5
   m_Name: KeySetting
   m_TagString: Untagged
@@ -1678,7 +1703,7 @@ MonoBehaviour:
     m_Top: 20
     m_Bottom: 0
   m_ChildAlignment: 3
-  m_Spacing: 0
+  m_Spacing: 20
   m_ChildForceExpandWidth: 1
   m_ChildForceExpandHeight: 1
   m_ChildControlWidth: 1
@@ -1686,6 +1711,30 @@ MonoBehaviour:
   m_ChildScaleWidth: 0
   m_ChildScaleHeight: 0
   m_ReverseArrangement: 0
+--- !u!114 &3055980957573998915
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1712136544189496468}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 60717a389ca97964eae752f585ee0001, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::KeySetting
+  lefttext: {fileID: 2955486503597620546}
+  righttext: {fileID: 2594486144232120387}
+  jumptext: {fileID: 3348827050652313382}
+  dodgetext: {fileID: 3701791370901166679}
+  attacktext: {fileID: 5067485620128867290}
+  parrytext: {fileID: 2117210048618165956}
+  leftButton: {fileID: 7669932766087418390}
+  rightButton: {fileID: 2320225151046086730}
+  jumpButton: {fileID: 6219323667320250781}
+  dodgeButton: {fileID: 1776372110295262002}
+  attackButton: {fileID: 6002546350855711678}
+  parryButton: {fileID: 7752183121288571541}
 --- !u!1 &1734138812600862214
 GameObject:
   m_ObjectHideFlags: 0
@@ -1761,7 +1810,7 @@ GameObject:
   - component: {fileID: 7603371178007302154}
   - component: {fileID: 723478615632468984}
   m_Layer: 5
-  m_Name: GameObject (1)
+  m_Name: Attack
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1964,7 +2013,7 @@ GameObject:
   - component: {fileID: 8325788749315545167}
   - component: {fileID: 6219323667320250781}
   m_Layer: 5
-  m_Name: Button (3)
+  m_Name: JumpButton
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -2071,7 +2120,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 8325788749315545167}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 0}
+        m_TargetAssemblyTypeName: KeySetting, Assembly-CSharp
+        m_MethodName: OnButtonJump
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!1 &2488121139201540917
 GameObject:
   m_ObjectHideFlags: 0
@@ -2085,7 +2146,7 @@ GameObject:
   - component: {fileID: 7774362388435382667}
   - component: {fileID: 7752183121288571541}
   m_Layer: 5
-  m_Name: Button (4)
+  m_Name: ParryButton
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -2192,7 +2253,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 7774362388435382667}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 0}
+        m_TargetAssemblyTypeName: KeySetting, Assembly-CSharp
+        m_MethodName: OnButtonParry
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!1 &2819804010873866028
 GameObject:
   m_ObjectHideFlags: 0
@@ -2260,8 +2333,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: Button
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
-  m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 05c40b09e7f0fdd4a84c0aa82ca290c5, type: 2}
+  m_sharedMaterial: {fileID: -1064171877942739740, guid: 05c40b09e7f0fdd4a84c0aa82ca290c5, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -2285,8 +2358,8 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 24
-  m_fontSizeBase: 24
+  m_fontSize: 20
+  m_fontSizeBase: 20
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
@@ -2416,7 +2489,7 @@ GameObject:
   - component: {fileID: 958732482055400617}
   - component: {fileID: 7091891058742742028}
   m_Layer: 5
-  m_Name: GameObject (2)
+  m_Name: Right
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -2853,7 +2926,7 @@ GameObject:
   - component: {fileID: 6591704877629117430}
   - component: {fileID: 367245860412906383}
   m_Layer: 5
-  m_Name: SFX
+  m_Name: Left
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -3066,7 +3139,7 @@ GameObject:
   - component: {fileID: 1242066863917417045}
   - component: {fileID: 4858354782029367279}
   m_Layer: 5
-  m_Name: Image
+  m_Name: Volume
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -3170,7 +3243,7 @@ GameObject:
   - component: {fileID: 4167369555478980332}
   - component: {fileID: 6002546350855711678}
   m_Layer: 5
-  m_Name: Button (3)
+  m_Name: AttackButton
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -3277,7 +3350,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 4167369555478980332}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 0}
+        m_TargetAssemblyTypeName: KeySetting, Assembly-CSharp
+        m_MethodName: OnButtonAttack
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!1 &4026483665094147782
 GameObject:
   m_ObjectHideFlags: 0
@@ -3345,8 +3430,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: Button
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
-  m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 05c40b09e7f0fdd4a84c0aa82ca290c5, type: 2}
+  m_sharedMaterial: {fileID: -1064171877942739740, guid: 05c40b09e7f0fdd4a84c0aa82ca290c5, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -3370,8 +3455,8 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 24
-  m_fontSizeBase: 24
+  m_fontSize: 20
+  m_fontSizeBase: 20
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
@@ -3426,7 +3511,7 @@ GameObject:
   - component: {fileID: 5285961101027224199}
   - component: {fileID: 2052913933176565373}
   m_Layer: 5
-  m_Name: GameObject (4)
+  m_Name: Dodge
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -3490,7 +3575,7 @@ GameObject:
   - component: {fileID: 7986624172281190841}
   - component: {fileID: 4049329587564314003}
   m_Layer: 5
-  m_Name: GameObject (3)
+  m_Name: Jump
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -3662,7 +3747,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &8799774043894005832
 RectTransform:
   m_ObjectHideFlags: 0
@@ -3759,12 +3844,12 @@ MonoBehaviour:
     m_Right: 0
     m_Top: 20
     m_Bottom: 0
-  m_ChildAlignment: 0
+  m_ChildAlignment: 3
   m_Spacing: 20
-  m_ChildForceExpandWidth: 0
-  m_ChildForceExpandHeight: 0
-  m_ChildControlWidth: 0
-  m_ChildControlHeight: 0
+  m_ChildForceExpandWidth: 1
+  m_ChildForceExpandHeight: 1
+  m_ChildControlWidth: 1
+  m_ChildControlHeight: 1
   m_ChildScaleWidth: 0
   m_ChildScaleHeight: 0
   m_ReverseArrangement: 0
@@ -3803,7 +3888,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 30, y: 400}
+  m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &6018083202313052345
 MonoBehaviour:
@@ -4015,7 +4100,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 510.7843, y: 230}
+  m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &8139991504042407189
 MonoBehaviour:
@@ -4925,7 +5010,7 @@ GameObject:
   - component: {fileID: 4814852962571284523}
   - component: {fileID: 2507097686142045020}
   m_Layer: 5
-  m_Name: SFX
+  m_Name: Jump
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -5063,7 +5148,7 @@ GameObject:
   - component: {fileID: 8633399887518590109}
   - component: {fileID: 3509118342562277441}
   m_Layer: 5
-  m_Name: Image (1)
+  m_Name: KeySetting
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -5166,7 +5251,7 @@ GameObject:
   - component: {fileID: 9078405642290634870}
   - component: {fileID: 4530809339465255173}
   m_Layer: 5
-  m_Name: SFX
+  m_Name: Parry
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -5782,7 +5867,7 @@ GameObject:
   - component: {fileID: 6403480921010679090}
   - component: {fileID: 45710617471567373}
   m_Layer: 5
-  m_Name: SFX
+  m_Name: Attack
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -5918,7 +6003,7 @@ GameObject:
   - component: {fileID: 1084397674048466789}
   - component: {fileID: 6876610671709823719}
   m_Layer: 5
-  m_Name: GameObject (1)
+  m_Name: Left
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -5983,7 +6068,7 @@ GameObject:
   - component: {fileID: 4303203285605417364}
   - component: {fileID: 7220099993164996385}
   m_Layer: 5
-  m_Name: SFX
+  m_Name: Dodge
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -6196,7 +6281,7 @@ GameObject:
   - component: {fileID: 1059912327918115260}
   - component: {fileID: 7669932766087418390}
   m_Layer: 5
-  m_Name: Button
+  m_Name: LeftButton
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -6303,7 +6388,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 1059912327918115260}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 0}
+        m_TargetAssemblyTypeName: KeySetting, Assembly-CSharp
+        m_MethodName: OnButtonLeft
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!1 &8829811590185125765
 GameObject:
   m_ObjectHideFlags: 0
@@ -6371,8 +6468,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: Button
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
-  m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 05c40b09e7f0fdd4a84c0aa82ca290c5, type: 2}
+  m_sharedMaterial: {fileID: -1064171877942739740, guid: 05c40b09e7f0fdd4a84c0aa82ca290c5, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -6396,8 +6493,8 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 24
-  m_fontSizeBase: 24
+  m_fontSize: 20
+  m_fontSizeBase: 20
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
@@ -6508,8 +6605,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: Button
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
-  m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 05c40b09e7f0fdd4a84c0aa82ca290c5, type: 2}
+  m_sharedMaterial: {fileID: -1064171877942739740, guid: 05c40b09e7f0fdd4a84c0aa82ca290c5, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -6533,8 +6630,8 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 24
-  m_fontSizeBase: 24
+  m_fontSize: 20
+  m_fontSizeBase: 20
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
