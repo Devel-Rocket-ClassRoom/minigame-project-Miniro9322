@@ -27,9 +27,6 @@ public class AttackState : IState
         player.CommandQueue.Clear();
         player.CloseInputQueue();
         player.Animator.ResetTrigger(AttackHash);
-        player.Effect.SetActive(false);
-        player.Effect2.SetActive(false);
-        player.Effect3.SetActive(false);
     }
 
     public void FixedUpdate() { }

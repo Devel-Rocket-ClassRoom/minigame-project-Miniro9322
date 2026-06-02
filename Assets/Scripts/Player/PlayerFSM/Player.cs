@@ -23,6 +23,8 @@ public class Player : MonoBehaviour, IDamageable
     public IState JumpState { get; private set; }
     public IState ParryState { get; private set; }
     public IState HitState { get; private set; }
+    public IState PlungeState { get; private set; }
+    public IState CrouchState { get; private set; }
     public float OriginalGravityScale { get; private set; }
     public bool JumpHeld { get; private set; } = false;
     public bool Grounded { get; private set; }
@@ -33,22 +35,28 @@ public class Player : MonoBehaviour, IDamageable
     public UnityEvent OnGameOver;
     public UnityEvent OnHit;
     public UnityEvent<int, int> OnHpChange;
-    public GameObject Effect;
-    public GameObject Effect2;
-    public GameObject Effect3;
+    [SerializeField] private ParticleSystem effect1;
+    [SerializeField] private ParticleSystem effect2;
+    [SerializeField] private ParticleSystem effect3;
+    [SerializeField] private ParticleSystem dodgeAttackEffect;
+    [SerializeField] private ParticleSystem parryEffect;
+    [SerializeField] private ParticleSystem plungeEffect;
     public UnityEvent ParryStart;
     public UnityEvent GamePause;
     public PlayerData Data;
+    public AttackZone downAttackZone;
     public Rigidbody2D Rb => rb;
     public SpriteRenderer Sr => sr;
 
     private SpriteRenderer sr;
     private Rigidbody2D rb;
+    private BoxCollider2D boxcollider;
     private InputAction Jump;
     private InputAction Attack;
     private InputAction Dodge;
     private InputAction Parry;
     private InputAction Pause;
+    private InputAction Down;
 
     private Vector2 move;
     private int currHp;
@@ -65,13 +73,12 @@ public class Player : MonoBehaviour, IDamageable
     {
         Animator = GetComponent<Animator>();
         rb = GetComponent<Rigidbody2D>();
+        boxcollider = GetComponent<BoxCollider2D>();
         attackZone.gameObject.SetActive(false);
         OriginalGravityScale = rb.gravityScale;
         AfterImage = GetComponent<DashAfterImage>();
         sr = GetComponent<SpriteRenderer>();
-        Effect.SetActive(false);
-        Effect2.SetActive(false);
-        Effect3.SetActive(false);
+        downAttackZone.gameObject.SetActive(false);
     }
 
     private void OnEnable()
@@ -90,7 +97,11 @@ public class Player : MonoBehaviour, IDamageable
         JumpState = new JumpState(this);
         ParryState = new ParryState(this);
         HitState = new HitState(this);
+        PlungeState = new PlungeState(this);
+        CrouchState = new CrouchState(this);
         Fsm = new FSM();
+
+        Down = InputSystem.actions.FindAction("Down");
 
         Jump.performed += OnJump;
         Jump.canceled += OnJump;
@@ -98,6 +109,8 @@ public class Player : MonoBehaviour, IDamageable
         Dodge.performed += OnDodge;
         Parry.performed += OnParry;
         Pause.performed += OnPause;
+        Down.performed += OnDown;
+        Down.canceled += OnDown;
         currHp = Data.MaxHp;
         dodgeCool = Data.DodgeCooldown;
         OnHpChange?.Invoke(currHp, Data.MaxHp);
@@ -110,12 +123,23 @@ public class Player : MonoBehaviour, IDamageable
         Attack.performed -= OnAttack;
         Dodge.performed -= OnDodge;
         Parry.performed -= OnParry;
+        Down.performed -= OnDown;
+        Down.canceled -= OnDown;
         Pause.performed -= OnPause;
     }
 
     private void Start() => Fsm.ChangeState(IdleState);
 
-    public void OnMove(InputAction.CallbackContext context) => move = context.ReadValue<Vector2>();
+    public void OnMove(InputAction.CallbackContext context)
+    {
+        var newMove = context.ReadValue<Vector2>();
+
+        // 공중에서 아래키를 처음 누르는 순간만 큐에 추가
+        if (!Grounded && newMove.y < -0.5f && move.y >= -0.5f)
+            CommandQueue.Enqueue("D");
+
+        move = newMove;
+    }
 
     private void Update()
     {
@@ -150,6 +174,9 @@ public class Player : MonoBehaviour, IDamageable
             jumpCount = 0;
             coyoteCounter = Data.CoyoteTime;
             notGroundedFrames = 0;
+            // 착지 시 미사용 "D" 입력 제거
+            if (CommandQueue.Count > 0 && CommandQueue.Peek() == "D")
+                CommandQueue.Dequeue();
         }
         else
         {
@@ -199,7 +226,8 @@ public class Player : MonoBehaviour, IDamageable
             && notGroundedFrames > 2        // 2프레임 이상 연속으로 공중일 때만 전환 (1프레임 깜빡임 무시)
             && Rb.linearVelocity.y < -0.01f
             && Fsm.CurrentState != FallState
-            && Fsm.CurrentState != JumpState)
+            && Fsm.CurrentState != JumpState
+            && Fsm.CurrentState != PlungeState)
         {
             Fsm.ChangeState(FallState);
         }
@@ -224,7 +252,8 @@ public class Player : MonoBehaviour, IDamageable
             rb.linearVelocity = new Vector2(0f, rb.linearVelocity.y);
         }
 
-        transform.position += Data.MoveSpeed * Time.fixedDeltaTime * new Vector3(move.x, 0f);
+        float speedMultiplier = Fsm.CurrentState == CrouchState ? Data.CrouchSpeedMultiplier : 1f;
+        transform.position += Data.MoveSpeed * speedMultiplier * Time.fixedDeltaTime * new Vector3(move.x, 0f);
     }
 
     private void OnJump(InputAction.CallbackContext context)
@@ -245,9 +274,17 @@ public class Player : MonoBehaviour, IDamageable
     {
         if (Fsm.CurrentState == HitState || Fsm.CurrentState == DodgeState) return;
 
+        // 공중 + 큐에 "D" 있으면 낙하 공격
+        if (!Grounded && CommandQueue.Count > 0 && CommandQueue.Peek() == "D" &&
+            (Fsm.CurrentState == JumpState || Fsm.CurrentState == FallState))
+        {
+            CommandQueue.Clear();
+            Fsm.ChangeState(PlungeState);
+            return;
+        }
+
         if (Fsm.CurrentState == AttackState)
         {
-            // isQueueOpen 타이밍 무관하게 1개만 버퍼링
             if (CommandQueue.Count == 0) CommandQueue.Enqueue("A");
             return;
         }
@@ -279,6 +316,11 @@ public class Player : MonoBehaviour, IDamageable
         if (parrying && damageInfo.canParry)
         {
             SuccessParry?.Invoke();
+            if (parryEffect)
+            {
+                parryEffect.transform.position = transform.position;
+                parryEffect.Play();
+            }
             return;
         }
 
@@ -315,14 +357,6 @@ public class Player : MonoBehaviour, IDamageable
 
     private void OnPause(InputAction.CallbackContext _)
     {
-        if(Time.timeScale > 0f)
-        {
-            Time.timeScale = 0f;
-        }
-        else
-        {
-            Time.timeScale = 1f;
-        }
         GamePause?.Invoke();
     }
 
@@ -341,12 +375,58 @@ public class Player : MonoBehaviour, IDamageable
 
     public void EnableEffect()
     {
-        if (Fsm.CurrentState != AttackState) return;  // AttackState 외부 이벤트 무시
-        Effect.SetActive(true);
+        effect1.Play();
     }
-    public void DisableEffect() => Effect.SetActive(false);
-    public void EnableEffect2()  => Effect2.SetActive(true);
-    public void DisableEffect2() => Effect2.SetActive(false);
-    public void EnableEffect3()  => Effect3.SetActive(true);
-    public void DisableEffect3() => Effect3.SetActive(false);
+    public void EnableEffect2()
+    {
+        effect2.Play();
+    }
+
+    public void EnableEffect3()
+    {
+        effect3.Play();
+    }
+
+    public void EnableDodgeEffect()
+    {
+        dodgeAttackEffect.Play();
+    }
+
+    public void EnablePlungeEffect()
+    {
+        plungeEffect.Play();
+    }
+
+    private void OnDown(InputAction.CallbackContext context)
+    {
+        if (Fsm.CurrentState == HitState || Fsm.CurrentState == DodgeState) return;
+
+        if (context.performed)
+        {
+            // 공중이면 낙하 공격 버퍼
+            if (!Grounded)
+                CommandQueue.Enqueue("D");
+            // 지상이면 크라우칭
+            else if (Grounded && Fsm.CurrentState != CrouchState)
+                Fsm.ChangeState(CrouchState);
+        }
+
+        if (context.canceled && Fsm.CurrentState == CrouchState)
+            Fsm.ChangeState(IdleState);
+    }
+
+    public void SetColliderCrouch(bool crouch)
+    {
+        if (boxcollider == null) return;
+        if (crouch)
+        {
+            boxcollider.size = new Vector2(boxcollider.size.x, Data.CrouchColliderHeight);
+            boxcollider.offset = new Vector2(boxcollider.offset.x, Data.CrouchColliderOffsetY);
+        }
+        else
+        {
+            boxcollider.size = new Vector2(boxcollider.size.x, Data.StandColliderHeight);
+            boxcollider.offset = new Vector2(boxcollider.offset.x, Data.StandColliderOffsetY);
+        }
+    }
 }

@@ -86,7 +86,19 @@ public class UIAnimation : MonoBehaviour
         confiner.InvalidateCache();
     }
 
-    public void OnPause() => pauseMenu.SetActive(!pauseMenu.activeSelf);
+    public void OnPause()
+    {
+        // 옵션창이 열려있으면 옵션창만 닫고 일시정지 유지
+        if (optionMenu.activeSelf)
+        {
+            optionMenu.SetActive(false);
+            return;
+        }
+
+        bool pausing = !pauseMenu.activeSelf;
+        pauseMenu.SetActive(pausing);
+        Time.timeScale = pausing ? 0f : 1f;
+    }
 
     public void OnMain()
     {
