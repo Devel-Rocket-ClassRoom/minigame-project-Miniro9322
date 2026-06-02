@@ -1,9 +1,11 @@
+using System.Collections;
 using UnityEngine;
 
 
 public class FirePillar : MonoBehaviour, IDamageable
 {
     [SerializeField] private float damageMultiplier = 1f;
+    [SerializeField] private ParticleSystem particle;
     private int damage;
 
     private bool hasHit = false;
@@ -13,6 +15,12 @@ public class FirePillar : MonoBehaviour, IDamageable
     public IDamageable.DamageInfo SetDamage() => new() { damage = damage, canParry = false };
 
     public void GetDamage(IDamageable.DamageInfo damageInfo) { }
+
+    private void Start()
+    {
+        particle.Play();
+        StartCoroutine(WaitParticle());
+    }
 
     private void OnTriggerEnter2D(Collider2D other)
     {
@@ -24,8 +32,9 @@ public class FirePillar : MonoBehaviour, IDamageable
         }
     }
 
-    private void DestroyIt()
+    private IEnumerator WaitParticle()
     {
+        yield return new WaitUntil(() => !particle.IsAlive());
         Destroy(gameObject);
     }
 }

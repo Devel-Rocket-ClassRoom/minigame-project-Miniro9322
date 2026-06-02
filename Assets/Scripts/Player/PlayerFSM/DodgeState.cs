@@ -76,6 +76,7 @@ public class DodgeState : IState
             if (playerInput.actions["Attack"].WasPerformedThisFrame())
             {
                 player.Animator.Play("DodgeAttack");
+                player.EnableDodgeEffect();
                 dodgeAttacked = true;
             }
         }
