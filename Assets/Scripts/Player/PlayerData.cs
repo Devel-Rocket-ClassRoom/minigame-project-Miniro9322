@@ -25,4 +25,12 @@ public class PlayerData : ScriptableObject
     [Header("넉백")]
     public float KnockbackForceX = 5f;
     public float KnockbackForceY = 4f;
+    [Header("낙하 공격")]
+    public float PlungeSpeed = 20f;
+    [Header("크라우칭")]
+    public float StandColliderHeight = 1.6f;
+    public float StandColliderOffsetY = 0f;
+    public float CrouchColliderHeight = 0.8f;
+    public float CrouchColliderOffsetY = -0.4f;
+    public float CrouchSpeedMultiplier = 0.4f;
 }

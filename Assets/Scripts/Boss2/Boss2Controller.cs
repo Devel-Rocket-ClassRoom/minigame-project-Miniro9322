@@ -51,6 +51,9 @@ public class Boss2Controller : MonoBehaviour, IDamageable
     [SerializeField] private GameObject firePillarExplosionPrefab;
     [SerializeField] private int firePillarCount = 3;
     [SerializeField] private float firePillarWarningDuration = 2f;
+    [SerializeField] private float firePillarGroundY = 0f;
+    [SerializeField] private float firePillarRangeXMin = -8f;
+    [SerializeField] private float firePillarRangeXMax = 8f;
 
     [Header("── 탄막 ──")]
     [SerializeField] private GameObject bulletPrefab;
@@ -347,20 +350,21 @@ public class Boss2Controller : MonoBehaviour, IDamageable
         // 애니메이션 이벤트 OnFireSignal() 대기
         yield return new WaitUntil(() => fireSignalReceived);
 
-        if (firePillarWarningPrefab && playerTf)
+        if (firePillarWarningPrefab)
         {
+            // 모든 경고 표시를 동시에 생성
             for (int i = 0; i < firePillarCount; i++)
             {
-                Vector3 spawnPos = playerTf.position + new Vector3(
-                    UnityEngine.Random.Range(-3f, 3f), 0f, 0f);
+                Vector3 spawnPos = new Vector3(
+                    UnityEngine.Random.Range(firePillarRangeXMin, firePillarRangeXMax),
+                    firePillarGroundY, 0f);
 
                 var warning = Instantiate(firePillarWarningPrefab, spawnPos, Quaternion.identity);
                 spawnedObjects.Add(warning);
-                float delay = firePillarWarningDuration - 0.25f * i;
-                StartCoroutine(FirePillarExplode(spawnPos, warning, Mathf.Max(0.5f, delay)));
-
-                yield return new WaitForSeconds(0.25f);
+                StartCoroutine(FirePillarExplode(spawnPos, warning, firePillarWarningDuration));
             }
+
+            // 경고 + 폭발 시간만큼 대기
             yield return new WaitForSeconds(firePillarWarningDuration + 0.5f);
         }
         else
