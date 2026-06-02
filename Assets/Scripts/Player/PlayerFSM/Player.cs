@@ -134,9 +134,12 @@ public class Player : MonoBehaviour, IDamageable
     {
         var newMove = context.ReadValue<Vector2>();
 
-        // 공중에서 아래키를 처음 누르는 순간만 큐에 추가
+        // 공중에서 아래키를 처음 누르는 순간 큐를 초기화하고 "D" 추가
         if (!Grounded && newMove.y < -0.5f && move.y >= -0.5f)
+        {
+            CommandQueue.Clear();
             CommandQueue.Enqueue("D");
+        }
 
         move = newMove;
     }
@@ -276,7 +279,7 @@ public class Player : MonoBehaviour, IDamageable
 
         // 공중 + 큐에 "D" 있으면 낙하 공격
         if (!Grounded && CommandQueue.Count > 0 && CommandQueue.Peek() == "D" &&
-            (Fsm.CurrentState == JumpState || Fsm.CurrentState == FallState))
+            (Fsm.CurrentState == JumpState || Fsm.CurrentState == FallState || Fsm.CurrentState == AttackState))
         {
             CommandQueue.Clear();
             Fsm.ChangeState(PlungeState);
@@ -403,9 +406,12 @@ public class Player : MonoBehaviour, IDamageable
 
         if (context.performed)
         {
-            // 공중이면 낙하 공격 버퍼
+            // 공중이면 큐 초기화 후 낙하 공격 버퍼
             if (!Grounded)
+            {
+                CommandQueue.Clear();
                 CommandQueue.Enqueue("D");
+            }
             // 지상이면 크라우칭
             else if (Grounded && Fsm.CurrentState != CrouchState)
                 Fsm.ChangeState(CrouchState);
