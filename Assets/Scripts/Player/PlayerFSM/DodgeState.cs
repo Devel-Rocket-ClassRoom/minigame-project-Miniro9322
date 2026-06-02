@@ -11,6 +11,7 @@ public class DodgeState : IState
     private Vector3 dodgeStart;
     private float dodgeAttackInterval = 0.2f;
     private bool dodgeAttacked = false;
+    private bool completedNaturally = false;
 
     public DodgeState(Player player)
     {
@@ -31,6 +32,7 @@ public class DodgeState : IState
         player.Rb.gravityScale = 0f;
 
         dodgeTime = 0f;
+        completedNaturally = false;
 
         player.ToggleInvincible();
         player.AfterImage.StartAfterImage();
@@ -38,7 +40,8 @@ public class DodgeState : IState
 
     public void Exit()
     {
-        player.Rb.MovePosition(dodgeEnd);
+        if (completedNaturally)
+            player.Rb.MovePosition(dodgeEnd);
         player.Rb.linearVelocity = Vector2.zero;
         player.Rb.gravityScale = player.OriginalGravityScale;
         dodgeTime = 0f;
@@ -56,6 +59,7 @@ public class DodgeState : IState
     {
         if (dodgeTime > player.Data.DodgeDuration)
         {
+            completedNaturally = true;
             player.Fsm.ChangeState(player.IdleState);
             return;
         }

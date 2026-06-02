@@ -61,7 +61,7 @@ public class FloorLaser : MonoBehaviour
         if (!isActive) return;
         if (!other.CompareTag("Player")) return;
 
-        var info = new IDamageable.DamageInfo { damage = damage, canParry = false };
+        var info = new IDamageable.DamageInfo { damage = damage, canParry = false, ignoreInvincible = true };
         other.GetComponent<IDamageable>()?.GetDamage(info);
     }
 
