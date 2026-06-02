@@ -194,6 +194,9 @@ public class Boss2Controller : MonoBehaviour, IDamageable
         else
         {
             behaviorAgent.BlackboardReference.SetVariableValue("IsDead", true);
+            StopAllCoroutines();
+            if (spriteRenderer) spriteRenderer.enabled = true;  // 텔레포트 중 사망 시 스프라이트 복원
+            Time.timeScale = 1f;  // 혹시 히트스탑 중이었다면 복원
             StartCoroutine(DeathEffectCoroutine());
         }
     }
