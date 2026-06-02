@@ -29,15 +29,14 @@ public class Boss1 : BossController
     private float periodicTimer;
     [SerializeField] private float stunInterval = 3f;
     [SerializeField] private GameObject warning;
+    [SerializeField] private GameObject warning2;
     [SerializeField] private SceneTransitionWall transitionWall;
     private float stunTime = 0f;
-    private bool isGameOver;
     private bool isStuned;
-    private bool isDeath;
 
     protected override void Update()
     {
-        if (isGameOver || isDeath)
+        if (IsGameOver || IsDead)
         {
             return;
         }
@@ -97,7 +96,7 @@ public class Boss1 : BossController
 
     public void OnGameOver()
     {
-        isGameOver = true;
+        IsGameOver = true;
     }
 
     public override IDamageable.DamageInfo SetDamage()
@@ -107,14 +106,14 @@ public class Boss1 : BossController
 
     public override void GetDamage(IDamageable.DamageInfo damageInfo)
     {
-        if (isDeath) return;
+        if (IsDead) return;
 
         base.GetDamage(damageInfo);
         Animator.Play(HitHash);
 
         if (CurrHp <= 0)
         {
-            isDeath = true;
+            IsDead = true;
             TriggerDeathEffect();
             Fsm.ChangeState(Death);
         }
@@ -130,7 +129,7 @@ public class Boss1 : BossController
 
     public void SetDeath()
     {
-        isDeath = true;
+        IsDead = true;
     }
 
     private void OnDeath()
@@ -140,6 +139,7 @@ public class Boss1 : BossController
     }
 
     private void ToggleWarning() => warning.SetActive(!warning.activeSelf);
+    private void ToggleWarning2() => warning2.SetActive(!warning2.activeSelf);
 
     public void RushAvailable()
     {

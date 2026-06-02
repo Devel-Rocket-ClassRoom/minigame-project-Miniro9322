@@ -13,6 +13,8 @@ public class UIAnimation : MonoBehaviour
     [SerializeField] private TextMeshProUGUI bossName;
     [SerializeField] private GameObject pauseMenu;
     [SerializeField] private GameObject optionMenu;
+    [SerializeField] private GameObject gameOver;
+    [SerializeField] private GameObject clearScreen;
     private Animator animator;
 
     private void Awake()
@@ -20,7 +22,29 @@ public class UIAnimation : MonoBehaviour
         animator = GetComponent<Animator>();
         pauseMenu.SetActive(false);
         optionMenu.SetActive(false);
+        gameOver.SetActive(false);
+        if (clearScreen) clearScreen.SetActive(false);
     }
+
+    private void OnEnable()
+    {
+        if (player != null)
+        {
+            player.OnGameOver.AddListener(ShowGameOver);
+            player.OnHit.AddListener(OnPlayerHit);
+        }
+    }
+
+    private void OnDisable()
+    {
+        if (player != null)
+        {
+            player.OnGameOver.RemoveListener(ShowGameOver);
+            player.OnHit.RemoveListener(OnPlayerHit);
+        }
+    }
+
+    private void OnPlayerHit() { }  // 필요 시 피격 UI 처리용
 
     public void OnBossSpawn()
     {
@@ -66,6 +90,7 @@ public class UIAnimation : MonoBehaviour
 
     public void OnMain()
     {
+        Time.timeScale = 1f;
         SceneManager.LoadScene("Title");
     }
 
@@ -80,8 +105,30 @@ public class UIAnimation : MonoBehaviour
         optionMenu.SetActive(true);
     }
 
+    public void ShowGameOver()
+    {
+        Time.timeScale = 0f;
+        gameOver.SetActive(true);
+    }
+
+    public void ShowClear()
+    {
+        Time.timeScale = 0f;
+        if (clearScreen) clearScreen.SetActive(true);
+    }
+
     public void OnQuit()
     {
         Application.Quit();
+
+#if UNITY_EDITOR
+        UnityEditor.EditorApplication.isPlaying = false;
+#endif
+    }
+
+    public void OnRetry()
+    {
+        Time.timeScale = 1f;
+        SceneManager.LoadScene(SceneManager.GetActiveScene().name);
     }
 }
