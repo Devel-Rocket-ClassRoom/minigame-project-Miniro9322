@@ -2,7 +2,6 @@ using UnityEngine;
 
 public class BossIdle : IState
 {
-    private static readonly int MoveHash = Animator.StringToHash("Move");
     private Boss1 boss;
     private float maxthinkTime = 2f;
     private float thinkTime;
@@ -20,7 +19,6 @@ public class BossIdle : IState
 
     public void Exit()
     {
-        boss.Animator.SetBool(MoveHash, false);
         thinkTime = 0f;
     }
 
@@ -28,21 +26,14 @@ public class BossIdle : IState
 
     public void Update()
     {
-        if(boss.CurrHp <= 0)
+        if (boss.CurrHp <= 0)
         {
             boss.Fsm.ChangeState(boss.Death);
-        }
-
-        if(thinkTime < thinkDuration)
-        {
-            thinkTime += Time.deltaTime;
             return;
         }
 
-        boss.Animator.SetBool(MoveHash, true);
-        boss.transform.position += boss.transform.localScale.x * boss.Data.moveSpeed * Time.deltaTime * Vector3.right;
-
-        if (boss.PlayerDistance <= boss.CloseRange || boss.PlayerDistance >= boss.FarRange)
+        thinkTime += Time.deltaTime;
+        if (thinkTime >= thinkDuration)
             boss.Fsm.ChangeState(boss.DecideState);
     }
 }

@@ -6,12 +6,14 @@ public class Boss1 : BossController
     private static readonly int ParryHash = Animator.StringToHash("Parry");
 
     public IState Idle { get; private set; }
+    public IState Chase { get; private set; }
     public IState Attack1 { get; private set; }
     public IState Attack2 { get; private set; }
     public IState Rush { get; private set; }
     public IState Death { get; private set; }
     public bool CanParry { get; set; }
     public bool CanRush { get; private set; } = false;
+    public bool IgnoreInvincible { get; set; } = false;
 
 
     [SerializeField] private float closeRange = 3f;
@@ -21,9 +23,8 @@ public class Boss1 : BossController
     public float FarRange => farRange;
 
     [Header("── 패턴 가중치 ──")]
-    [SerializeField] private float weightAttack1 = 50f;
-    [SerializeField] private float weightRush = 30f;
-    [SerializeField] private float weightIdle = 20f;
+    [SerializeField] private float weightAttack1 = 60f;
+    [SerializeField] private float weightRush = 40f;
 
     private float periodicTimer;
     [SerializeField] private float stunInterval = 3f;
@@ -59,23 +60,34 @@ public class Boss1 : BossController
 
     public override IState ChooseNextAction()
     {
+        // Attack2는 쿨타임 방식으로 우선 발동
         if (periodicTimer >= periodicInterval)
         {
             periodicTimer = 0f;
             return Attack2;
         }
 
-        float total = weightAttack1 + weightRush + weightIdle;
+        bool canAttack1 = PlayerDistance <= closeRange;
+        bool canRush    = PlayerDistance <= farRange;
+
+        // 둘 다 사거리 밖이면 추격
+        if (!canAttack1 && !canRush) return Chase;
+
+        // 사거리 내 후보만 추려서 가중치 선택
+        float total = 0f;
+        if (canAttack1) total += weightAttack1;
+        if (canRush)    total += weightRush;
+
         float roll = Random.Range(0f, total);
 
-        if (roll < weightAttack1) return Attack1;
-        if (roll < weightAttack1 + weightRush) return Rush;
-        return Idle;
+        if (canAttack1 && roll < weightAttack1) return Attack1;
+        return Rush;
     }
 
     protected override void InitStates()
     {
         Idle = new BossIdle(this);
+        Chase = new BossChase(this);
         Attack1 = new BossAttack1(this);
         Attack2 = new BossAttack2(this);
         Rush = new BossRushAttack(this);
@@ -90,7 +102,7 @@ public class Boss1 : BossController
 
     public override IDamageable.DamageInfo SetDamage()
     {
-        return new IDamageable.DamageInfo() { canParry = this.CanParry, damage = Data.atk };
+        return new IDamageable.DamageInfo() { canParry = CanParry, damage = Data.atk, ignoreInvincible = IgnoreInvincible };
     }
 
     public override void GetDamage(IDamageable.DamageInfo damageInfo)

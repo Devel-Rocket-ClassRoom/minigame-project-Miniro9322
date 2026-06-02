@@ -271,7 +271,7 @@ public class Player : MonoBehaviour, IDamageable
 
     public void GetDamage(IDamageable.DamageInfo damageInfo)
     {
-        if (invincible)
+        if (invincible && !damageInfo.ignoreInvincible)
         {
             return;
         }

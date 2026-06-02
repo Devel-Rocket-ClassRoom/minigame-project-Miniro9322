@@ -14,11 +14,13 @@ public class BossAttack2 : IState
     {
         boss.Animator.Play(Attack2Hash);
         boss.CanParry = false;
+        boss.IgnoreInvincible = true;
     }
 
     public void Exit()
     {
         boss.IsAttack = false;
+        boss.IgnoreInvincible = false;
     }
 
     public void FixedUpdate()
