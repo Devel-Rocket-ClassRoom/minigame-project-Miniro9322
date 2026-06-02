@@ -23,7 +23,8 @@ public class BossRushAttack : IState
         boss.CanParry = true;
         startPoint = boss.transform.position;
         dir = boss.transform.localScale.x;
-        rushVector = new Vector3(startPoint.x + rushAmount * dir, startPoint.y);
+        float targetX = Mathf.Clamp(startPoint.x + rushAmount * dir, -17f, 19f);
+        rushVector = new Vector3(targetX, startPoint.y);
     }
 
     public void Exit()
