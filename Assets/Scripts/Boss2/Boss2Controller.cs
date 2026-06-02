@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using Unity.Behavior;
 using UnityEngine;
+using UnityEngine.Events;
 [RequireComponent(typeof(BehaviorGraphAgent))]
 
 [RequireComponent(typeof(Animator))]
@@ -88,6 +89,8 @@ public class Boss2Controller : MonoBehaviour, IDamageable
     [SerializeField] private float deathSlowDuration = 1.0f;
     [SerializeField] private ParticleSystem deathParticle;
 
+    public UnityEvent OnBossDead;
+
     public bool IsActing { get; private set; } = false;
     public bool IsGroggy { get; private set; } = false;
     public float CurrentHP { get; private set; }
@@ -111,6 +114,7 @@ public class Boss2Controller : MonoBehaviour, IDamageable
     private Animator animator;
     [SerializeField] private BossData data;
     [SerializeField] private GameObject parryWarning;
+    [SerializeField] private GameObject avoidWarning;
     [SerializeField] private Transform lookAtZone;
     public Transform LookAtZone => lookAtZone;
     private int maxHP;
@@ -123,6 +127,8 @@ public class Boss2Controller : MonoBehaviour, IDamageable
         behaviorAgent = GetComponent<BehaviorGraphAgent>();
         spriteRenderer = GetComponent<SpriteRenderer>();
         animator = GetComponent<Animator>();
+        parryWarning.SetActive(false);
+        avoidWarning.SetActive(false);
         SetupTeleportPositions();
     }
 
@@ -207,9 +213,28 @@ public class Boss2Controller : MonoBehaviour, IDamageable
     private void OnDeath()
     {
         behaviorAgent.BlackboardReference.SetVariableValue("IsDead", true);
-        animator.Play(DeathHash);
         StopAllCoroutines();
         DestroyAllSpawnedObjects();
+        animator.Play(DeathHash);
+        StartCoroutine(WaitForDeathAnimation());
+    }
+
+    private IEnumerator WaitForDeathAnimation()
+    {
+        yield return null;  // 애니메이션 시작 대기
+
+        // Death 상태에 들어올 때까지 대기
+        while (!animator.GetCurrentAnimatorStateInfo(0).IsName("Death"))
+            yield return null;
+
+        // 재생 완료까지 대기
+        while (animator.GetCurrentAnimatorStateInfo(0).normalizedTime < 1f)
+            yield return null;
+
+        OnBossDead?.Invoke();
+
+        yield return new WaitForSeconds(0.5f);  // 클리어 화면 뜰 시간 확보
+        Destroy(gameObject);
     }
 
     private void DestroyAllSpawnedObjects()
@@ -583,6 +608,15 @@ public class Boss2Controller : MonoBehaviour, IDamageable
     private void DisableWarning()
     {
         parryWarning.SetActive(false);
+    }
+    private void EnableAvoidWarning()
+    {
+        avoidWarning.SetActive(true);
+    }
+
+    private void DisableAvoidWarning()
+    {
+        avoidWarning.SetActive(false);
     }
 
     public void OnGameOver()

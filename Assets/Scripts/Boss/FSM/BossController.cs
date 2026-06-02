@@ -16,7 +16,7 @@ public abstract class BossController : MonoBehaviour, IDamageable
     public BossData Data => data;
 
     [SerializeField] private AttackZone attackZone;
-    [SerializeField] private SpriteRenderer spriteRenderer;
+    private SpriteRenderer spriteRenderer;
 
     [Header("── 피격 효과 ──")]
     [SerializeField] private float hitFlashDuration = 0.08f;
@@ -27,6 +27,9 @@ public abstract class BossController : MonoBehaviour, IDamageable
     [SerializeField] private float deathSlowScale = 0.2f;
     [SerializeField] private float deathSlowDuration = 1.0f;
     [SerializeField] private ParticleSystem deathParticle;  // 없어도 작동
+
+    public bool IsDead { get; protected set; } = false;
+    public bool IsGameOver { get; protected set; } = false;
 
     private Transform player;
     private int maxHp;
