@@ -11,6 +11,7 @@ public class KeySetting : MonoBehaviour
     private InputAction dodge;
     private InputAction attack;
     private InputAction parry;
+    private InputAction down;
 
     [SerializeField] private TextMeshProUGUI lefttext;
     [SerializeField] private TextMeshProUGUI righttext;
@@ -18,6 +19,7 @@ public class KeySetting : MonoBehaviour
     [SerializeField] private TextMeshProUGUI dodgetext;
     [SerializeField] private TextMeshProUGUI attacktext;
     [SerializeField] private TextMeshProUGUI parrytext;
+    [SerializeField] private TextMeshProUGUI downtext;
 
     [SerializeField] private Button leftButton;
     [SerializeField] private Button rightButton;
@@ -25,6 +27,7 @@ public class KeySetting : MonoBehaviour
     [SerializeField] private Button dodgeButton;
     [SerializeField] private Button attackButton;
     [SerializeField] private Button parryButton;
+    [SerializeField] private Button downButton;
 
     private string path;
 
@@ -35,6 +38,7 @@ public class KeySetting : MonoBehaviour
         dodge  = InputSystem.actions.FindAction("Dodge");
         attack = InputSystem.actions.FindAction("Attack");
         parry  = InputSystem.actions.FindAction("Parry");
+        down = InputSystem.actions.FindAction("Down");
 
         path = Application.persistentDataPath + "/keybindings.json";
 
@@ -47,6 +51,7 @@ public class KeySetting : MonoBehaviour
         dodgetext.text  = dodge.GetBindingDisplayString(0);
         attacktext.text = attack.GetBindingDisplayString(0);
         parrytext.text  = parry.GetBindingDisplayString(0);
+        downtext.text  = down.GetBindingDisplayString(0);
     }
 
     public void OnButtonLeft()   => StartRebind(move,   1, lefttext);
@@ -55,6 +60,7 @@ public class KeySetting : MonoBehaviour
     public void OnButtonDodge()  => StartRebind(dodge,  0, dodgetext);
     public void OnButtonAttack() => StartRebind(attack, 0, attacktext);
     public void OnButtonParry()  => StartRebind(parry,  0, parrytext);
+    public void OnButtonDown()  => StartRebind(down,  0, downtext);
 
     private void StartRebind(InputAction action, int bindingIndex, TextMeshProUGUI label)
     {
@@ -92,5 +98,22 @@ public class KeySetting : MonoBehaviour
         dodgeButton.interactable  = interactable;
         attackButton.interactable = interactable;
         parryButton.interactable  = interactable;
+        downButton.interactable  = interactable;
+    }
+
+    public void OnResetBindings()
+    {
+        InputSystem.actions.RemoveAllBindingOverrides();
+
+        File.WriteAllText(path, "{}");
+
+        // 텍스트 갱신
+        lefttext.text = move.GetBindingDisplayString(1);
+        righttext.text = move.GetBindingDisplayString(2);
+        jumptext.text = jump.GetBindingDisplayString(0);
+        dodgetext.text = dodge.GetBindingDisplayString(0);
+        attacktext.text = attack.GetBindingDisplayString(0);
+        parrytext.text = parry.GetBindingDisplayString(0);
+        downtext.text = down.GetBindingDisplayString(0);
     }
 }
