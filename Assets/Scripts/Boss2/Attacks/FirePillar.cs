@@ -6,6 +6,7 @@ public class FirePillar : MonoBehaviour, IDamageable
 {
     [SerializeField] private float damageMultiplier = 1f;
     [SerializeField] private ParticleSystem particle;
+    [SerializeField] private AudioClip exploseAudio;
     private int damage;
 
     private bool hasHit = false;
@@ -19,6 +20,7 @@ public class FirePillar : MonoBehaviour, IDamageable
     private void Start()
     {
         particle.Play();
+        SoundManager.Instance.PlaySFX(exploseAudio);
         StartCoroutine(WaitParticle());
     }
 

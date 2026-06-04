@@ -9,7 +9,9 @@ public class Title : MonoBehaviour
     [SerializeField] private GameObject tutorial;
     [SerializeField] private GameObject extra;
     [SerializeField] private GameObject extraPanel;
+    [SerializeField] private GameObject formatButton;
     [SerializeField] private AudioClip titleBgm;
+    [SerializeField] private AudioClip buttonSFX;
     private InputAction escAction;
 
     private void Awake()
@@ -37,30 +39,40 @@ public class Title : MonoBehaviour
 
     private void OnEsc(InputAction.CallbackContext _)
     {
-        if (option.activeSelf) option.SetActive(false);
+        if (option.activeSelf)
+        {
+            if(formatButton != null) formatButton.SetActive(true);
+            option.SetActive(false);
+        }
     }
 
     public void OnStart()
     {
         if (SaveManager.Data.isFirstPlay)
         {
+            SoundManager.Instance.PlaySFX(buttonSFX);
+            if(formatButton != null) formatButton.SetActive(false);
             tutorial.SetActive(true);
             LayoutRebuilder.ForceRebuildLayoutImmediate(tutorial.GetComponent<RectTransform>());
             SaveManager.SetFirstPlayDone();
             return;
         }
 
+        SoundManager.Instance.PlaySFX(buttonSFX);
         SoundManager.Instance.StopBGM();
         SceneManager.LoadScene("Boss1");
     }
 
     public void OnOptions()
     {
+        SoundManager.Instance.PlaySFX(buttonSFX);
+        if(formatButton != null) formatButton.SetActive(false);
         option.SetActive(true);
     }
 
     public void OnQuit()
     {
+        SoundManager.Instance.PlaySFX(buttonSFX);
         Application.Quit();
 #if UNITY_EDITOR
         UnityEditor.EditorApplication.isPlaying = false;
@@ -69,21 +81,25 @@ public class Title : MonoBehaviour
 
     public void OnExtra()
     {
+        SoundManager.Instance.PlaySFX(buttonSFX);
         extraPanel.SetActive(true);
     }
 
     public void OnBoss1()
     {
+        SoundManager.Instance.PlaySFX(buttonSFX);
         SceneManager.LoadScene("Boss1");
     }
 
     public void OnBoss2()
     {
+        SoundManager.Instance.PlaySFX(buttonSFX);
         SceneManager.LoadScene("Boss2");
     }
 
     public void OnRemoveSave()
     {
+        SoundManager.Instance.PlaySFX(buttonSFX);
         SaveManager.RemoveSave();
         extra.SetActive(SaveManager.Data.isClear);
     }

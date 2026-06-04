@@ -16,6 +16,7 @@ public class UIManager : MonoBehaviour
     [SerializeField] private GameObject optionMenu;
     [SerializeField] private GameObject gameOver;
     [SerializeField] private GameObject clearScreen;
+    [SerializeField] private AudioClip buttonSFX;
     private Animator animator;
 
     private void Awake()
@@ -89,7 +90,6 @@ public class UIManager : MonoBehaviour
 
     public void OnPause()
     {
-        // 옵션창이 열려있으면 옵션창만 닫고 일시정지 유지
         if (optionMenu.activeSelf)
         {
             optionMenu.SetActive(false);
@@ -103,18 +103,21 @@ public class UIManager : MonoBehaviour
 
     public void OnMain()
     {
+        SoundManager.Instance.PlaySFX(buttonSFX);
         Time.timeScale = 1f;
         SceneManager.LoadScene("Title");
     }
 
     public void OnResume()
     {
+        SoundManager.Instance.PlaySFX(buttonSFX);
         Time.timeScale = 1f;
         pauseMenu.SetActive(false);
     }
 
     public void OnOption()
     {
+        SoundManager.Instance.PlaySFX(buttonSFX);
         optionMenu.SetActive(true);
     }
 
@@ -133,6 +136,7 @@ public class UIManager : MonoBehaviour
 
     public void OnQuit()
     {
+        SoundManager.Instance.PlaySFX(buttonSFX);
         Application.Quit();
 
 #if UNITY_EDITOR
@@ -142,6 +146,7 @@ public class UIManager : MonoBehaviour
 
     public void OnRetry()
     {
+        SoundManager.Instance.PlaySFX(buttonSFX);
         Time.timeScale = 1f;
         SceneManager.LoadScene(SceneManager.GetActiveScene().name);
     }

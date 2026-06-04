@@ -2978,7 +2978,7 @@ PrefabInstance:
       objectReference: {fileID: 1337985185}
     - target: {fileID: 479041301496403354, guid: 07ccac6c484c4be4a86fcd91efa91c4b, type: 3}
       propertyPath: SuccessParry.m_PersistentCalls.m_Calls.Array.size
-      value: 2
+      value: 3
       objectReference: {fileID: 0}
     - target: {fileID: 479041301496403354, guid: 07ccac6c484c4be4a86fcd91efa91c4b, type: 3}
       propertyPath: OnHit.m_PersistentCalls.m_Calls.Array.data[0].m_Target
@@ -3013,6 +3013,10 @@ PrefabInstance:
       value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 479041301496403354, guid: 07ccac6c484c4be4a86fcd91efa91c4b, type: 3}
+      propertyPath: SuccessParry.m_PersistentCalls.m_Calls.Array.data[2].m_Mode
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 479041301496403354, guid: 07ccac6c484c4be4a86fcd91efa91c4b, type: 3}
       propertyPath: SuccessParry.m_PersistentCalls.m_Calls.Array.data[0].m_Target
       value: 
       objectReference: {fileID: 468392792}
@@ -3021,11 +3025,19 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 614717272}
     - target: {fileID: 479041301496403354, guid: 07ccac6c484c4be4a86fcd91efa91c4b, type: 3}
+      propertyPath: SuccessParry.m_PersistentCalls.m_Calls.Array.data[2].m_Target
+      value: 
+      objectReference: {fileID: 28160318994055832}
+    - target: {fileID: 479041301496403354, guid: 07ccac6c484c4be4a86fcd91efa91c4b, type: 3}
       propertyPath: OnGameOver.m_PersistentCalls.m_Calls.Array.data[1].m_MethodName
       value: ShowGameOver
       objectReference: {fileID: 0}
     - target: {fileID: 479041301496403354, guid: 07ccac6c484c4be4a86fcd91efa91c4b, type: 3}
       propertyPath: SuccessParry.m_PersistentCalls.m_Calls.Array.data[1].m_CallState
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 479041301496403354, guid: 07ccac6c484c4be4a86fcd91efa91c4b, type: 3}
+      propertyPath: SuccessParry.m_PersistentCalls.m_Calls.Array.data[2].m_CallState
       value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 479041301496403354, guid: 07ccac6c484c4be4a86fcd91efa91c4b, type: 3}
@@ -3037,6 +3049,10 @@ PrefabInstance:
       value: HitStop
       objectReference: {fileID: 0}
     - target: {fileID: 479041301496403354, guid: 07ccac6c484c4be4a86fcd91efa91c4b, type: 3}
+      propertyPath: SuccessParry.m_PersistentCalls.m_Calls.Array.data[2].m_MethodName
+      value: PlayParrySound
+      objectReference: {fileID: 0}
+    - target: {fileID: 479041301496403354, guid: 07ccac6c484c4be4a86fcd91efa91c4b, type: 3}
       propertyPath: SuccessParry.m_PersistentCalls.m_Calls.Array.data[0].m_TargetAssemblyTypeName
       value: Boss1, Assembly-CSharp
       objectReference: {fileID: 0}
@@ -3045,7 +3061,15 @@ PrefabInstance:
       value: GameManager, Assembly-CSharp
       objectReference: {fileID: 0}
     - target: {fileID: 479041301496403354, guid: 07ccac6c484c4be4a86fcd91efa91c4b, type: 3}
+      propertyPath: SuccessParry.m_PersistentCalls.m_Calls.Array.data[2].m_TargetAssemblyTypeName
+      value: PlayerSound, Assembly-CSharp
+      objectReference: {fileID: 0}
+    - target: {fileID: 479041301496403354, guid: 07ccac6c484c4be4a86fcd91efa91c4b, type: 3}
       propertyPath: SuccessParry.m_PersistentCalls.m_Calls.Array.data[1].m_Arguments.m_ObjectArgumentAssemblyTypeName
+      value: UnityEngine.Object, UnityEngine
+      objectReference: {fileID: 0}
+    - target: {fileID: 479041301496403354, guid: 07ccac6c484c4be4a86fcd91efa91c4b, type: 3}
+      propertyPath: SuccessParry.m_PersistentCalls.m_Calls.Array.data[2].m_Arguments.m_ObjectArgumentAssemblyTypeName
       value: UnityEngine.Object, UnityEngine
       objectReference: {fileID: 0}
     - target: {fileID: 790391469155401914, guid: 07ccac6c484c4be4a86fcd91efa91c4b, type: 3}
@@ -3113,6 +3137,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: de6229cb4f1bee8449cc9fdf4e3212b3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Player
+--- !u!114 &28160318994055832 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 5247068731503201576, guid: 07ccac6c484c4be4a86fcd91efa91c4b, type: 3}
+  m_PrefabInstance: {fileID: 28160318994055829}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0df6b85d0f2e70d4687a46cb770309b7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerSound
 --- !u!1001 &2242424318738332945
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -3546,6 +3581,10 @@ PrefabInstance:
       propertyPath: confiner
       value: 
       objectReference: {fileID: 394395379}
+    - target: {fileID: 2935131837116891205, guid: 7f78fdae2ba2a6e419d22bbd2400a00e, type: 3}
+      propertyPath: buttonSFX
+      value: 
+      objectReference: {fileID: 8300000, guid: 68f06150e20646048bb309dfe16077b9, type: 3}
     - target: {fileID: 2935131837116891205, guid: 7f78fdae2ba2a6e419d22bbd2400a00e, type: 3}
       propertyPath: mainCamera
       value: 
