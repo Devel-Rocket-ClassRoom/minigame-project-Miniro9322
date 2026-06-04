@@ -1,0 +1,91 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e9620f8c34305754d8cc9a7e49e852d9, type: 3}
+  m_Name: New Table_en
+  m_EditorClassIdentifier: Unity.Localization::UnityEngine.Localization.Tables.StringTable
+  m_LocaleId:
+    m_Code: en
+  m_SharedData: {fileID: 11400000, guid: 272c1e5576fd8a94b87c82d0bf419a25, type: 2}
+  m_Metadata:
+    m_Items: []
+  m_TableData:
+  - m_Id: 76005847040
+    m_Localized: Tutorial
+    m_Metadata:
+      m_Items: []
+  - m_Id: 158872711168
+    m_Localized: Left
+    m_Metadata:
+      m_Items: []
+  - m_Id: 317455151104
+    m_Localized: Right
+    m_Metadata:
+      m_Items: []
+  - m_Id: 546594172928
+    m_Localized: Crouch
+    m_Metadata:
+      m_Items: []
+  - m_Id: 626655047680
+    m_Localized: Dodge
+    m_Metadata:
+      m_Items: []
+  - m_Id: 694401445888
+    m_Localized: Attack(3Combo)
+    m_Metadata:
+      m_Items: []
+  - m_Id: 745743921152
+    m_Localized: Parry
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1443973902336
+    m_Localized: Dodge Attack
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1530275901440
+    m_Localized: Plunge
+    m_Metadata:
+      m_Items: []
+  - m_Id: 7427366662144
+    m_Localized: Controls(Default)
+    m_Metadata:
+      m_Items: []
+  - m_Id: 19501660581888
+    m_Localized: Info
+    m_Metadata:
+      m_Items: []
+  - m_Id: 27722806800384
+    m_Localized: Boss Spawn
+    m_Metadata:
+      m_Items: []
+  - m_Id: 27859771797504
+    m_Localized: Can Parry
+    m_Metadata:
+      m_Items: []
+  - m_Id: 27942244397056
+    m_Localized: Can't Dodge
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36686638428160
+    m_Localized: Unknown
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36765956911104
+    m_Localized: Necromancer
+    m_Metadata:
+      m_Items: []
+  - m_Id: 72101995032576
+    m_Localized: Select Boss
+    m_Metadata:
+      m_Items: []
+  references:
+    version: 2
+    RefIds: []
