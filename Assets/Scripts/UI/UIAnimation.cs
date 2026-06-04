@@ -1,6 +1,7 @@
 using Cinemachine;
 using TMPro;
 using UnityEngine;
+using UnityEngine.Localization.Settings;
 using UnityEngine.SceneManagement;
 
 public class UIAnimation : MonoBehaviour
@@ -56,7 +57,7 @@ public class UIAnimation : MonoBehaviour
         {
             case "Boss1":
                 boss = GameObject.FindWithTag("Boss").GetComponent<BossController>();
-                bossName.text = boss.Data.bossName;
+                bossName.text = LocalizationSettings.StringDatabase.GetLocalizedString("New Table", "Boss1Name");
                 mainCamera.m_Lens.OrthographicSize = 3;
                 mainCamera.m_LookAt = boss.LookAtZone;
                 mainCamera.m_Follow = boss.LookAtZone;
@@ -66,7 +67,7 @@ public class UIAnimation : MonoBehaviour
                 break;
             case "Boss2":
                 boss2 = GameObject.FindWithTag("Boss").GetComponent<Boss2Controller>();
-                bossName.text = boss2.Data.bossName;
+                bossName.text = LocalizationSettings.StringDatabase.GetLocalizedString("New Table", "Boss2Name");
                 mainCamera.m_Lens.OrthographicSize = 3;
                 mainCamera.m_LookAt = boss2.LookAtZone;
                 mainCamera.m_Follow = boss2.LookAtZone;
