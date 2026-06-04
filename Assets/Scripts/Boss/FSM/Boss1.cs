@@ -54,6 +54,19 @@ public class Boss1 : BossController
         }
 
         periodicTimer += Time.deltaTime;
+
+        // 이동 중에도 쿨타임 되면 Attack2 즉시 발동
+        if (periodicTimer >= periodicInterval &&
+            Fsm.CurrentState != Attack2 &&
+            Fsm.CurrentState != Attack1 &&
+            Fsm.CurrentState != Rush &&
+            Fsm.CurrentState != Death)
+        {
+            periodicTimer = 0f;
+            Fsm.ChangeState(Attack2);
+            return;
+        }
+
         base.Update();
     }
 
@@ -134,6 +147,8 @@ public class Boss1 : BossController
 
     private void OnDeath()
     {
+        warning.SetActive(false);
+        warning2.SetActive(false);
         if (transitionWall != null)
             transitionWall.Activate();
     }
