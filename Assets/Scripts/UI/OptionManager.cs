@@ -6,9 +6,13 @@ public class OptionManager : MonoBehaviour
 {
     [SerializeField] private GameObject volume;
     [SerializeField] private GameObject keySetting;
+    [SerializeField] private Slider sfxVolume;
+    [SerializeField] private Slider bgmVolume;
 
     private void Awake()
     {
+        sfxVolume.value = SaveManager.Data.sfxVolume;
+        bgmVolume.value = SaveManager.Data.bgmVolume;
         volume.SetActive(true);
         keySetting.SetActive(false);
     }
@@ -36,5 +40,17 @@ public class OptionManager : MonoBehaviour
     public void OnClose()
     {
         gameObject.SetActive(false);
+    }
+
+    public void OnSFXChange(float value)
+    {
+        SoundManager.Instance.SetSFXVolume(value);
+        SaveManager.SetSFXVolume(value);
+    }
+
+    public void OnBGMChange(float value)
+    {
+        SoundManager.Instance.SetBGMVolume(value);
+        SaveManager.SetBGMVolume(value);
     }
 }

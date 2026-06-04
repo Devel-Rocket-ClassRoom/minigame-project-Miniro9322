@@ -30,7 +30,10 @@ public class FallState : IState
         }
 
         if (player.Grounded)
+        {
+            player.PlayLandSound();
             player.Fsm.ChangeState(player.IdleState);
+        }
     }
 
     public void Update() { }

@@ -4,7 +4,7 @@ using UnityEngine;
 using UnityEngine.Localization.Settings;
 using UnityEngine.SceneManagement;
 
-public class UIAnimation : MonoBehaviour
+public class UIManager : MonoBehaviour
 {
     private BossController boss;
     private Boss2Controller boss2;
@@ -127,6 +127,7 @@ public class UIAnimation : MonoBehaviour
     public void ShowClear()
     {
         Time.timeScale = 0f;
+        SaveManager.SetClear();
         if (clearScreen) clearScreen.SetActive(true);
     }
 

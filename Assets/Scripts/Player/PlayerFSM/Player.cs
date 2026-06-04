@@ -41,6 +41,7 @@ public class Player : MonoBehaviour, IDamageable
     [SerializeField] private ParticleSystem dodgeAttackEffect;
     [SerializeField] private ParticleSystem parryEffect;
     [SerializeField] private ParticleSystem plungeEffect;
+    [SerializeField] private AudioClip LandSound;
     public UnityEvent ParryStart;
     public UnityEvent GamePause;
     public PlayerData Data;
@@ -68,6 +69,7 @@ public class Player : MonoBehaviour, IDamageable
     private float coyoteCounter = 0f;
     private float dodgeCool = 0f;
     private int notGroundedFrames = 0;  // 연속으로 공중에 있던 프레임 수
+    
 
     private void Awake()
     {
@@ -279,7 +281,7 @@ public class Player : MonoBehaviour, IDamageable
 
         // 공중 + 큐에 "D" 있으면 낙하 공격
         if (!Grounded && CommandQueue.Count > 0 && CommandQueue.Peek() == "D" &&
-            (Fsm.CurrentState == JumpState || Fsm.CurrentState == FallState || Fsm.CurrentState == AttackState))
+            (Fsm.CurrentState == JumpState || Fsm.CurrentState == FallState || Fsm.CurrentState == AttackState || Fsm.CurrentState == IdleState))
         {
             CommandQueue.Clear();
             Fsm.ChangeState(PlungeState);
@@ -402,18 +404,18 @@ public class Player : MonoBehaviour, IDamageable
 
     private void OnDown(InputAction.CallbackContext context)
     {
-        if (Fsm.CurrentState == HitState || Fsm.CurrentState == DodgeState) return;
+        if (Fsm.CurrentState == HitState) return;
 
         if (context.performed)
         {
-            // 공중이면 큐 초기화 후 낙하 공격 버퍼
+            // 공중이면 큐 초기화 후 낙하 공격 버퍼 (대쉬 중에도 허용)
             if (!Grounded)
             {
                 CommandQueue.Clear();
                 CommandQueue.Enqueue("D");
             }
-            // 지상이면 크라우칭
-            else if (Grounded && Fsm.CurrentState != CrouchState)
+            // 지상이면 크라우칭 (대쉬 중엔 크라우칭 제외)
+            else if (Grounded && Fsm.CurrentState != CrouchState && Fsm.CurrentState != DodgeState)
                 Fsm.ChangeState(CrouchState);
         }
 
@@ -434,5 +436,10 @@ public class Player : MonoBehaviour, IDamageable
             boxcollider.size = new Vector2(boxcollider.size.x, Data.StandColliderHeight);
             boxcollider.offset = new Vector2(boxcollider.offset.x, Data.StandColliderOffsetY);
         }
+    }
+
+    public void PlayLandSound()
+    {
+        SoundManager.Instance.PlaySFX(LandSound, 3f);
     }
 }
