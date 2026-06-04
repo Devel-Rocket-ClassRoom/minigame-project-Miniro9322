@@ -80,4 +80,10 @@ public static class SaveManager
         _data.isClear = true;
         Save();
     }
+
+    public static void RemoveSave()
+    {
+        if(File.Exists(Path))
+            File.Delete(Path);
+    }
 }

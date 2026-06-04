@@ -24,6 +24,9 @@ public class SceneTransitionWall : MonoBehaviour
     private void OnTriggerEnter2D(Collider2D other)
     {
         if (other.CompareTag("Player"))
+        {
+            SoundManager.Instance.StopBGM();
             SceneManager.LoadScene(nextScene);
+        }
     }
 }

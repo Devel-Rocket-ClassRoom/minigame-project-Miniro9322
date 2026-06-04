@@ -18,6 +18,8 @@ public class CinemachineCamera : MonoBehaviour
     [SerializeField] private float zoomInDuration = 0.08f;
     [SerializeField] private float holdDuration = 0.15f;
     [SerializeField] private float zoomOutDuration = 0.3f;
+    [SerializeField] private AudioClip sceenBgm;
+    [SerializeField] private AudioClip bossBgm;
 
     private float defaultSize;
     private Coroutine zoomCoroutine;
@@ -25,6 +27,7 @@ public class CinemachineCamera : MonoBehaviour
 
     private void Awake()
     {
+        SoundManager.Instance.PlayBGM(sceenBgm);
         virtualCamera = GetComponent<CinemachineVirtualCamera>();
         if (virtualCamera != null)
         {
@@ -109,5 +112,11 @@ public class CinemachineCamera : MonoBehaviour
         }
 
         noise.m_AmplitudeGain = 0f;
+    }
+
+    public void OnBossSpawn()
+    {
+        SoundManager.Instance.StopBGM();
+        SoundManager.Instance.PlayBGM(bossBgm);
     }
 }

@@ -9,6 +9,8 @@ public class Title : MonoBehaviour
     [SerializeField] private GameObject tutorial;
     [SerializeField] private GameObject extra;
     [SerializeField] private GameObject extraPanel;
+    [SerializeField] private AudioClip titleBgm;
+    private InputAction escAction;
 
     private void Awake()
     {
@@ -17,19 +19,38 @@ public class Title : MonoBehaviour
         tutorial.SetActive(false);
         extra.SetActive(SaveManager.Data.isClear);
         InputSystem.actions.FindActionMap("UI").Enable();
+        escAction = InputSystem.actions.FindAction("Cancel");
+        SoundManager.Instance.PlayBGM(titleBgm);
+    }
+
+    private void OnEnable()
+    {
+        if (escAction != null)
+            escAction.performed += OnEsc;
+    }
+
+    private void OnDisable()
+    {
+        if (escAction != null)
+            escAction.performed -= OnEsc;
+    }
+
+    private void OnEsc(InputAction.CallbackContext _)
+    {
+        if (option.activeSelf) option.SetActive(false);
     }
 
     public void OnStart()
     {
         if (SaveManager.Data.isFirstPlay)
         {
-
             tutorial.SetActive(true);
             LayoutRebuilder.ForceRebuildLayoutImmediate(tutorial.GetComponent<RectTransform>());
             SaveManager.SetFirstPlayDone();
             return;
         }
 
+        SoundManager.Instance.StopBGM();
         SceneManager.LoadScene("Boss1");
     }
 
@@ -59,5 +80,11 @@ public class Title : MonoBehaviour
     public void OnBoss2()
     {
         SceneManager.LoadScene("Boss2");
+    }
+
+    public void OnRemoveSave()
+    {
+        SaveManager.RemoveSave();
+        extra.SetActive(SaveManager.Data.isClear);
     }
 }
