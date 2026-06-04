@@ -1457,6 +1457,7 @@ MonoBehaviour:
   optionMenu: {fileID: 7601653973812185807}
   gameOver: {fileID: 3173393346636997853}
   clearScreen: {fileID: 3907254606949380955}
+  buttonSFX: {fileID: 8300000, guid: 68f06150e20646048bb309dfe16077b9, type: 3}
 --- !u!1 &6483371086664381603
 GameObject:
   m_ObjectHideFlags: 0

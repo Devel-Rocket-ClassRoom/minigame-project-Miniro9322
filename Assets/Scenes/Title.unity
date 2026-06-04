@@ -1222,6 +1222,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 60717a389ca97964eae752f585ee0001, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::KeySetting
+--- !u!1 &275090509 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 40029725536643594, guid: 6b6147ee34bd680499f05671470d0bd8, type: 3}
+  m_PrefabInstance: {fileID: 498695170}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &324354890
 GameObject:
   m_ObjectHideFlags: 0
@@ -1436,7 +1441,9 @@ MonoBehaviour:
   tutorial: {fileID: 29837344}
   extra: {fileID: 420996463}
   extraPanel: {fileID: 584566879}
+  formatButton: {fileID: 275090509}
   titleBgm: {fileID: 8300000, guid: 9e0f6a545c33fb24ea49fe058b19a562, type: 3}
+  buttonSFX: {fileID: 8300000, guid: 68f06150e20646048bb309dfe16077b9, type: 3}
 --- !u!114 &388071019
 MonoBehaviour:
   m_ObjectHideFlags: 0
