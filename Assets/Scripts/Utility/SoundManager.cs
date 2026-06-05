@@ -7,6 +7,7 @@ public class SoundManager : MonoBehaviour
 
     [SerializeField] private AudioSource bgmSource;
     [SerializeField] private AudioSource sfxSource;
+    [SerializeField] private AudioSource loopSfxSource;
 
     [SerializeField] private float crossFadeDuration = 1f;
 
@@ -99,5 +100,19 @@ public class SoundManager : MonoBehaviour
         }
         bgmSource.Stop();
         bgmSource.volume = startVolume;
+    }
+
+    public void PlaySFXLoop(AudioClip clip)
+    {
+        if (clip == null) return;
+        loopSfxSource.clip = clip;
+        loopSfxSource.loop = true;
+        loopSfxSource.Play();
+    }
+
+    public void StopSFXLoop()
+    {
+        loopSfxSource.loop = false;
+        loopSfxSource.Stop();
     }
 }

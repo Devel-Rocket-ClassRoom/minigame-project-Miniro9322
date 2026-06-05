@@ -78,9 +78,6 @@ public class Boss2Controller : MonoBehaviour, IDamageable
     [Header("── 시각 효과 ──")]
     private SpriteRenderer spriteRenderer;
     [SerializeField] private Color phase2Color = new(1f, 0.3f, 0.3f);
-    [SerializeField] private ParticleSystem phase2Particles;
-    [SerializeField] private AudioSource audioSource;
-    [SerializeField] private AudioClip phase2SFX;
 
     [Header("── 피격 효과 ──")]
     [SerializeField] private float hitFlashDuration = 0.08f;
@@ -90,7 +87,6 @@ public class Boss2Controller : MonoBehaviour, IDamageable
     [SerializeField] private float deathStopDuration = 0.3f;
     [SerializeField] private float deathSlowScale = 0.2f;
     [SerializeField] private float deathSlowDuration = 1.0f;
-    [SerializeField] private ParticleSystem deathParticle;
 
     public UnityEvent OnBossDead;
 
@@ -119,6 +115,11 @@ public class Boss2Controller : MonoBehaviour, IDamageable
     [SerializeField] private GameObject parryWarning;
     [SerializeField] private GameObject avoidWarning;
     [SerializeField] private Transform lookAtZone;
+    [SerializeField] private AudioClip parryFireballClip;
+    [SerializeField] private AudioClip fireballClip;
+    [SerializeField] private AudioClip ChargeClip;
+    [SerializeField] private AudioClip fireWallClip;
+    [SerializeField] private AudioClip hitClip;
     public Transform LookAtZone => lookAtZone;
     private int maxHP;
 
@@ -184,6 +185,7 @@ public class Boss2Controller : MonoBehaviour, IDamageable
     public void TakeDamage(int damage)
     {
         if (IsDead) return;
+        SoundManager.Instance.PlaySFX(hitClip);
         CurrentHP = Mathf.Max(0f, CurrentHP - damage);
 
         if (!IsDead)
@@ -212,8 +214,6 @@ public class Boss2Controller : MonoBehaviour, IDamageable
         behaviorAgent.BlackboardReference.SetVariableValue("IsPhase2", true);
 
         if (spriteRenderer) spriteRenderer.color = phase2Color;
-        if (phase2Particles) phase2Particles.Play();
-        if (audioSource && phase2SFX) audioSource.PlayOneShot(phase2SFX);
     }
 
     private void OnDeath()
@@ -508,12 +508,13 @@ public class Boss2Controller : MonoBehaviour, IDamageable
         }
 
         float timer = 0f;
+        SoundManager.Instance.PlaySFXLoop(ChargeClip);
         while (timer < groggyTimeLimit && groggyPartsDestroyed < groggyPartsTotal)
         {
             timer += Time.deltaTime;
             yield return null;
         }
-
+        SoundManager.Instance.StopSFXLoop();
         if (groggyPartsDestroyed >= groggyPartsTotal)
         {
             IsGroggy = true;
@@ -539,8 +540,6 @@ public class Boss2Controller : MonoBehaviour, IDamageable
         
         callback?.Invoke(true);
     }
-
-    /// <summary>애니메이션 이벤트에서 호출 — 발사 타이밍 신호</summary>
     public void OnFireSignal() => fireSignalReceived = true;
 
     public void OnGroggyPartDestroyed()
@@ -575,7 +574,6 @@ public class Boss2Controller : MonoBehaviour, IDamageable
         yield return new WaitForSecondsRealtime(deathStopDuration);
 
         Time.timeScale = deathSlowScale;
-        if (deathParticle) deathParticle.Play();
 
         float elapsed = 0f;
         while (elapsed < deathSlowDuration)
@@ -629,5 +627,20 @@ public class Boss2Controller : MonoBehaviour, IDamageable
     public void OnGameOver()
     {
         behaviorAgent.BlackboardReference.SetVariableValue("IsGameOver", true);
+    }
+
+    private void PlayParryFireballSound()
+    {
+        SoundManager.Instance.PlaySFX(parryFireballClip);
+    }
+
+    private void PlayFireballSound()
+    {
+        SoundManager.Instance.PlaySFX(fireballClip);
+    }
+
+    private void PlayFireWallSound()
+    {
+        SoundManager.Instance.PlaySFX(fireWallClip);
     }
 }

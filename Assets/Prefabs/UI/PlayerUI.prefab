@@ -2499,6 +2499,26 @@ PrefabInstance:
       propertyPath: m_Name
       value: Options
       objectReference: {fileID: 0}
+    - target: {fileID: 5571171740656144024, guid: 9cf2d77c08a2b6649ae7904dbd9e625b, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5571171740656144024, guid: 9cf2d77c08a2b6649ae7904dbd9e625b, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[1].m_Mode
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5571171740656144024, guid: 9cf2d77c08a2b6649ae7904dbd9e625b, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[1].m_Target
+      value: 
+      objectReference: {fileID: 6356212639770061100}
+    - target: {fileID: 5571171740656144024, guid: 9cf2d77c08a2b6649ae7904dbd9e625b, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[1].m_CallState
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 5571171740656144024, guid: 9cf2d77c08a2b6649ae7904dbd9e625b, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[1].m_TargetAssemblyTypeName
+      value: OptionManager, Assembly-CSharp
+      objectReference: {fileID: 0}
     - target: {fileID: 7604263236022261754, guid: 9cf2d77c08a2b6649ae7904dbd9e625b, type: 3}
       propertyPath: m_Pivot.x
       value: 0.5

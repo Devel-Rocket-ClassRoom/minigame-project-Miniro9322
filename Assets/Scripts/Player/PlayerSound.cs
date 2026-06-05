@@ -10,6 +10,7 @@ public class PlayerSound : MonoBehaviour
     [SerializeField] private AudioClip plungeSound;
     [SerializeField] private AudioClip hitSound;
     [SerializeField] private AudioClip parrySound;
+    [SerializeField] private AudioClip dodgeSound;
 
 
     private void PlayWalkSound()
@@ -50,5 +51,10 @@ public class PlayerSound : MonoBehaviour
     public void PlayParrySound()
     {
         SoundManager.Instance.PlaySFX(parrySound);
+    }
+
+    public void PlayDodgeSound()
+    {
+        SoundManager.Instance.PlaySFX(dodgeSound);
     }
 }
