@@ -8,7 +8,7 @@ public class SoundManager : MonoBehaviour
     [SerializeField] private AudioSource bgmSource;
     [SerializeField] private AudioSource sfxSource;
     [SerializeField] private AudioSource loopSfxSource;
-
+    private AudioClip targetBGMClip;
     [SerializeField] private float crossFadeDuration = 1f;
 
     private void Awake()
@@ -34,9 +34,21 @@ public class SoundManager : MonoBehaviour
         sfxSource.volume = SaveManager.Data.sfxVolume;
     }
 
+
+    private void OnApplicationFocus(bool hasFocus)
+    {
+        if (!hasFocus || bgmSource == null || targetBGMClip == null) return;
+
+        StopAllCoroutines();
+        bgmSource.clip = targetBGMClip;  // 목표 클립으로 강제 설정
+        bgmSource.Play();
+        bgmSource.volume = SaveManager.Data.bgmVolume;
+    }
+
     public void PlayBGM(AudioClip clip)
     {
         if (bgmSource.clip == clip) return;
+        targetBGMClip = clip;
         StartCoroutine(CrossFade(clip));
     }
 
