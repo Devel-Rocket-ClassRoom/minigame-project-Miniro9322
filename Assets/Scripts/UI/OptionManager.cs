@@ -1,3 +1,4 @@
+using TMPro;
 using UnityEngine;
 using UnityEngine.Localization.Settings;
 using UnityEngine.UI;
@@ -8,9 +9,12 @@ public class OptionManager : MonoBehaviour
     [SerializeField] private GameObject keySetting;
     [SerializeField] private Slider sfxVolume;
     [SerializeField] private Slider bgmVolume;
+    [SerializeField] private TMP_Dropdown languageDropDown;
+    [SerializeField] private AudioClip buttonSound;
 
     private void Awake()
     {
+        languageDropDown.value = SaveManager.Data.languageIndex;
         sfxVolume.value = SaveManager.Data.sfxVolume;
         bgmVolume.value = SaveManager.Data.bgmVolume;
         volume.SetActive(true);
@@ -52,5 +56,10 @@ public class OptionManager : MonoBehaviour
     {
         SoundManager.Instance.SetBGMVolume(value);
         SaveManager.SetBGMVolume(value);
+    }
+
+    public void OnClicked()
+    {
+        SoundManager.Instance.PlaySFX(buttonSound);
     }
 }

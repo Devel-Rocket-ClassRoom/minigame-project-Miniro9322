@@ -27,7 +27,6 @@ public class CinemachineCamera : MonoBehaviour
 
     private void Awake()
     {
-        SoundManager.Instance.PlayBGM(sceenBgm);
         virtualCamera = GetComponent<CinemachineVirtualCamera>();
         if (virtualCamera != null)
         {
@@ -35,6 +34,12 @@ public class CinemachineCamera : MonoBehaviour
             defaultSize = virtualCamera.m_Lens.OrthographicSize;
         }
         confiner = GetComponent<CinemachineConfiner2D>();
+    }
+
+    private void Start()
+    {
+        SoundManager.Instance.PlayBGM(sceenBgm);
+
     }
 
     private void OnEnable()

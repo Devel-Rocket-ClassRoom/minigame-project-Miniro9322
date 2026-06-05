@@ -86,6 +86,10 @@ MonoBehaviour:
     m_Localized: Select Boss
     m_Metadata:
       m_Items: []
+  - m_Id: 359165424644096
+    m_Localized: Summon Boss
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

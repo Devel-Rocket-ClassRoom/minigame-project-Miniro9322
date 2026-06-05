@@ -12,6 +12,7 @@ public class Spawner : MonoBehaviour
     private Animator animator;
     [SerializeField] private GameObject interactUI;
     [SerializeField] private Transform spawnPoint;
+    [SerializeField] private AudioClip spawnSound;
     private bool isInteracted;
     private bool playerInRange;
     private PlayerInput playerInput;
@@ -29,6 +30,7 @@ public class Spawner : MonoBehaviour
         {
             if (playerInput.actions["Interact"].WasPressedThisFrame())
             {
+                SoundManager.Instance.PlaySFXLoop(spawnSound);
                 Spawn();
                 interactUI.SetActive(false);
                 isInteracted = true;
@@ -38,6 +40,7 @@ public class Spawner : MonoBehaviour
 
     private void SpawnEnd()
     {
+        SoundManager.Instance.StopSFXLoop();
         boss.transform.position = spawnPoint.position;
         boss.SetActive(true);
         BossSpawn?.Invoke();

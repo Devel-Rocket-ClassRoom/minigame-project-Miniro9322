@@ -6,12 +6,9 @@ public class GroggyPart : MonoBehaviour, IDamageable
     [Header("설정")]
     [SerializeField] private float maxHP = 100f;
 
-    [Header("UI (선택)")]
-    [SerializeField] private Slider hpBarSlider;
-
     [Header("시각 효과")]
-    [SerializeField] private ParticleSystem hitEffect;
-    [SerializeField] private ParticleSystem destroyEffect;
+    [SerializeField] private AudioClip destroySound;
+    [SerializeField] private AudioClip hitSound;
     [SerializeField] private Color damagedColor = Color.red;
 
     private Boss2Controller boss;
@@ -30,7 +27,6 @@ public class GroggyPart : MonoBehaviour, IDamageable
     {
         this.boss = boss;
         currentHP = maxHP;
-        UpdateHPBar();
     }
 
     public IDamageable.DamageInfo SetDamage() => default;
@@ -43,11 +39,9 @@ public class GroggyPart : MonoBehaviour, IDamageable
     public void TakeDamage(int damage)
     {
         if (isDestroyed) return;
-
+        SoundManager.Instance.PlaySFX(hitSound);
         currentHP = Mathf.Max(0f, currentHP - damage);
-        UpdateHPBar();
 
-        if (hitEffect) hitEffect.Play();
         if (sr)
         {
             sr.color = damagedColor;
@@ -62,16 +56,8 @@ public class GroggyPart : MonoBehaviour, IDamageable
     {
         isDestroyed = true;
         boss?.OnGroggyPartDestroyed();
-
-        if (destroyEffect)
-            Instantiate(destroyEffect, transform.position, Quaternion.identity);
-
+        SoundManager.Instance.PlaySFX(destroySound);
         Destroy(gameObject);
-    }
-
-    private void UpdateHPBar()
-    {
-        if (hpBarSlider) hpBarSlider.value = currentHP / maxHP;
     }
 
     private void ResetColor()
