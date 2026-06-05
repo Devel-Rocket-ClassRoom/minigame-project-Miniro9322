@@ -164,7 +164,12 @@ public class Boss1 : BossController
 
     public void RushAvailable()
     {
-        CanRush = !CanRush;
+        CanRush = true;
+    }
+
+    public void DisableRush()
+    {
+        CanRush = false;
     }
 
     private void PlayWalkSound() => SoundManager.Instance.PlaySFX(walkSound, 3f);

@@ -1,6 +1,8 @@
 using Cinemachine;
 using TMPro;
 using UnityEngine;
+using UnityEngine.EventSystems;
+using UnityEngine.InputSystem;
 using UnityEngine.Localization.Settings;
 using UnityEngine.SceneManagement;
 
@@ -26,6 +28,7 @@ public class UIManager : MonoBehaviour
         optionMenu.SetActive(false);
         gameOver.SetActive(false);
         if (clearScreen) clearScreen.SetActive(false);
+        Cursor.visible = false;
     }
 
     private void OnEnable()
@@ -93,12 +96,23 @@ public class UIManager : MonoBehaviour
         if (optionMenu.activeSelf)
         {
             optionMenu.SetActive(false);
+            EventSystem.current.SetSelectedGameObject(null);
             return;
         }
-
         bool pausing = !pauseMenu.activeSelf;
+        Cursor.visible = pausing;
         pauseMenu.SetActive(pausing);
         Time.timeScale = pausing ? 0f : 1f;
+
+        if (pausing)
+        {
+            InputSystem.actions.FindActionMap("Player").Disable();
+            InputSystem.actions.FindAction("Pause").Enable();
+        }
+        else
+        {
+            InputSystem.actions.FindActionMap("Player").Enable();
+        }
     }
 
     public void OnMain()
@@ -123,12 +137,14 @@ public class UIManager : MonoBehaviour
 
     public void ShowGameOver()
     {
+        Cursor.visible = true;
         Time.timeScale = 0f;
         gameOver.SetActive(true);
     }
 
     public void ShowClear()
     {
+        Cursor.visible = true;
         Time.timeScale = 0f;
         SaveManager.SetClear();
         if (clearScreen) clearScreen.SetActive(true);

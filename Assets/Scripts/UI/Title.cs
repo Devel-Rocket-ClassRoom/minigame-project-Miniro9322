@@ -1,3 +1,4 @@
+using System.IO;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.SceneManagement;
@@ -14,8 +15,16 @@ public class Title : MonoBehaviour
     [SerializeField] private AudioClip buttonSFX;
     private InputAction escAction;
 
+    private string path;
+
     private void Awake()
     {
+        path = Application.persistentDataPath + "/keybindings.json";
+
+        if (File.Exists(path))
+            InputSystem.actions.LoadBindingOverridesFromJson(File.ReadAllText(path));
+
+        SaveManager.Load();
         Time.timeScale = 1f;
         option.SetActive(false);
         tutorial.SetActive(false);
@@ -23,6 +32,7 @@ public class Title : MonoBehaviour
         InputSystem.actions.FindActionMap("UI").Enable();
         escAction = InputSystem.actions.FindAction("Cancel");
         SoundManager.Instance.PlayBGM(titleBgm);
+        Cursor.visible = true;
     }
 
     private void OnEnable()
