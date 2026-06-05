@@ -1,5 +1,6 @@
 using System.Collections;
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 public class DeathState : IState
 {
@@ -14,7 +15,8 @@ public class DeathState : IState
     public void Enter()
     {
         player.Animator.updateMode = AnimatorUpdateMode.UnscaledTime;
-        player.Animator.Play(DieHash);
+        player.Animator.SetTrigger("Die");
+        InputSystem.actions.FindActionMap("Player").Disable();
         player.ToggleInvincible();
         player.StartCoroutine(DeathSequence());
     }

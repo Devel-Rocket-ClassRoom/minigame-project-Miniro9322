@@ -25,13 +25,14 @@ public class BossRushAttack : IState
         dir = boss.transform.localScale.x;
         float targetX = Mathf.Clamp(startPoint.x + rushAmount * dir, -17f, 19f);
         rushVector = new Vector3(targetX, startPoint.y);
+        boss.DisableRush();
     }
 
     public void Exit()
     {
         boss.IsAttack = false;
         rushTime = 0f;
-        if (boss.CanRush) boss.RushAvailable();
+        boss.DisableRush();
     }
 
     public void FixedUpdate() { }

@@ -68,7 +68,7 @@ public class Player : MonoBehaviour, IDamageable
     private float jumpBufferCounter = 0f;
     private float coyoteCounter = 0f;
     private float dodgeCool = 0f;
-    private int notGroundedFrames = 0;  // 연속으로 공중에 있던 프레임 수
+    private int notGroundedFrames = 0;
     
 
     private void Awake()
@@ -136,7 +136,6 @@ public class Player : MonoBehaviour, IDamageable
     {
         var newMove = context.ReadValue<Vector2>();
 
-        // 공중에서 아래키를 처음 누르는 순간 큐를 초기화하고 "D" 추가
         if (!Grounded && newMove.y < -0.5f && move.y >= -0.5f)
         {
             CommandQueue.Clear();
@@ -164,7 +163,6 @@ public class Player : MonoBehaviour, IDamageable
         if (Fsm.CurrentState == DeathState)
             return;
 
-        // Grounded를 먼저 갱신해야 같은 프레임에서 FallState가 올바른 값을 참조함
         Grounded = Physics2D.OverlapCircle(groundCheck.position, Data.GroundCheckRadius, groundLayer);
 
         Fsm.FixedUpdate();
@@ -179,7 +177,7 @@ public class Player : MonoBehaviour, IDamageable
             jumpCount = 0;
             coyoteCounter = Data.CoyoteTime;
             notGroundedFrames = 0;
-            // 착지 시 미사용 "D" 입력 제거
+
             if (CommandQueue.Count > 0 && CommandQueue.Peek() == "D")
                 CommandQueue.Dequeue();
         }
@@ -228,7 +226,7 @@ public class Player : MonoBehaviour, IDamageable
 
         if (!isAttacking
             && !isHit
-            && notGroundedFrames > 2        // 2프레임 이상 연속으로 공중일 때만 전환 (1프레임 깜빡임 무시)
+            && notGroundedFrames > 2
             && Rb.linearVelocity.y < -0.01f
             && Fsm.CurrentState != FallState
             && Fsm.CurrentState != JumpState
@@ -253,7 +251,7 @@ public class Player : MonoBehaviour, IDamageable
         else
         {
             Animator.SetBool(MoveBool, false);
-            // 입력 없을 때 x 속도 제거 → 발판 끝 미끄러짐 방지
+
             rb.linearVelocity = new Vector2(0f, rb.linearVelocity.y);
         }
 
@@ -263,6 +261,8 @@ public class Player : MonoBehaviour, IDamageable
 
     private void OnJump(InputAction.CallbackContext context)
     {
+        
+
         if (Fsm.CurrentState == HitState || Fsm.CurrentState == DodgeState) return;
 
         if (context.performed)
@@ -279,7 +279,6 @@ public class Player : MonoBehaviour, IDamageable
     {
         if (Fsm.CurrentState == HitState || Fsm.CurrentState == DodgeState) return;
 
-        // 공중 + 큐에 "D" 있으면 낙하 공격
         if (!Grounded && CommandQueue.Count > 0 && CommandQueue.Peek() == "D" &&
             (Fsm.CurrentState == JumpState || Fsm.CurrentState == FallState || Fsm.CurrentState == AttackState || Fsm.CurrentState == IdleState))
         {
@@ -404,6 +403,8 @@ public class Player : MonoBehaviour, IDamageable
 
     private void OnDown(InputAction.CallbackContext context)
     {
+        
+
         if (Fsm.CurrentState == HitState) return;
 
         if (context.performed)

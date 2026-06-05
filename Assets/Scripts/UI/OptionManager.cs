@@ -1,5 +1,6 @@
 using TMPro;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.Localization.Settings;
 using UnityEngine.UI;
 
@@ -44,6 +45,7 @@ public class OptionManager : MonoBehaviour
     public void OnClose()
     {
         gameObject.SetActive(false);
+        EventSystem.current.SetSelectedGameObject(null);
     }
 
     public void OnSFXChange(float value)
