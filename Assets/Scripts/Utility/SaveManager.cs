@@ -83,7 +83,7 @@ public static class SaveManager
 
     public static void RemoveSave()
     {
-        if(File.Exists(Path))
-            File.Delete(Path);
+        _data = new SaveData();
+        Save();
     }
 }

@@ -107,9 +107,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GroggyPart
   maxHP: 30
-  hpBarSlider: {fileID: 0}
-  hitEffect: {fileID: 0}
-  destroyEffect: {fileID: 0}
+  destroySound: {fileID: 8300000, guid: 3f9b2561e8c52d6458b54b480be81b70, type: 3}
+  hitSound: {fileID: 8300000, guid: 773566de56143d84198dbf0e6d7611cf, type: 3}
   damagedColor: {r: 1, g: 0, b: 0, a: 1}
 --- !u!61 &5732255109059599384
 BoxCollider2D:

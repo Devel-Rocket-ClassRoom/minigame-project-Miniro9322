@@ -83,8 +83,13 @@ MonoBehaviour:
     m_Key: BossSelect
     m_Metadata:
       m_Items: []
+  - m_Id: 359165424644096
+    m_Key: Summon
+    m_Metadata:
+      m_Items: []
   m_Metadata:
-    m_Items: []
+    m_Items:
+    - rid: 7097357565738090591
   m_KeyGenerator:
     rid: 7097357542962757909
   references:
@@ -94,3 +99,7 @@ MonoBehaviour:
       type: {class: DistributedUIDGenerator, ns: UnityEngine.Localization.Tables, asm: Unity.Localization}
       data:
         m_CustomEpoch: 1780530138717
+    - rid: 7097357565738090591
+      type: {class: PreloadAssetTableMetadata, ns: UnityEngine.Localization.Metadata, asm: Unity.Localization}
+      data:
+        m_PreloadBehaviour: 1

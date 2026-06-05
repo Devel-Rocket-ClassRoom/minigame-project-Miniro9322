@@ -108,7 +108,9 @@ MonoBehaviour:
   warningThickness: 0.1
   activeThickness: 4
   expandDuration: 0.07
-  damage: 10
+  damageMultiplier: 1
+  laserSound: {fileID: 8300000, guid: 5d4a20e94ecfecd41a05e543f16a8c7a, type: 3}
+  warningSound: {fileID: 8300000, guid: 973e92412dd5a2f438be5e9627e9e558, type: 3}
 --- !u!61 &-656082493188505683
 BoxCollider2D:
   m_ObjectHideFlags: 0

@@ -44,6 +44,11 @@ public class Title : MonoBehaviour
             if(formatButton != null) formatButton.SetActive(true);
             option.SetActive(false);
         }
+        else if (extraPanel.activeSelf)
+        {
+            if(formatButton != null) formatButton.SetActive(true);
+            extraPanel.SetActive(false);
+        }
     }
 
     public void OnStart()
@@ -82,6 +87,7 @@ public class Title : MonoBehaviour
     public void OnExtra()
     {
         SoundManager.Instance.PlaySFX(buttonSFX);
+        if(formatButton != null) formatButton.SetActive(false);
         extraPanel.SetActive(true);
     }
 
