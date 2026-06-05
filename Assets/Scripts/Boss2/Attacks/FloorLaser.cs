@@ -13,6 +13,8 @@ public class FloorLaser : MonoBehaviour
 
     [Header("피해")]
     [SerializeField] private float damageMultiplier = 1f;
+    [SerializeField] private AudioClip laserSound;
+    [SerializeField] private AudioClip warningSound;
     private int damage;
 
     public void Init(int baseAtk) => damage = Mathf.RoundToInt(baseAtk * damageMultiplier);
@@ -30,7 +32,7 @@ public class FloorLaser : MonoBehaviour
     public void StartWarning()
     {
         if (col) col.enabled = false;
-
+        SoundManager.Instance.PlaySFX(warningSound);
         SetThickness(warningThickness);
     }
 
@@ -42,6 +44,7 @@ public class FloorLaser : MonoBehaviour
     private IEnumerator ActivateCoroutine(float activeDuration)
     {
         float elapsed = 0f;
+        SoundManager.Instance.PlaySFX(laserSound);
         while (elapsed < expandDuration)
         {
             elapsed += Time.deltaTime;

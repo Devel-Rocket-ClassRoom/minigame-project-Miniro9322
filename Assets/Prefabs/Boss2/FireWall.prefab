@@ -154,6 +154,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::FirePillar
   damageMultiplier: 1
   particle: {fileID: 5524344549050617866}
+  exploseAudio: {fileID: 8300000, guid: 143e90fb4e84e7c44886d475a9876dcc, type: 3}
 --- !u!1001 &7676678469146709877
 PrefabInstance:
   m_ObjectHideFlags: 0

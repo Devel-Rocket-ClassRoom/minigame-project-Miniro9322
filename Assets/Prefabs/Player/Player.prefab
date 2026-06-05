@@ -634,6 +634,9 @@ MonoBehaviour:
   attack3Sound: {fileID: 8300000, guid: 31c0fa6b65ba3a543811a15f0c817812, type: 3}
   dodgeAttackSound: {fileID: 8300000, guid: 8b719b4fd15a5d344a39f52bf82b08e0, type: 3}
   plungeSound: {fileID: 8300000, guid: 48d3a972c5bcb984ea7c0f0fcf720097, type: 3}
+  hitSound: {fileID: 8300000, guid: 1b0304ce6a53eb642b003cb44fab7c39, type: 3}
+  parrySound: {fileID: 8300000, guid: 02fbd79e361a5b7479cf209e6df8fa76, type: 3}
+  dodgeSound: {fileID: 8300000, guid: 2b287095294ab974c8759d56b026230f, type: 3}
 --- !u!1 &8170456589282242010
 GameObject:
   m_ObjectHideFlags: 0

@@ -31,6 +31,11 @@ public class Boss1 : BossController
     [SerializeField] private GameObject warning;
     [SerializeField] private GameObject warning2;
     [SerializeField] private SceneTransitionWall transitionWall;
+    [SerializeField] private AudioClip walkSound;
+    [SerializeField] private AudioClip attack1Sound;
+    [SerializeField] private AudioClip attack2Sound;
+    [SerializeField] private AudioClip rushSound;
+    [SerializeField] private AudioClip hitSound;
     private float stunTime = 0f;
     private bool isStuned;
 
@@ -121,6 +126,7 @@ public class Boss1 : BossController
     {
         if (IsDead) return;
 
+        SoundManager.Instance.PlaySFX(hitSound);
         base.GetDamage(damageInfo);
         Animator.Play(HitHash);
 
@@ -160,4 +166,9 @@ public class Boss1 : BossController
     {
         CanRush = !CanRush;
     }
+
+    private void PlayWalkSound() => SoundManager.Instance.PlaySFX(walkSound, 3f);
+    private void PlayAttack1Sound() => SoundManager.Instance.PlaySFX(attack1Sound, 3f);
+    private void PlayAttack2Sound() => SoundManager.Instance.PlaySFX(attack2Sound);
+    private void PlayRushSound() => SoundManager.Instance.PlaySFX(rushSound);
 }

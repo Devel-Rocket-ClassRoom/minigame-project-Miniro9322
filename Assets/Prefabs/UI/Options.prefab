@@ -1007,6 +1007,8 @@ MonoBehaviour:
   keySetting: {fileID: 1712136544189496468}
   sfxVolume: {fileID: 4195962745846715386}
   bgmVolume: {fileID: 3828412922724071254}
+  languageDropDown: {fileID: 8025447791000030456}
+  buttonSound: {fileID: 8300000, guid: 68f06150e20646048bb309dfe16077b9, type: 3}
 --- !u!1 &1279196652928057575
 GameObject:
   m_ObjectHideFlags: 0
@@ -6333,6 +6335,18 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
+      - m_Target: {fileID: 8360050105361023462}
+        m_TargetAssemblyTypeName: OptionManager, Assembly-CSharp
+        m_MethodName: OnClicked
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!1 &7124601897272825207
 GameObject:
   m_ObjectHideFlags: 0
@@ -6835,6 +6849,18 @@ MonoBehaviour:
       - m_Target: {fileID: 8360050105361023462}
         m_TargetAssemblyTypeName: OptionManager, Assembly-CSharp
         m_MethodName: OnKeySetting
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+      - m_Target: {fileID: 8360050105361023462}
+        m_TargetAssemblyTypeName: OptionManager, Assembly-CSharp
+        m_MethodName: OnClicked
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
