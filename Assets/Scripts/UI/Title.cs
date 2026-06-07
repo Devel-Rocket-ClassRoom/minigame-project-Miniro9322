@@ -24,7 +24,6 @@ public class Title : MonoBehaviour
         if (File.Exists(path))
             InputSystem.actions.LoadBindingOverridesFromJson(File.ReadAllText(path));
 
-        SaveManager.Load();
         Time.timeScale = 1f;
         option.SetActive(false);
         tutorial.SetActive(false);
@@ -33,6 +32,11 @@ public class Title : MonoBehaviour
         escAction = InputSystem.actions.FindAction("Cancel");
         SoundManager.Instance.PlayBGM(titleBgm);
         Cursor.visible = true;
+    }
+
+    private void Start()
+    {
+        SaveManager.Load();
     }
 
     private void OnEnable()

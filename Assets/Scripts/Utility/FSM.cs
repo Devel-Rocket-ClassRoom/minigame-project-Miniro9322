@@ -13,7 +13,6 @@ public class FSM
         
         CurrentState?.Exit();
         CurrentState = newState;
-        Debug.Log($"{c} -> {CurrentState}");
         CurrentState?.Enter();
     }
 
