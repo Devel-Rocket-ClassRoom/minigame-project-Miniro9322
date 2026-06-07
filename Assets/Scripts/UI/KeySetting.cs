@@ -68,6 +68,8 @@ public class KeySetting : MonoBehaviour
         action.Disable();
         SetButtonsInteractable(false);
 
+        string oldPath = action.bindings[bindingIndex].effectivePath;
+
         action.PerformInteractiveRebinding()
             .WithTargetBinding(bindingIndex)
             .WithControlsExcluding("<Mouse>")
@@ -75,10 +77,15 @@ public class KeySetting : MonoBehaviour
             .OnComplete(op =>
             {
                 op.Dispose();
+
+                string newPath = action.bindings[bindingIndex].effectivePath;
+                SwapIfConflict(action, bindingIndex, newPath, oldPath);
+
                 label.text = action.GetBindingDisplayString(bindingIndex);
                 File.WriteAllText(path, InputSystem.actions.SaveBindingOverridesAsJson());
                 action.Enable();
                 SetButtonsInteractable(true);
+                RefreshAllTexts();
             })
             .OnCancel(op =>
             {
@@ -108,6 +115,44 @@ public class KeySetting : MonoBehaviour
         File.WriteAllText(path, "{}");
 
         // 텍스트 갱신
+        lefttext.text = move.GetBindingDisplayString(1);
+        righttext.text = move.GetBindingDisplayString(2);
+        jumptext.text = jump.GetBindingDisplayString(0);
+        dodgetext.text = dodge.GetBindingDisplayString(0);
+        attacktext.text = attack.GetBindingDisplayString(0);
+        parrytext.text = parry.GetBindingDisplayString(0);
+        downtext.text = down.GetBindingDisplayString(0);
+    }
+
+    private void SwapIfConflict(InputAction changedAction, int changedIndex, string newPath, string oldPath)
+    {
+        for (int i = 0; i < changedAction.bindings.Count; i++)
+        {
+            if (i == changedIndex) continue;
+            if (changedAction.bindings[i].effectivePath == newPath)
+            {
+                changedAction.ApplyBindingOverride(i, oldPath);
+                return;
+            }
+        }
+
+        foreach (var otherAction in InputSystem.actions)
+        {
+            if (otherAction == changedAction) continue;
+
+            for (int i = 0; i < otherAction.bindings.Count; i++)
+            {
+                if (otherAction.bindings[i].effectivePath == newPath)
+                {
+                    otherAction.ApplyBindingOverride(i, oldPath);
+                    return;
+                }
+            }
+        }
+    }
+
+    private void RefreshAllTexts()
+    {
         lefttext.text = move.GetBindingDisplayString(1);
         righttext.text = move.GetBindingDisplayString(2);
         jumptext.text = jump.GetBindingDisplayString(0);
