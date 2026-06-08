@@ -13,6 +13,7 @@ public class Title : MonoBehaviour
     [SerializeField] private GameObject formatButton;
     [SerializeField] private AudioClip titleBgm;
     [SerializeField] private AudioClip buttonSFX;
+    [SerializeField] private GameObject TitleText;
     private InputAction escAction;
 
     private string path;
@@ -57,11 +58,13 @@ public class Title : MonoBehaviour
         if (option.activeSelf)
         {
             if(formatButton != null) formatButton.SetActive(true);
+            if(TitleText != null) TitleText.SetActive(true);
             option.SetActive(false);
         }
         else if (extraPanel.activeSelf)
         {
             if(formatButton != null) formatButton.SetActive(true);
+            if(TitleText != null) TitleText.SetActive(true);
             extraPanel.SetActive(false);
         }
     }
@@ -87,6 +90,7 @@ public class Title : MonoBehaviour
     {
         SoundManager.Instance.PlaySFX(buttonSFX);
         if(formatButton != null) formatButton.SetActive(false);
+        if(TitleText != null) TitleText.SetActive(false);
         option.SetActive(true);
     }
 
@@ -103,6 +107,7 @@ public class Title : MonoBehaviour
     {
         SoundManager.Instance.PlaySFX(buttonSFX);
         if(formatButton != null) formatButton.SetActive(false);
+        if(TitleText != null) TitleText.SetActive(false);
         extraPanel.SetActive(true);
     }
 
