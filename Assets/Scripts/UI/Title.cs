@@ -29,6 +29,7 @@ public class Title : MonoBehaviour
         tutorial.SetActive(false);
         extra.SetActive(SaveManager.Data.isClear);
         InputSystem.actions.FindActionMap("UI").Enable();
+        InputSystem.actions.FindActionMap("Player").Enable();
         escAction = InputSystem.actions.FindAction("Cancel");
         SoundManager.Instance.PlayBGM(titleBgm);
         Cursor.visible = true;

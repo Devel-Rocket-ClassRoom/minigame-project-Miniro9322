@@ -12,7 +12,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 555a8fe4376f8c34eb0801cc3e72b9cb, type: 3}
   m_Name: Boss2Data
   m_EditorClassIdentifier: Assembly-CSharp::BossData
-  bossName: "\uB124\uD06C\uB85C\uBA58\uC11C"
   atk: 10
   Hp: 1000
   moveSpeed: 0

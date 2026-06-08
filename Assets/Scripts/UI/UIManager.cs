@@ -140,6 +140,7 @@ public class UIManager : MonoBehaviour
         Cursor.visible = true;
         Time.timeScale = 0f;
         gameOver.SetActive(true);
+        InputSystem.actions.FindActionMap("Player").Disable();
     }
 
     public void ShowClear()
@@ -148,6 +149,7 @@ public class UIManager : MonoBehaviour
         Time.timeScale = 0f;
         SaveManager.SetClear();
         if (clearScreen) clearScreen.SetActive(true);
+        InputSystem.actions.FindActionMap("Player").Disable();
     }
 
     public void OnQuit()
