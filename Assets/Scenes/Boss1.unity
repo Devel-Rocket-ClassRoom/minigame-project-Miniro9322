@@ -4557,7 +4557,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4451202329433311991, guid: e312cde9d90a7f04dadb02762e41da39, type: 3}
       propertyPath: m_IsActive
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4720859255705848240, guid: e312cde9d90a7f04dadb02762e41da39, type: 3}
       propertyPath: m_Spacing
@@ -4577,7 +4577,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5244082192104234166, guid: e312cde9d90a7f04dadb02762e41da39, type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 6295619024135419296, guid: e312cde9d90a7f04dadb02762e41da39, type: 3}
       propertyPath: m_SizeDelta.x
