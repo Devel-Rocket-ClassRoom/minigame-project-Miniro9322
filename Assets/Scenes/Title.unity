@@ -1446,6 +1446,7 @@ MonoBehaviour:
   formatButton: {fileID: 275090509}
   titleBgm: {fileID: 8300000, guid: 9e0f6a545c33fb24ea49fe058b19a562, type: 3}
   buttonSFX: {fileID: 8300000, guid: 68f06150e20646048bb309dfe16077b9, type: 3}
+  TitleText: {fileID: 1230603739}
 --- !u!114 &388071019
 MonoBehaviour:
   m_ObjectHideFlags: 0
