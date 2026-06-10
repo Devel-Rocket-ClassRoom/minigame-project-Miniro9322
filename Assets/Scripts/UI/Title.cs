@@ -73,6 +73,7 @@ public class Title : MonoBehaviour
     {
         if (SaveManager.Data.isFirstPlay)
         {
+            TitleText.SetActive(false);
             SoundManager.Instance.PlaySFX(buttonSFX);
             if(formatButton != null) formatButton.SetActive(false);
             tutorial.SetActive(true);
