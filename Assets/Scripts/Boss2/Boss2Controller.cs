@@ -4,20 +4,21 @@ using System.Collections.Generic;
 using Unity.Behavior;
 using UnityEngine;
 using UnityEngine.Events;
-[RequireComponent(typeof(BehaviorGraphAgent))]
+using UnityEngine.Pool;
 
+[RequireComponent(typeof(BehaviorGraphAgent))]
 [RequireComponent(typeof(Animator))]
 [RequireComponent(typeof(SpriteRenderer))]
 public class Boss2Controller : MonoBehaviour, IDamageable
 {
-    private static readonly int ActingHash = Animator.StringToHash("Acting");
-    private static readonly int LaserHash = Animator.StringToHash("Laser");
-    private static readonly int BigAttackHash = Animator.StringToHash("BigAttack");
-    private static readonly int FireBallHash = Animator.StringToHash("FireBall");
+    private static readonly int ActingHash       = Animator.StringToHash("Acting");
+    private static readonly int LaserHash        = Animator.StringToHash("Laser");
+    private static readonly int BigAttackHash    = Animator.StringToHash("BigAttack");
+    private static readonly int FireBallHash     = Animator.StringToHash("FireBall");
     private static readonly int SpreadFireBallHash = Animator.StringToHash("SpreadFireBall");
-    private static readonly int FireWallHash = Animator.StringToHash("FireWall");
-    private static readonly int DeathHash = Animator.StringToHash("Death");
-    private static readonly int StunHash = Animator.StringToHash("Stun");
+    private static readonly int FireWallHash     = Animator.StringToHash("FireWall");
+    private static readonly int DeathHash        = Animator.StringToHash("Death");
+    private static readonly int StunHash         = Animator.StringToHash("Stun");
 
     [Header("── 스폰 ──")]
     [Tooltip("시작 층 (0=평지, 1=1층, 2=2층, 3=3층)")]
@@ -41,38 +42,39 @@ public class Boss2Controller : MonoBehaviour, IDamageable
     [SerializeField] private float teleportDuration = 0.3f;
 
     [Header("── 패링 투사체 ──")]
-    [SerializeField] private GameObject parriableProjectilePrefab;
-    [SerializeField] private int projectileCount = 3;
-    [SerializeField] private float projectileSpeed = 8f;
+    [SerializeField] private GameObject parriableProjectilePrefab; // ParriableProjectile 컴포넌트 포함 프리팹
+    [SerializeField] private int   projectileCount    = 3;
+    [SerializeField] private float projectileSpeed    = 8f;
     [SerializeField] private float projectileInterval = 0.4f;
 
     [Header("── 불기둥 ──")]
     [SerializeField] private GameObject firePillarWarningPrefab;
-    [SerializeField] private GameObject firePillarExplosionPrefab;
-    [SerializeField] private int firePillarCount = 3;
+    [SerializeField] private GameObject firePillarExplosionPrefab; // FirePillar 컴포넌트 포함 프리팹
+    [SerializeField] private int   firePillarCount           = 3;
     [SerializeField] private float firePillarWarningDuration = 2f;
-    [SerializeField] private float firePillarGroundY = 0f;
-    [SerializeField] private float firePillarRangeXMin = -8f;
-    [SerializeField] private float firePillarRangeXMax = 8f;
+    [SerializeField] private float firePillarGroundY         = 0f;
+    [SerializeField] private float firePillarRangeXMin       = -8f;
+    [SerializeField] private float firePillarRangeXMax       = 8f;
 
     [Header("── 탄막 ──")]
-    [SerializeField] private GameObject bulletPrefab;
-    [SerializeField] private int bulletCurtainCount = 12;
-    [SerializeField] private float bulletSpeed = 6f;
+    [SerializeField] private GameObject bulletPrefab; // BossBullet 컴포넌트 포함 프리팹
+    [SerializeField] private int   bulletCurtainCount = 12;
+    [SerializeField] private float bulletSpeed        = 6f;
+    [SerializeField] private float bulletLifetime     = 5f;
 
     [Header("── 층 레이저 (2페이즈) ──")]
-    [SerializeField] private GameObject laserPrefab;
+    [SerializeField] private GameObject laserPrefab; // FloorLaser 컴포넌트 포함 프리팹
     [SerializeField] private Transform[] floorLaserLeftPositions;
     [SerializeField] private Transform[] floorLaserRightPositions;
     [SerializeField] private float laserWarningDuration = 1.5f;
-    [SerializeField] private float laserActiveDuration = 2f;
+    [SerializeField] private float laserActiveDuration  = 2f;
 
     [Header("── 그로기 패턴 (2페이즈) ──")]
-    [SerializeField] private GameObject groggyPartPrefab;
+    [SerializeField] private GameObject groggyPartPrefab; // GroggyPart 컴포넌트 포함 프리팹
     [SerializeField] private Transform[] groggyPartSpawnPoints;
-    [SerializeField] private Transform groggyCenterPosition;
-    [SerializeField] private float groggyTimeLimit = 15f;
-    [SerializeField] private float groggyDuration = 3f;
+    [SerializeField] private Transform   groggyCenterPosition;
+    [SerializeField] private float groggyTimeLimit       = 15f;
+    [SerializeField] private float groggyDuration        = 3f;
     [SerializeField] private float groggyHPRecoveryAmount = 200f;
 
     [Header("── 시각 효과 ──")]
@@ -81,59 +83,106 @@ public class Boss2Controller : MonoBehaviour, IDamageable
 
     [Header("── 피격 효과 ──")]
     [SerializeField] private float hitFlashDuration = 0.08f;
-    [SerializeField] private float hitStopDuration = 0.04f;
+    [SerializeField] private float hitStopDuration  = 0.04f;
 
     [Header("── 사망 연출 ──")]
-    [SerializeField] private float deathStopDuration = 0.3f;
-    [SerializeField] private float deathSlowScale = 0.2f;
-    [SerializeField] private float deathSlowDuration = 1.0f;
+    [SerializeField] private float deathStopDuration  = 0.3f;
+    [SerializeField] private float deathSlowScale     = 0.2f;
+    [SerializeField] private float deathSlowDuration  = 1.0f;
 
     public UnityEvent OnBossDead;
 
-    public bool IsActing { get; private set; } = false;
-    public bool IsGroggy { get; private set; } = false;
+    public bool  IsActing  { get; private set; } = false;
+    public bool  IsGroggy  { get; private set; } = false;
     public float CurrentHP { get; private set; }
-    public float MaxHP => maxHP;
-    public BossData Data => data;
-    public bool IsDead => CurrentHP <= 0f;
-    public bool IsPhase2 => CurrentHP <= maxHP * 0.5f;
+    public float MaxHP     => maxHP;
+    public BossData Data   => data;
+    public bool IsDead     => CurrentHP <= 0f;
+    public bool IsPhase2   => CurrentHP <= maxHP * 0.5f;
+    public float HPPercent => CurrentHP / maxHP;
 
     private BehaviorGraphAgent behaviorAgent;
     private bool phase2Triggered = false;
-    private int currentFloor = 0;
-    private int currentSide = 1;
+    private int  currentFloor    = 0;
+    private int  currentSide     = 1;
     private Vector3[,] teleportPositions;
 
-    private int groggyPartsTotal = 0;
-    private int groggyPartsDestroyed = 0;
-    private List<GameObject> spawnedGroggyParts = new();
-    private List<GameObject> spawnedObjects = new();
+    private int  groggyPartsTotal     = 0;
+    private int  groggyPartsDestroyed = 0;
+    private List<GroggyPart>  spawnedGroggyParts = new();
+    // 보스 사망 시 씬에 남은 풀 오브젝트 정리용 (반환되면 inactive이므로 Destroy 안 함)
+    private List<GameObject> activePoolObjects = new();
+
     private bool fireSignalReceived = false;
     private GameObject player;
     private Animator animator;
-    [SerializeField] private BossData data;
-    [SerializeField] private GameObject parryWarning;
-    [SerializeField] private GameObject avoidWarning;
-    [SerializeField] private Transform lookAtZone;
-    [SerializeField] private AudioClip parryFireballClip;
-    [SerializeField] private AudioClip fireballClip;
-    [SerializeField] private AudioClip ChargeClip;
-    [SerializeField] private AudioClip fireWallClip;
-    [SerializeField] private AudioClip hitClip;
+
+    [SerializeField] private BossData    data;
+    [SerializeField] private GameObject  parryWarning;
+    [SerializeField] private GameObject  avoidWarning;
+    [SerializeField] private Transform   lookAtZone;
+    [SerializeField] private AudioClip   parryFireballClip;
+    [SerializeField] private AudioClip   fireballClip;
+    [SerializeField] private AudioClip   ChargeClip;
+    [SerializeField] private AudioClip   fireWallClip;
+    [SerializeField] private AudioClip   hitClip;
     public Transform LookAtZone => lookAtZone;
     private int maxHP;
 
+    private IObjectPool<BossBullet>          bulletPool;
+    private IObjectPool<FirePillar>          PillarPool;
+    private IObjectPool<GameObject>          PillarWarningPool;
+    private IObjectPool<FloorLaser>          LaserPool;
+    private IObjectPool<GroggyPart>          PartPool;
+    private IObjectPool<ParriableProjectile> ParryPool;
+
+    private BossBullet          CreateBullet()  { var o = Instantiate(bulletPrefab)               .GetComponent<BossBullet>();          return o; }
+    private GameObject          CreateWarning() { return Instantiate(firePillarWarningPrefab); }
+    private FirePillar          CreatePillar()  { var o = Instantiate(firePillarExplosionPrefab) .GetComponent<FirePillar>();           o.ObjectPool = PillarPool; return o; }
+    private FloorLaser          CreateLaser()   { var o = Instantiate(laserPrefab)               .GetComponent<FloorLaser>();           o.ObjectPool = LaserPool;  return o; }
+    private GroggyPart          CreatePart()    { var o = Instantiate(groggyPartPrefab)          .GetComponent<GroggyPart>();           o.ObjectPool = PartPool;   return o; }
+    private ParriableProjectile CreateParry()   { var o = Instantiate(parriableProjectilePrefab) .GetComponent<ParriableProjectile>();  o.ObjectPool = ParryPool;  return o; }
+
+    private void OnGet(BossBullet          p) => p.gameObject.SetActive(true);
+    private void OnGet(GameObject          p) => p.SetActive(true);
+    private void OnGet(FirePillar          p) => p.gameObject.SetActive(true);
+    private void OnGet(FloorLaser          p) => p.gameObject.SetActive(true);
+    private void OnGet(GroggyPart          p) => p.gameObject.SetActive(true);
+    private void OnGet(ParriableProjectile p) => p.gameObject.SetActive(true);
+
+    private void OnRelease(BossBullet          p) => p.gameObject.SetActive(false);
+    private void OnRelease(GameObject          p) => p.SetActive(false);
+    private void OnRelease(FirePillar          p) => p.gameObject.SetActive(false);
+    private void OnRelease(FloorLaser          p) => p.gameObject.SetActive(false);
+    private void OnRelease(GroggyPart          p) => p.gameObject.SetActive(false);
+    private void OnRelease(ParriableProjectile p) => p.gameObject.SetActive(false);
+
+    private void OnDestroyPooledObject(BossBullet          p) => Destroy(p.gameObject);
+    private void OnDestroyPooledObject(GameObject          p) => Destroy(p);
+    private void OnDestroyPooledObject(FirePillar          p) => Destroy(p.gameObject);
+    private void OnDestroyPooledObject(FloorLaser          p) => Destroy(p.gameObject);
+    private void OnDestroyPooledObject(GroggyPart          p) => Destroy(p.gameObject);
+    private void OnDestroyPooledObject(ParriableProjectile p) => Destroy(p.gameObject);
+
+
     private void Awake()
     {
-        player = GameObject.FindGameObjectWithTag("Player");
-        maxHP = data.Hp;
+        player    = GameObject.FindGameObjectWithTag("Player");
+        maxHP     = data.Hp;
         CurrentHP = maxHP;
-        behaviorAgent = GetComponent<BehaviorGraphAgent>();
+        behaviorAgent  = GetComponent<BehaviorGraphAgent>();
         spriteRenderer = GetComponent<SpriteRenderer>();
-        animator = GetComponent<Animator>();
+        animator       = GetComponent<Animator>();
         parryWarning.SetActive(false);
         avoidWarning.SetActive(false);
         SetupTeleportPositions();
+
+        bulletPool        = new ObjectPool<BossBullet>         (CreateBullet,  OnGet, OnRelease, OnDestroyPooledObject);
+        PillarPool        = new ObjectPool<FirePillar>          (CreatePillar,  OnGet, OnRelease, OnDestroyPooledObject);
+        PillarWarningPool = new ObjectPool<GameObject>          (CreateWarning, OnGet, OnRelease, OnDestroyPooledObject);
+        LaserPool         = new ObjectPool<FloorLaser>          (CreateLaser,   OnGet, OnRelease, OnDestroyPooledObject);
+        PartPool          = new ObjectPool<GroggyPart>          (CreatePart,    OnGet, OnRelease, OnDestroyPooledObject);
+        ParryPool         = new ObjectPool<ParriableProjectile> (CreateParry,   OnGet, OnRelease, OnDestroyPooledObject);
     }
 
     private void Start()
@@ -156,16 +205,14 @@ public class Boss2Controller : MonoBehaviour, IDamageable
 
         if (player != null)
         {
-            float diff = player.transform.position.x - transform.position.x;
-            float facing = transform.localScale.x; // 양수 = 오른쪽, 음수 = 왼쪽
+            float diff   = player.transform.position.x - transform.position.x;
+            float facing = transform.localScale.x;
+            float absX   = Mathf.Abs(facing);
 
-            // 현재 바라보는 방향 반대쪽으로 0.5 이상 벗어났을 때만 전환
-            // Abs로 원래 크기 유지 (하드코딩 1f 대신)
-            float absX = Mathf.Abs(facing);
-            if (facing > 0f && diff < -0.5f)
+            if      (facing > 0f && diff < -0.5f)
                 transform.localScale = new Vector3(-absX, transform.localScale.y, transform.localScale.z);
-            else if (facing < 0f && diff > 0.5f)
-                transform.localScale = new Vector3(absX, transform.localScale.y, transform.localScale.z);
+            else if (facing < 0f && diff >  0.5f)
+                transform.localScale = new Vector3( absX, transform.localScale.y, transform.localScale.z);
         }
 
         if (!phase2Triggered && IsPhase2 && !IsDead)
@@ -176,11 +223,7 @@ public class Boss2Controller : MonoBehaviour, IDamageable
     }
 
     public IDamageable.DamageInfo SetDamage() => default;
-
-    public void GetDamage(IDamageable.DamageInfo damageInfo)
-    {
-        TakeDamage(damageInfo.damage);
-    }
+    public void GetDamage(IDamageable.DamageInfo damageInfo) => TakeDamage(damageInfo.damage);
 
     public void TakeDamage(int damage)
     {
@@ -197,22 +240,17 @@ public class Boss2Controller : MonoBehaviour, IDamageable
         {
             behaviorAgent.BlackboardReference.SetVariableValue("IsDead", true);
             StopAllCoroutines();
-            if (spriteRenderer) spriteRenderer.enabled = true;  // 텔레포트 중 사망 시 스프라이트 복원
-            Time.timeScale = 1f;  // 혹시 히트스탑 중이었다면 복원
+            if (spriteRenderer) spriteRenderer.enabled = true;
+            Time.timeScale = 1f;
             StartCoroutine(DeathEffectCoroutine());
         }
     }
 
-    public void HealHP(float amount)
-    {
-        CurrentHP = Mathf.Min(maxHP, CurrentHP + amount);
-    }
+    public void HealHP(float amount) => CurrentHP = Mathf.Min(maxHP, CurrentHP + amount);
 
     private void OnPhase2Start()
     {
-
         behaviorAgent.BlackboardReference.SetVariableValue("IsPhase2", true);
-
         if (spriteRenderer) spriteRenderer.color = phase2Color;
     }
 
@@ -227,31 +265,33 @@ public class Boss2Controller : MonoBehaviour, IDamageable
 
     private IEnumerator WaitForDeathAnimation()
     {
-        yield return null;  // 애니메이션 시작 대기
-
-        // Death 상태에 들어올 때까지 대기
+        yield return null;
         while (!animator.GetCurrentAnimatorStateInfo(0).IsName("Death"))
             yield return null;
-
-        // 재생 완료까지 대기
         while (animator.GetCurrentAnimatorStateInfo(0).normalizedTime < 1f)
             yield return null;
 
         OnBossDead?.Invoke();
-
-        yield return new WaitForSeconds(0.5f);  // 클리어 화면 뜰 시간 확보
+        yield return new WaitForSeconds(0.5f);
         Destroy(gameObject);
     }
 
     private void DestroyAllSpawnedObjects()
     {
-        foreach (var obj in spawnedObjects)
-            if (obj) Destroy(obj);
-        spawnedObjects.Clear();
+        foreach (var obj in activePoolObjects)
+            if (obj != null) Destroy(obj);
+        activePoolObjects.Clear();
 
-        foreach (var obj in spawnedGroggyParts)
-            if (obj) Destroy(obj);
+        foreach (var part in spawnedGroggyParts)
+            if (part != null) Destroy(part.gameObject);
         spawnedGroggyParts.Clear();
+
+        bulletPool?.Clear();
+        PillarPool?.Clear();
+        PillarWarningPool?.Clear();
+        LaserPool?.Clear();
+        PartPool?.Clear();
+        ParryPool?.Clear();
     }
 
     private void SetupTeleportPositions()
@@ -261,11 +301,11 @@ public class Boss2Controller : MonoBehaviour, IDamageable
 
         for (int i = 0; i < floorCount; i++)
         {
-            if (i < floorLeftPositions.Length && floorLeftPositions[i])
+            if (i < floorLeftPositions.Length   && floorLeftPositions[i])
                 teleportPositions[i, 0] = floorLeftPositions[i].position;
             if (i < floorCenterPositions.Length && floorCenterPositions[i])
                 teleportPositions[i, 1] = floorCenterPositions[i].position;
-            if (i < floorRightPositions.Length && floorRightPositions[i])
+            if (i < floorRightPositions.Length  && floorRightPositions[i])
                 teleportPositions[i, 2] = floorRightPositions[i].position;
         }
     }
@@ -293,42 +333,44 @@ public class Boss2Controller : MonoBehaviour, IDamageable
                     candidates.Add((f, s));
 
         candidates.RemoveAll(c => c.floor == currentFloor && c.side == currentSide);
-
         if (candidates.Count == 0) yield break;
 
         var pick = candidates[UnityEngine.Random.Range(0, candidates.Count)];
         yield return StartCoroutine(DoTeleport(teleportPositions[pick.floor, pick.side]));
-
         currentFloor = pick.floor;
         currentSide  = pick.side;
     }
 
+    // ── 공격 패턴 ─────────────────────────────────────────────
+
     public IEnumerator AttackParriableProjectile(Action<bool> callback)
     {
         IsActing = true;
-
         var playerTf = player?.transform;
 
         fireSignalReceived = false;
         animator.Play(FireBallHash);
-
-        // 애니메이션 이벤트 OnFireSignal() 대기
         yield return new WaitUntil(() => fireSignalReceived);
 
         for (int i = 0; i < projectileCount; i++)
         {
             if (parriableProjectilePrefab && playerTf)
             {
-                Vector3 dir = (playerTf.position - transform.position).normalized;
-                float spread = UnityEngine.Random.Range(-10f, 10f) * Mathf.Deg2Rad;
+                Vector3 dir    = (playerTf.position - transform.position).normalized;
+                float   spread = UnityEngine.Random.Range(-10f, 10f) * Mathf.Deg2Rad;
                 Vector2 fd = new Vector2(
                     dir.x * Mathf.Cos(spread) - dir.y * Mathf.Sin(spread),
                     dir.x * Mathf.Sin(spread) + dir.y * Mathf.Cos(spread)).normalized;
 
-                var go = Instantiate(parriableProjectilePrefab, transform.position, Quaternion.identity);
-                spawnedObjects.Add(go);
+                var go = ParryPool.Get();
+                go.transform.position = transform.position;
+                activePoolObjects.Add(go.gameObject);
+
                 if (go.TryGetComponent<Rigidbody2D>(out var rb)) rb.linearVelocity = fd * projectileSpeed;
-                if (go.TryGetComponent<ParriableProjectile>(out var pp)) pp.Initialize(this, data.atk);
+                go.Initialize(this, data.atk);
+
+                float returnDelay = projectileInterval * (projectileCount - i) + parryWindowDelay + 1f;
+                StartCoroutine(ReturnParry(go, returnDelay));
             }
             yield return new WaitForSeconds(projectileInterval);
         }
@@ -341,33 +383,34 @@ public class Boss2Controller : MonoBehaviour, IDamageable
         callback?.Invoke(true);
     }
 
+    private IEnumerator ReturnParry(ParriableProjectile go, float delay)
+    {
+        yield return new WaitForSeconds(delay);
+        if (go != null && go.gameObject.activeSelf)
+            ParryPool.Release(go);
+    }
+
     public IEnumerator AttackFirePillar(Action<bool> callback)
     {
         IsActing = true;
 
-        var playerTf = player?.transform;
-
         fireSignalReceived = false;
         animator.Play(FireWallHash);
-
-        // 애니메이션 이벤트 OnFireSignal() 대기
         yield return new WaitUntil(() => fireSignalReceived);
 
         if (firePillarWarningPrefab)
         {
-            // 모든 경고 표시를 동시에 생성
             for (int i = 0; i < firePillarCount; i++)
             {
                 Vector3 spawnPos = new Vector3(
                     UnityEngine.Random.Range(firePillarRangeXMin, firePillarRangeXMax),
                     firePillarGroundY, 0f);
 
-                var warning = Instantiate(firePillarWarningPrefab, spawnPos, Quaternion.identity);
-                spawnedObjects.Add(warning);
+                var warning = PillarWarningPool.Get();
+                warning.transform.position = spawnPos;
+                activePoolObjects.Add(warning);
                 StartCoroutine(FirePillarExplode(spawnPos, warning, firePillarWarningDuration));
             }
-
-            // 경고 + 폭발 시간만큼 대기
             yield return new WaitForSeconds(firePillarWarningDuration + 0.5f);
         }
         else
@@ -384,11 +427,15 @@ public class Boss2Controller : MonoBehaviour, IDamageable
     private IEnumerator FirePillarExplode(Vector3 pos, GameObject warning, float delay)
     {
         yield return new WaitForSeconds(delay);
-        if (warning) Destroy(warning);
+        PillarWarningPool.Release(warning);
+
         if (firePillarExplosionPrefab)
         {
-            var explosion = Instantiate(firePillarExplosionPrefab, pos, Quaternion.identity);
-            if (explosion.TryGetComponent<FirePillar>(out var fp)) fp.Init(data.atk);
+            var explosion = PillarPool.Get();
+            explosion.transform.position = pos;
+            activePoolObjects.Add(explosion.gameObject);
+            explosion.Init(data.atk);
+            explosion.Setup(); // Start()는 첫 생성 때만 실행 → 명시 호출
         }
     }
 
@@ -398,8 +445,6 @@ public class Boss2Controller : MonoBehaviour, IDamageable
 
         fireSignalReceived = false;
         animator.Play(SpreadFireBallHash);
-
-        // 애니메이션 이벤트 OnFireSignal() 대기
         yield return new WaitUntil(() => fireSignalReceived);
 
         if (bulletPrefab)
@@ -407,13 +452,17 @@ public class Boss2Controller : MonoBehaviour, IDamageable
             float step = 360f / bulletCurtainCount;
             for (int i = 0; i < bulletCurtainCount; i++)
             {
-                float angle = i * step * Mathf.Deg2Rad;
-                Vector3 dir = new Vector3(Mathf.Cos(angle), Mathf.Sin(angle), 0f);
-                var bullet = Instantiate(bulletPrefab, transform.position, Quaternion.identity);
-                spawnedObjects.Add(bullet);
+                float   angle = i * step * Mathf.Deg2Rad;
+                Vector3 dir   = new Vector3(Mathf.Cos(angle), Mathf.Sin(angle), 0f);
+
+                var bullet = bulletPool.Get();
+                bullet.transform.position = transform.position;
+                activePoolObjects.Add(bullet.gameObject);
+
                 if (bullet.TryGetComponent<Rigidbody2D>(out var rb)) rb.linearVelocity = dir * bulletSpeed;
-                if (bullet.TryGetComponent<BossBullet>(out var bb)) bb.Init(data.atk);
-                Destroy(bullet, 5f);
+                bullet.Init(data.atk);
+
+                StartCoroutine(ReturnBullet(bullet, bulletLifetime));
             }
         }
 
@@ -424,11 +473,19 @@ public class Boss2Controller : MonoBehaviour, IDamageable
         callback?.Invoke(true);
     }
 
+    // 수명 만료 — 이미 자체 반환(비활성)이면 스킵
+    private IEnumerator ReturnBullet(BossBullet bullet, float lifetime)
+    {
+        yield return new WaitForSeconds(lifetime);
+        if (bullet != null && bullet.gameObject.activeSelf)
+            bulletPool.Release(bullet);
+    }
+
     public IEnumerator AttackFloorLaser(Action<bool> callback)
     {
         IsActing = true;
 
-        bool bossOnLeft = transform.position.x <= 0f;
+        bool       bossOnLeft  = transform.position.x <= 0f;
         Transform[] spawnPoints = bossOnLeft ? floorLaserLeftPositions : floorLaserRightPositions;
 
         animator.SetBool(ActingHash, IsActing);
@@ -436,25 +493,26 @@ public class Boss2Controller : MonoBehaviour, IDamageable
 
         if (laserPrefab && spawnPoints is { Length: > 0 })
         {
-            int[] order = ShuffledOrder(spawnPoints.Length);
-            var lasers = new FloorLaser[spawnPoints.Length];
+            int[]       order  = ShuffledOrder(spawnPoints.Length);
+            var         lasers = new FloorLaser[spawnPoints.Length];
 
             for (int i = 0; i < order.Length; i++)
             {
                 int idx = order[i];
                 if (!spawnPoints[idx]) continue;
 
-                float laserHalfLength = laserPrefab.transform.localScale.x * 0.4f;
-                float offsetX = bossOnLeft ? laserHalfLength : -laserHalfLength;
-                Vector3 spawnPos = new(spawnPoints[idx].position.x + offsetX, spawnPoints[idx].position.y, 0f);
-                var go = Instantiate(laserPrefab, spawnPos, Quaternion.identity);
-                spawnedObjects.Add(go);
-                if (go.TryGetComponent<FloorLaser>(out var fl))
-                {
-                    fl.Init(data.atk);
-                    fl.StartWarning();
-                    lasers[i] = fl;
-                }
+                float   halfLen  = laserPrefab.transform.localScale.x * 0.4f;
+                float   offsetX  = bossOnLeft ? halfLen : -halfLen;
+                Vector3 spawnPos = new(spawnPoints[idx].position.x + offsetX,
+                                       spawnPoints[idx].position.y, 0f);
+
+                var go = LaserPool.Get();
+                go.transform.position = spawnPos;
+                activePoolObjects.Add(go.gameObject);
+                go.Init(data.atk);
+                go.StartWarning();
+                lasers[i] = go;
+
                 yield return new WaitForSeconds(0.5f);
             }
 
@@ -474,10 +532,8 @@ public class Boss2Controller : MonoBehaviour, IDamageable
 
         IsActing = false;
         animator.SetBool(ActingHash, IsActing);
-
         yield return StartCoroutine(TeleportToRandomPosition());
         yield return new WaitForSeconds(postAttackDelay);
-        
         callback?.Invoke(true);
     }
 
@@ -491,7 +547,7 @@ public class Boss2Controller : MonoBehaviour, IDamageable
 
         animator.Play(BigAttackHash);
 
-        groggyPartsTotal = groggyPartSpawnPoints?.Length ?? 0;
+        groggyPartsTotal     = groggyPartSpawnPoints?.Length ?? 0;
         groggyPartsDestroyed = 0;
         spawnedGroggyParts.Clear();
 
@@ -500,10 +556,11 @@ public class Boss2Controller : MonoBehaviour, IDamageable
             foreach (var pt in groggyPartSpawnPoints)
             {
                 if (!pt) continue;
-                var part = Instantiate(groggyPartPrefab, pt.position, Quaternion.identity);
+                var part = PartPool.Get();
+                part.transform.position = pt.position;
+                activePoolObjects.Add(part.gameObject);
                 spawnedGroggyParts.Add(part);
-                spawnedObjects.Add(part);
-                if (part.TryGetComponent<GroggyPart>(out var gp)) gp.Initialize(this);
+                part.Initialize(this);
             }
         }
 
@@ -515,6 +572,7 @@ public class Boss2Controller : MonoBehaviour, IDamageable
             yield return null;
         }
         SoundManager.Instance.StopSFXLoop();
+
         if (groggyPartsDestroyed >= groggyPartsTotal)
         {
             IsGroggy = true;
@@ -527,25 +585,21 @@ public class Boss2Controller : MonoBehaviour, IDamageable
         else
         {
             foreach (var part in spawnedGroggyParts)
-                if (part) Destroy(part);
+                if (part != null && part.gameObject.activeSelf) PartPool.Release(part);
             spawnedGroggyParts.Clear();
             HealHP(groggyHPRecoveryAmount);
         }
 
         IsActing = false;
         animator.SetBool(ActingHash, IsActing);
-
         yield return StartCoroutine(TeleportToRandomPosition());
         yield return new WaitForSeconds(postAttackDelay);
-        
         callback?.Invoke(true);
     }
+
     public void OnFireSignal() => fireSignalReceived = true;
 
-    public void OnGroggyPartDestroyed()
-    {
-        groggyPartsDestroyed++;
-    }
+    public void OnGroggyPartDestroyed() => groggyPartsDestroyed++;
 
     private IEnumerator HitFlashCoroutine()
     {
@@ -574,7 +628,6 @@ public class Boss2Controller : MonoBehaviour, IDamageable
         yield return new WaitForSecondsRealtime(deathStopDuration);
 
         Time.timeScale = deathSlowScale;
-
         float elapsed = 0f;
         while (elapsed < deathSlowDuration)
         {
@@ -583,7 +636,7 @@ public class Boss2Controller : MonoBehaviour, IDamageable
         }
 
         Time.timeScale = 1f;
-        OnDeath();  // 연출 완료 후 사망 처리
+        OnDeath();
     }
 
     private int[] ShuffledOrder(int count)
@@ -598,49 +651,16 @@ public class Boss2Controller : MonoBehaviour, IDamageable
         return order;
     }
 
-    public float HPPercent => CurrentHP / maxHP;
-
-    private void DestroyIt()
-    {
-        Destroy(gameObject);
-    }
-
-    private void EnableWarning()
-    {
-        parryWarning.SetActive(true);
-    }
-
-    private void DisableWarning()
-    {
-        parryWarning.SetActive(false);
-    }
-    private void EnableAvoidWarning()
-    {
-        avoidWarning.SetActive(true);
-    }
-
-    private void DisableAvoidWarning()
-    {
-        avoidWarning.SetActive(false);
-    }
+    private void DestroyIt()        => Destroy(gameObject);
+    private void EnableWarning()    => parryWarning.SetActive(true);
+    private void DisableWarning()   => parryWarning.SetActive(false);
+    private void EnableAvoidWarning()  => avoidWarning.SetActive(true);
+    private void DisableAvoidWarning() => avoidWarning.SetActive(false);
 
     public void OnGameOver()
-    {
-        behaviorAgent.BlackboardReference.SetVariableValue("IsGameOver", true);
-    }
+        => behaviorAgent.BlackboardReference.SetVariableValue("IsGameOver", true);
 
-    private void PlayParryFireballSound()
-    {
-        SoundManager.Instance.PlaySFX(parryFireballClip);
-    }
-
-    private void PlayFireballSound()
-    {
-        SoundManager.Instance.PlaySFX(fireballClip);
-    }
-
-    private void PlayFireWallSound()
-    {
-        SoundManager.Instance.PlaySFX(fireWallClip);
-    }
+    private void PlayParryFireballSound() => SoundManager.Instance.PlaySFX(parryFireballClip);
+    private void PlayFireballSound()      => SoundManager.Instance.PlaySFX(fireballClip);
+    private void PlayFireWallSound()      => SoundManager.Instance.PlaySFX(fireWallClip);
 }

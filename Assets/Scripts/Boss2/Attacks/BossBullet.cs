@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.Pool;
 
 public class BossBullet : MonoBehaviour, IDamageable
 {
@@ -30,8 +31,5 @@ public class BossBullet : MonoBehaviour, IDamageable
         {
             other.GetComponent<IDamageable>()?.GetDamage(SetDamage());
         }
-
-        if (other.CompareTag("Ground") || other.CompareTag("Wall"))
-            Destroy(gameObject);
     }
 }

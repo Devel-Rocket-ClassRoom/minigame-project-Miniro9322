@@ -1,5 +1,5 @@
 using UnityEngine;
-using UnityEngine.UI;
+using UnityEngine.Pool;
 
 public class GroggyPart : MonoBehaviour, IDamageable
 {
@@ -17,16 +17,42 @@ public class GroggyPart : MonoBehaviour, IDamageable
     private Color originalColor;
     private bool isDestroyed = false;
 
+    private IObjectPool<GroggyPart> objectPool;
+    public IObjectPool<GroggyPart> ObjectPool { set => objectPool = value; }
+
     private void Awake()
     {
         sr = GetComponent<SpriteRenderer>();
         if (sr) originalColor = sr.color;
     }
 
+    /// <summary>풀에서 꺼낼 때마다 호출 — 스프라이트/색상 초기화</summary>
+    private void OnEnable()
+    {
+        CancelInvoke(nameof(ResetColor)); // 이전 사용에서 남은 Invoke 취소
+        if (sr)
+        {
+            sr.enabled = true;
+            sr.color   = originalColor;
+        }
+    }
+
+    /// <summary>풀에 반환될 때 호출 — 잔여 Invoke 정리</summary>
+    private void OnDisable()
+    {
+        CancelInvoke(nameof(ResetColor));
+    }
+
     public void Initialize(Boss2Controller boss)
     {
-        this.boss = boss;
-        currentHP = maxHP;
+        this.boss   = boss;
+        currentHP   = maxHP;
+        isDestroyed = false;
+        if (sr)
+        {
+            sr.enabled = true;
+            sr.color   = originalColor;
+        }
     }
 
     public IDamageable.DamageInfo SetDamage() => default;
@@ -57,7 +83,7 @@ public class GroggyPart : MonoBehaviour, IDamageable
         isDestroyed = true;
         boss?.OnGroggyPartDestroyed();
         SoundManager.Instance.PlaySFX(destroySound);
-        Destroy(gameObject);
+        objectPool.Release(this);
     }
 
     private void ResetColor()
