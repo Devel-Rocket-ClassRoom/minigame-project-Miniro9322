@@ -1,5 +1,6 @@
-using UnityEngine;
 using System.Collections;
+using UnityEngine;
+using UnityEngine.Pool;
 
 public class FloorLaser : MonoBehaviour
 {
@@ -17,6 +18,9 @@ public class FloorLaser : MonoBehaviour
     [SerializeField] private AudioClip warningSound;
     private int damage;
 
+    private IObjectPool<FloorLaser> objectPool;
+    public IObjectPool<FloorLaser> ObjectPool { set => objectPool = value; }
+
     public void Init(int baseAtk) => damage = Mathf.RoundToInt(baseAtk * damageMultiplier);
 
     private SpriteRenderer sr;
@@ -27,6 +31,14 @@ public class FloorLaser : MonoBehaviour
     {
         sr = GetComponent<SpriteRenderer>();
         col = GetComponent<Collider2D>();
+    }
+
+    private void OnDisable()
+    {
+        // 풀 반환 시 상태 초기화 (재사용 대비)
+        isActive = false;
+        if (col) col.enabled = false;
+        SetThickness(warningThickness);
     }
 
     public void StartWarning()
@@ -56,7 +68,8 @@ public class FloorLaser : MonoBehaviour
         if (col) col.enabled = true;
         isActive = true;
 
-        Destroy(gameObject, activeDuration);
+        yield return new WaitForSeconds(activeDuration);
+        objectPool.Release(this);
     }
 
     private void OnTriggerEnter2D(Collider2D other)
