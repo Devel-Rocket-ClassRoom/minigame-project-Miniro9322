@@ -21,7 +21,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &3616610199987483051
 Transform:
   m_ObjectHideFlags: 0
@@ -200,9 +200,13 @@ MonoBehaviour:
   firePillarExplosionPrefab: {fileID: 942238641608816740, guid: b7ffb917e8812f245955a5cc2a16e800, type: 3}
   firePillarCount: 3
   firePillarWarningDuration: 2
+  firePillarGroundY: -5
+  firePillarRangeXMin: -5
+  firePillarRangeXMax: 14
   bulletPrefab: {fileID: 8207482076448330182, guid: 069496fabc99bf24aae6e50ea2df728d, type: 3}
   bulletCurtainCount: 12
   bulletSpeed: 6
+  bulletLifetime: 5
   laserPrefab: {fileID: 2627341481519218128, guid: 69bb5da72cc538446a7ae7b09ef992b1, type: 3}
   floorLaserLeftPositions:
   - {fileID: 0}
@@ -227,15 +231,11 @@ MonoBehaviour:
   groggyDuration: 3
   groggyHPRecoveryAmount: 200
   phase2Color: {r: 1, g: 0.3, b: 0.3, a: 1}
-  phase2Particles: {fileID: 0}
-  audioSource: {fileID: 0}
-  phase2SFX: {fileID: 0}
   hitFlashDuration: 0.08
   hitStopDuration: 0.04
   deathStopDuration: 0.3
   deathSlowScale: 0.2
   deathSlowDuration: 1
-  deathParticle: {fileID: 0}
   OnBossDead:
     m_PersistentCalls:
       m_Calls:
@@ -253,7 +253,13 @@ MonoBehaviour:
         m_CallState: 2
   data: {fileID: 11400000, guid: 5720e1c7ff00f0243b4143da48c60ea5, type: 2}
   parryWarning: {fileID: 2582332430358751434}
+  avoidWarning: {fileID: 7197885901626491110}
   lookAtZone: {fileID: 3793634968187984738}
+  parryFireballClip: {fileID: 8300000, guid: 27c92d3febe5c8c40869ac3748efb706, type: 3}
+  fireballClip: {fileID: 8300000, guid: 92f4d0c3cbc4ec94e8205b2a31eaf712, type: 3}
+  ChargeClip: {fileID: 8300000, guid: 356c34453d57f4d41abed16ef70d29fd, type: 3}
+  fireWallClip: {fileID: 8300000, guid: 0f0c8772d1a9c25479dfd7972e3090ef, type: 3}
+  hitClip: {fileID: 8300000, guid: 1d7478c81d0df8f4a96033b354454b5f, type: 3}
 --- !u!50 &-2376451309818107675
 Rigidbody2D:
   serializedVersion: 5
@@ -318,8 +324,8 @@ BoxCollider2D:
   m_Offset: {x: -0.049025416, y: -0.09883094}
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
-    pivot: {x: 0.27, y: 0.25}
-    oldSize: {x: 3.85, y: 5.25}
+    pivot: {x: 0.5, y: 0.3}
+    oldSize: {x: 8, y: 6.4}
     newSize: {x: 1, y: 1}
     adaptiveTilingThreshold: 0.5
     drawMode: 0
