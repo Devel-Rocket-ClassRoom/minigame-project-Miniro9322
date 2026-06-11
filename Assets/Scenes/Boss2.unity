@@ -1746,6 +1746,10 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 640741311}
     - target: {fileID: 6570825107354915855, guid: 9c83339c4101680458968cb9ee28c988, type: 3}
+      propertyPath: spawnSound
+      value: 
+      objectReference: {fileID: 8300000, guid: 23949327c25a2054c82efa29c365236e, type: 3}
+    - target: {fileID: 6570825107354915855, guid: 9c83339c4101680458968cb9ee28c988, type: 3}
       propertyPath: BossSpawn.m_PersistentCalls.m_Calls.Array.size
       value: 2
       objectReference: {fileID: 0}
@@ -6418,7 +6422,7 @@ PrefabInstance:
     - target: {fileID: 5788939629137208428, guid: 37231d2c28822174cbbbaf5aa047014b, type: 3}
       propertyPath: laserPrefab
       value: 
-      objectReference: {fileID: 7524388889218768382, guid: 69bb5da72cc538446a7ae7b09ef992b1, type: 3}
+      objectReference: {fileID: 2627341481519218128, guid: 69bb5da72cc538446a7ae7b09ef992b1, type: 3}
     - target: {fileID: 5788939629137208428, guid: 37231d2c28822174cbbbaf5aa047014b, type: 3}
       propertyPath: avoidWarning
       value: 
@@ -6426,7 +6430,7 @@ PrefabInstance:
     - target: {fileID: 5788939629137208428, guid: 37231d2c28822174cbbbaf5aa047014b, type: 3}
       propertyPath: bulletPrefab
       value: 
-      objectReference: {fileID: -7407619080319189660, guid: 069496fabc99bf24aae6e50ea2df728d, type: 3}
+      objectReference: {fileID: 8207482076448330182, guid: 069496fabc99bf24aae6e50ea2df728d, type: 3}
     - target: {fileID: 5788939629137208428, guid: 37231d2c28822174cbbbaf5aa047014b, type: 3}
       propertyPath: fireWallClip
       value: 
@@ -6458,11 +6462,11 @@ PrefabInstance:
     - target: {fileID: 5788939629137208428, guid: 37231d2c28822174cbbbaf5aa047014b, type: 3}
       propertyPath: firePillarExplosionPrefab
       value: 
-      objectReference: {fileID: -5033229434975799208, guid: b7ffb917e8812f245955a5cc2a16e800, type: 3}
+      objectReference: {fileID: 942238641608816740, guid: b7ffb917e8812f245955a5cc2a16e800, type: 3}
     - target: {fileID: 5788939629137208428, guid: 37231d2c28822174cbbbaf5aa047014b, type: 3}
       propertyPath: parriableProjectilePrefab
       value: 
-      objectReference: {fileID: 8890262694211442804, guid: df1a0753c6b01e14f92108fd6b5334c5, type: 3}
+      objectReference: {fileID: 4677513166808338623, guid: df1a0753c6b01e14f92108fd6b5334c5, type: 3}
     - target: {fileID: 5788939629137208428, guid: 37231d2c28822174cbbbaf5aa047014b, type: 3}
       propertyPath: 'floorLeftPositions.Array.data[0]'
       value: 
