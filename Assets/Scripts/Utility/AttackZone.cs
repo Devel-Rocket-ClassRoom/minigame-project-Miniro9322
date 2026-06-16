@@ -43,7 +43,6 @@ public class AttackZone : MonoBehaviour
         hitTargets.Clear();
         gameObject.SetActive(true);
 
-        // SetActive 직후 OnTriggerEnter2D가 발생 안 할 수 있어서 즉시 직접 체크
         var col = GetComponent<Collider2D>();
         if (col == null) return;
 

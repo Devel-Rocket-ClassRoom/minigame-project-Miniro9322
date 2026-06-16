@@ -1,6 +1,8 @@
+using Cysharp.Threading.Tasks;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Threading;
 using Unity.Behavior;
 using UnityEngine;
 using UnityEngine.Events;
@@ -30,28 +32,28 @@ public class Boss2Controller : MonoBehaviour, IDamageable
 
     [Header("── 패턴 인터벌 ──")]
     [Tooltip("공격 후 다음 패턴까지 대기 시간")]
-    [SerializeField] private float postAttackDelay = 1.5f;
+    [SerializeField] private int postAttackDelay = 1500;
     [Tooltip("패링 투사체 공격: 텔포 전 대기 (반사 투사체가 보스에 닿을 시간)")]
-    [SerializeField] private float parryWindowDelay = 2f;
+    [SerializeField] private int parryWindowDelay = 2000;
 
     [Header("── 텔레포트 ──")]
     [Tooltip("인덱스: 0=평지, 1=1층, 2=2층, 3=3층")]
     [SerializeField] private Transform[] floorLeftPositions;
     [SerializeField] private Transform[] floorCenterPositions;
     [SerializeField] private Transform[] floorRightPositions;
-    [SerializeField] private float teleportDuration = 0.3f;
+    [SerializeField] private int teleportDuration = 300;
 
     [Header("── 패링 투사체 ──")]
     [SerializeField] private GameObject parriableProjectilePrefab; // ParriableProjectile 컴포넌트 포함 프리팹
     [SerializeField] private int   projectileCount    = 3;
     [SerializeField] private float projectileSpeed    = 8f;
-    [SerializeField] private float projectileInterval = 0.4f;
+    [SerializeField] private int projectileInterval = 400;
 
     [Header("── 불기둥 ──")]
     [SerializeField] private GameObject firePillarWarningPrefab;
     [SerializeField] private GameObject firePillarExplosionPrefab; // FirePillar 컴포넌트 포함 프리팹
     [SerializeField] private int   firePillarCount           = 3;
-    [SerializeField] private float firePillarWarningDuration = 2f;
+    [SerializeField] private int firePillarWarningDuration = 2000;
     [SerializeField] private float firePillarGroundY         = 0f;
     [SerializeField] private float firePillarRangeXMin       = -8f;
     [SerializeField] private float firePillarRangeXMax       = 8f;
@@ -60,21 +62,21 @@ public class Boss2Controller : MonoBehaviour, IDamageable
     [SerializeField] private GameObject bulletPrefab; // BossBullet 컴포넌트 포함 프리팹
     [SerializeField] private int   bulletCurtainCount = 12;
     [SerializeField] private float bulletSpeed        = 6f;
-    [SerializeField] private float bulletLifetime     = 5f;
+    [SerializeField] private int bulletLifetime     = 5000;
 
     [Header("── 층 레이저 (2페이즈) ──")]
     [SerializeField] private GameObject laserPrefab; // FloorLaser 컴포넌트 포함 프리팹
     [SerializeField] private Transform[] floorLaserLeftPositions;
     [SerializeField] private Transform[] floorLaserRightPositions;
-    [SerializeField] private float laserWarningDuration = 1.5f;
-    [SerializeField] private float laserActiveDuration  = 2f;
+    [SerializeField] private int laserWarningDuration = 1500;
+    [SerializeField] private int laserActiveDuration  = 2000;
 
     [Header("── 그로기 패턴 (2페이즈) ──")]
     [SerializeField] private GameObject groggyPartPrefab; // GroggyPart 컴포넌트 포함 프리팹
     [SerializeField] private Transform[] groggyPartSpawnPoints;
     [SerializeField] private Transform   groggyCenterPosition;
     [SerializeField] private float groggyTimeLimit       = 15f;
-    [SerializeField] private float groggyDuration        = 3f;
+    [SerializeField] private int groggyDuration        = 3000;
     [SerializeField] private float groggyHPRecoveryAmount = 200f;
 
     [Header("── 시각 효과 ──")]
@@ -82,11 +84,11 @@ public class Boss2Controller : MonoBehaviour, IDamageable
     [SerializeField] private Color phase2Color = new(1f, 0.3f, 0.3f);
 
     [Header("── 피격 효과 ──")]
-    [SerializeField] private float hitFlashDuration = 0.08f;
+    [SerializeField] private int hitFlashDuration = 80;
     [SerializeField] private float hitStopDuration  = 0.04f;
 
     [Header("── 사망 연출 ──")]
-    [SerializeField] private float deathStopDuration  = 0.3f;
+    [SerializeField] private int deathStopDuration  = 300;
     [SerializeField] private float deathSlowScale     = 0.2f;
     [SerializeField] private float deathSlowDuration  = 1.0f;
 
@@ -110,7 +112,6 @@ public class Boss2Controller : MonoBehaviour, IDamageable
     private int  groggyPartsTotal     = 0;
     private int  groggyPartsDestroyed = 0;
     private List<GroggyPart>  spawnedGroggyParts = new();
-    // 보스 사망 시 씬에 남은 풀 오브젝트 정리용 (반환되면 inactive이므로 Destroy 안 함)
     private List<GameObject> activePoolObjects = new();
 
     private bool fireSignalReceived = false;
@@ -163,6 +164,8 @@ public class Boss2Controller : MonoBehaviour, IDamageable
     private void OnDestroyPooledObject(FloorLaser          p) => Destroy(p.gameObject);
     private void OnDestroyPooledObject(GroggyPart          p) => Destroy(p.gameObject);
     private void OnDestroyPooledObject(ParriableProjectile p) => Destroy(p.gameObject);
+
+    private CancellationTokenSource tpCts;
 
 
     private void Awake()
@@ -233,8 +236,8 @@ public class Boss2Controller : MonoBehaviour, IDamageable
 
         if (!IsDead)
         {
-            StartCoroutine(HitFlashCoroutine());
-            StartCoroutine(HitStopCoroutine());
+            _ = HitFlashCoroutine();
+            _ = HitStopCoroutine();
         }
         else
         {
@@ -242,7 +245,7 @@ public class Boss2Controller : MonoBehaviour, IDamageable
             StopAllCoroutines();
             if (spriteRenderer) spriteRenderer.enabled = true;
             Time.timeScale = 1f;
-            StartCoroutine(DeathEffectCoroutine());
+            _ = DeathEffectCoroutine();
         }
     }
 
@@ -257,22 +260,21 @@ public class Boss2Controller : MonoBehaviour, IDamageable
     private void OnDeath()
     {
         behaviorAgent.BlackboardReference.SetVariableValue("IsDead", true);
-        StopAllCoroutines();
         DestroyAllSpawnedObjects();
         animator.Play(DeathHash);
-        StartCoroutine(WaitForDeathAnimation());
+        _ = WaitForDeathAnimation();
     }
 
-    private IEnumerator WaitForDeathAnimation()
+    async UniTask WaitForDeathAnimation()
     {
-        yield return null;
+        await UniTask.Yield(PlayerLoopTiming.LastUpdate);
         while (!animator.GetCurrentAnimatorStateInfo(0).IsName("Death"))
-            yield return null;
+            await UniTask.Yield(PlayerLoopTiming.LastUpdate);
         while (animator.GetCurrentAnimatorStateInfo(0).normalizedTime < 1f)
-            yield return null;
+            await UniTask.Yield(PlayerLoopTiming.LastUpdate);
 
         OnBossDead?.Invoke();
-        yield return new WaitForSeconds(0.5f);
+        await UniTask.Delay(500);
         Destroy(gameObject);
     }
 
@@ -310,123 +312,160 @@ public class Boss2Controller : MonoBehaviour, IDamageable
         }
     }
 
-    private IEnumerator DoTeleport(Vector3 target)
+    async UniTask DoTeleport(Vector3 target)
     {
         if (spriteRenderer) spriteRenderer.enabled = false;
-        yield return new WaitForSeconds(teleportDuration * 0.5f);
+        await UniTask.Delay(teleportDuration / 2);
         transform.position = target;
-        yield return new WaitForSeconds(teleportDuration * 0.5f);
+        await UniTask.Delay(teleportDuration / 2);
         if (spriteRenderer) spriteRenderer.enabled = true;
     }
 
-    private IEnumerator TeleportToPosition(Vector3 target)
+    async UniTask TeleportToPosition(Vector3 target)
     {
-        yield return StartCoroutine(DoTeleport(target));
+        await DoTeleport(target);
     }
 
-    private IEnumerator TeleportToRandomPosition()
+    async UniTask TeleportToRandomPosition(CancellationToken token)
     {
-        var candidates = new List<(int floor, int side)>();
-        for (int f = 0; f < 4; f++)
-            for (int s = 0; s < 3; s++)
-                if (teleportPositions[f, s] != Vector3.zero)
-                    candidates.Add((f, s));
-
-        candidates.RemoveAll(c => c.floor == currentFloor && c.side == currentSide);
-        if (candidates.Count == 0) yield break;
-
-        var pick = candidates[UnityEngine.Random.Range(0, candidates.Count)];
-        yield return StartCoroutine(DoTeleport(teleportPositions[pick.floor, pick.side]));
-        currentFloor = pick.floor;
-        currentSide  = pick.side;
-    }
-
-    // ── 공격 패턴 ─────────────────────────────────────────────
-
-    public IEnumerator AttackParriableProjectile(Action<bool> callback)
-    {
-        IsActing = true;
-        var playerTf = player?.transform;
-
-        fireSignalReceived = false;
-        animator.Play(FireBallHash);
-        yield return new WaitUntil(() => fireSignalReceived);
-
-        for (int i = 0; i < projectileCount; i++)
+        try
         {
-            if (parriableProjectilePrefab && playerTf)
-            {
-                Vector3 dir    = (playerTf.position - transform.position).normalized;
-                float   spread = UnityEngine.Random.Range(-10f, 10f) * Mathf.Deg2Rad;
-                Vector2 fd = new Vector2(
-                    dir.x * Mathf.Cos(spread) - dir.y * Mathf.Sin(spread),
-                    dir.x * Mathf.Sin(spread) + dir.y * Mathf.Cos(spread)).normalized;
+            var candidates = new List<(int floor, int side)>();
+            for (int f = 0; f < 4; f++)
+                for (int s = 0; s < 3; s++)
+                    if (teleportPositions[f, s] != Vector3.zero)
+                        candidates.Add((f, s));
 
-                var go = ParryPool.Get();
-                go.transform.position = transform.position;
-                activePoolObjects.Add(go.gameObject);
+            candidates.RemoveAll(c => c.floor == currentFloor && c.side == currentSide);
+            if (candidates.Count == 0) return;
 
-                if (go.TryGetComponent<Rigidbody2D>(out var rb)) rb.linearVelocity = fd * projectileSpeed;
-                go.Initialize(this, data.atk);
-
-                float returnDelay = projectileInterval * (projectileCount - i) + parryWindowDelay + 1f;
-                StartCoroutine(ReturnParry(go, returnDelay));
-            }
-            yield return new WaitForSeconds(projectileInterval);
+            var pick = candidates[UnityEngine.Random.Range(0, candidates.Count)];
+            await DoTeleport(teleportPositions[pick.floor, pick.side]);
+            currentFloor = pick.floor;
+            currentSide = pick.side;
         }
-
-        yield return new WaitForSeconds(0.3f + parryWindowDelay);
-        yield return StartCoroutine(TeleportToRandomPosition());
-        yield return new WaitForSeconds(postAttackDelay);
-
-        IsActing = false;
-        callback?.Invoke(true);
+        catch (OperationCanceledException)
+        {
+            Debug.LogError("텔레포트 장소가 없습니다.");
+            tpCts.Dispose();
+        }
+        
     }
 
-    private IEnumerator ReturnParry(ParriableProjectile go, float delay)
+    public async UniTask AttackParriableProjectile(Action<bool> callback, CancellationTokenSource cts)
     {
-        yield return new WaitForSeconds(delay);
+        try
+        {
+            IsActing = true;
+            var playerTf = player?.transform;
+
+            fireSignalReceived = false;
+
+            animator.Play(FireBallHash);
+            
+            await UniTask.WaitUntil(() => fireSignalReceived);
+
+            cts.Token.ThrowIfCancellationRequested();
+
+            for (int i = 0; i < projectileCount; i++)
+            {
+                cts.Token.ThrowIfCancellationRequested();
+
+                if (parriableProjectilePrefab && playerTf)
+                {
+                    Vector3 dir = (playerTf.position - transform.position).normalized;
+                    float spread = UnityEngine.Random.Range(-10f, 10f) * Mathf.Deg2Rad;
+                    Vector2 fd = new Vector2(
+                        dir.x * Mathf.Cos(spread) - dir.y * Mathf.Sin(spread),
+                        dir.x * Mathf.Sin(spread) + dir.y * Mathf.Cos(spread)).normalized;
+
+                    var go = ParryPool.Get();
+                    go.transform.position = transform.position;
+                    activePoolObjects.Add(go.gameObject);
+
+                    if (go.TryGetComponent<Rigidbody2D>(out var rb)) rb.linearVelocity = fd * projectileSpeed;
+                    go.Initialize(this, data.atk);
+
+                    int returnDelay = projectileInterval * (projectileCount - i) + parryWindowDelay + 1000;
+                    _ = ReturnParry(go, returnDelay);
+                }
+                await UniTask.Delay(projectileInterval);
+            }
+
+            await UniTask.Delay(300 + parryWindowDelay);
+            cts.Token.ThrowIfCancellationRequested();
+            tpCts = new CancellationTokenSource();
+            await TeleportToRandomPosition(tpCts.Token);
+            cts.Token.ThrowIfCancellationRequested();
+            await UniTask.Delay(postAttackDelay);
+            cts.Token.ThrowIfCancellationRequested();
+
+            IsActing = false;
+            callback?.Invoke(true);
+        }
+        catch (OperationCanceledException)
+        {
+            cts.Dispose();
+        }
+    }
+
+    async UniTask ReturnParry(ParriableProjectile go, int delay)
+    {
+        await UniTask.Delay(delay);
         if (go != null && go.gameObject.activeSelf)
             ParryPool.Release(go);
     }
 
-    public IEnumerator AttackFirePillar(Action<bool> callback)
+    public async UniTask AttackFirePillar(Action<bool> callback, CancellationTokenSource cts)
     {
-        IsActing = true;
-
-        fireSignalReceived = false;
-        animator.Play(FireWallHash);
-        yield return new WaitUntil(() => fireSignalReceived);
-
-        if (firePillarWarningPrefab)
+        try
         {
-            for (int i = 0; i < firePillarCount; i++)
+            IsActing = true;
+
+            fireSignalReceived = false;
+            animator.Play(FireWallHash);
+            await UniTask.WaitUntil(() => fireSignalReceived);
+            cts.Token.ThrowIfCancellationRequested();
+
+            if (firePillarWarningPrefab)
             {
-                Vector3 spawnPos = new Vector3(
-                    UnityEngine.Random.Range(firePillarRangeXMin, firePillarRangeXMax),
-                    firePillarGroundY, 0f);
+                for (int i = 0; i < firePillarCount; i++)
+                {
+                    cts.Token.ThrowIfCancellationRequested();
+                    Vector3 spawnPos = new Vector3(
+                        UnityEngine.Random.Range(firePillarRangeXMin, firePillarRangeXMax),
+                        firePillarGroundY, 0f);
 
-                var warning = PillarWarningPool.Get();
-                warning.transform.position = spawnPos;
-                activePoolObjects.Add(warning);
-                StartCoroutine(FirePillarExplode(spawnPos, warning, firePillarWarningDuration));
+                    var warning = PillarWarningPool.Get();
+                    warning.transform.position = spawnPos;
+                    activePoolObjects.Add(warning);
+                    _ = FirePillarExplode(spawnPos, warning, firePillarWarningDuration);
+                }
+                await UniTask.Delay(firePillarWarningDuration + 500);
+                cts.Token.ThrowIfCancellationRequested();
             }
-            yield return new WaitForSeconds(firePillarWarningDuration + 0.5f);
-        }
-        else
-        {
-            yield return new WaitForSeconds(2f);
-        }
+            else
+            {
+                await UniTask.Delay(2000);
+                cts.Token.ThrowIfCancellationRequested();
+            }
 
-        yield return StartCoroutine(TeleportToRandomPosition());
-        yield return new WaitForSeconds(postAttackDelay);
-        IsActing = false;
-        callback?.Invoke(true);
+            tpCts = new CancellationTokenSource();
+            _ = TeleportToRandomPosition(tpCts.Token);
+            await UniTask.Delay(postAttackDelay);
+            cts.Token.ThrowIfCancellationRequested();
+            IsActing = false;
+            callback?.Invoke(true);
+        }
+        catch (OperationCanceledException)
+        {
+            cts.Dispose();
+        }
     }
 
-    private IEnumerator FirePillarExplode(Vector3 pos, GameObject warning, float delay)
+    async UniTask FirePillarExplode(Vector3 pos, GameObject warning, int delay)
     {
-        yield return new WaitForSeconds(delay);
+        await UniTask.Delay(delay);
         PillarWarningPool.Release(warning);
 
         if (firePillarExplosionPrefab)
@@ -435,204 +474,244 @@ public class Boss2Controller : MonoBehaviour, IDamageable
             explosion.transform.position = pos;
             activePoolObjects.Add(explosion.gameObject);
             explosion.Init(data.atk);
-            explosion.Setup(); // Start()는 첫 생성 때만 실행 → 명시 호출
+            explosion.Setup();
         }
     }
 
-    public IEnumerator AttackBulletCurtain(Action<bool> callback)
+    public async UniTask AttackBulletCurtain(Action<bool> callback, CancellationTokenSource cts)
     {
-        IsActing = true;
-
-        fireSignalReceived = false;
-        animator.Play(SpreadFireBallHash);
-        yield return new WaitUntil(() => fireSignalReceived);
-
-        if (bulletPrefab)
+        try
         {
-            float step = 360f / bulletCurtainCount;
-            for (int i = 0; i < bulletCurtainCount; i++)
+            IsActing = true;
+
+            fireSignalReceived = false;
+            animator.Play(SpreadFireBallHash);
+            await UniTask.WaitUntil(() => fireSignalReceived);
+            cts.Token.ThrowIfCancellationRequested();
+
+            if (bulletPrefab)
             {
-                float   angle = i * step * Mathf.Deg2Rad;
-                Vector3 dir   = new Vector3(Mathf.Cos(angle), Mathf.Sin(angle), 0f);
+                float step = 360f / bulletCurtainCount;
+                for (int i = 0; i < bulletCurtainCount; i++)
+                {
+                    cts.Token.ThrowIfCancellationRequested();
+                    float angle = i * step * Mathf.Deg2Rad;
+                    Vector3 dir = new Vector3(Mathf.Cos(angle), Mathf.Sin(angle), 0f);
 
-                var bullet = bulletPool.Get();
-                bullet.transform.position = transform.position;
-                activePoolObjects.Add(bullet.gameObject);
+                    var bullet = bulletPool.Get();
+                    bullet.transform.position = transform.position;
+                    activePoolObjects.Add(bullet.gameObject);
 
-                if (bullet.TryGetComponent<Rigidbody2D>(out var rb)) rb.linearVelocity = dir * bulletSpeed;
-                bullet.Init(data.atk);
+                    if (bullet.TryGetComponent<Rigidbody2D>(out var rb)) rb.linearVelocity = dir * bulletSpeed;
+                    bullet.Init(data.atk);
 
-                StartCoroutine(ReturnBullet(bullet, bulletLifetime));
+                    _ = ReturnBullet(bullet, bulletLifetime);
+                }
             }
-        }
 
-        yield return new WaitForSeconds(1f);
-        yield return StartCoroutine(TeleportToRandomPosition());
-        yield return new WaitForSeconds(postAttackDelay);
-        IsActing = false;
-        callback?.Invoke(true);
+            await UniTask.Delay(1000);
+            cts.Token.ThrowIfCancellationRequested();
+            tpCts = new CancellationTokenSource();
+            await TeleportToRandomPosition(tpCts.Token);
+            cts.Token.ThrowIfCancellationRequested();
+            await UniTask.Delay(postAttackDelay);
+            cts.Token.ThrowIfCancellationRequested();
+            IsActing = false;
+            callback?.Invoke(true);
+        }
+        catch (OperationCanceledException)
+        {
+            cts.Dispose();
+        }
     }
 
-    // 수명 만료 — 이미 자체 반환(비활성)이면 스킵
-    private IEnumerator ReturnBullet(BossBullet bullet, float lifetime)
+    async UniTask ReturnBullet(BossBullet bullet, int lifetime)
     {
-        yield return new WaitForSeconds(lifetime);
+        await UniTask.Delay(lifetime);
         if (bullet != null && bullet.gameObject.activeSelf)
             bulletPool.Release(bullet);
     }
 
-    public IEnumerator AttackFloorLaser(Action<bool> callback)
+    public async UniTask AttackFloorLaser(Action<bool> callback, CancellationTokenSource cts)
     {
-        IsActing = true;
-
-        bool       bossOnLeft  = transform.position.x <= 0f;
-        Transform[] spawnPoints = bossOnLeft ? floorLaserLeftPositions : floorLaserRightPositions;
-
-        animator.SetBool(ActingHash, IsActing);
-        animator.Play(LaserHash);
-
-        if (laserPrefab && spawnPoints is { Length: > 0 })
+        try
         {
-            int[]       order  = ShuffledOrder(spawnPoints.Length);
-            var         lasers = new FloorLaser[spawnPoints.Length];
+            IsActing = true;
 
-            for (int i = 0; i < order.Length; i++)
+            bool bossOnLeft = transform.position.x <= 0f;
+            Transform[] spawnPoints = bossOnLeft ? floorLaserLeftPositions : floorLaserRightPositions;
+
+            animator.SetBool(ActingHash, IsActing);
+            animator.Play(LaserHash);
+
+            if (laserPrefab && spawnPoints is { Length: > 0 })
             {
-                int idx = order[i];
-                if (!spawnPoints[idx]) continue;
+                int[] order = ShuffledOrder(spawnPoints.Length);
+                var lasers = new FloorLaser[spawnPoints.Length];
 
-                float   halfLen  = laserPrefab.transform.localScale.x * 0.4f;
-                float   offsetX  = bossOnLeft ? halfLen : -halfLen;
-                Vector3 spawnPos = new(spawnPoints[idx].position.x + offsetX,
-                                       spawnPoints[idx].position.y, 0f);
+                for (int i = 0; i < order.Length; i++)
+                {
+                    cts.Token.ThrowIfCancellationRequested();
+                    int idx = order[i];
+                    if (!spawnPoints[idx]) continue;
 
-                var go = LaserPool.Get();
-                go.transform.position = spawnPos;
-                activePoolObjects.Add(go.gameObject);
-                go.Init(data.atk);
-                go.StartWarning();
-                lasers[i] = go;
+                    float halfLen = laserPrefab.transform.localScale.x * 0.4f;
+                    float offsetX = bossOnLeft ? halfLen : -halfLen;
+                    Vector3 spawnPos = new(spawnPoints[idx].position.x + offsetX,
+                                           spawnPoints[idx].position.y, 0f);
 
-                yield return new WaitForSeconds(0.5f);
+                    var go = LaserPool.Get();
+                    go.transform.position = spawnPos;
+                    activePoolObjects.Add(go.gameObject);
+                    go.Init(data.atk);
+                    go.StartWarning();
+                    lasers[i] = go;
+
+                    await UniTask.Delay(500);
+                }
+
+                await UniTask.Delay(laserWarningDuration);
+                cts.Token.ThrowIfCancellationRequested();
+
+                foreach (var laser in lasers)
+                {
+                    cts.Token.ThrowIfCancellationRequested();
+                    if (laser == null) continue;
+                    laser.Activate(laserActiveDuration);
+                    await UniTask.Delay(laserActiveDuration + 200);
+                }
+            }
+            else
+            {
+                await UniTask.Delay(3000);
+                cts.Token.ThrowIfCancellationRequested();
             }
 
-            yield return new WaitForSeconds(laserWarningDuration);
-
-            foreach (var laser in lasers)
-            {
-                if (laser == null) continue;
-                laser.Activate(laserActiveDuration);
-                yield return new WaitForSeconds(laserActiveDuration + 0.2f);
-            }
+            IsActing = false;
+            animator.SetBool(ActingHash, IsActing);
+            tpCts = new CancellationTokenSource();
+            _ = TeleportToRandomPosition(tpCts.Token);
+            await UniTask.Delay(postAttackDelay);
+            cts.Token.ThrowIfCancellationRequested();
+            callback?.Invoke(true);
         }
-        else
+        catch (OperationCanceledException)
         {
-            yield return new WaitForSeconds(3f);
+            cts.Dispose();
         }
-
-        IsActing = false;
-        animator.SetBool(ActingHash, IsActing);
-        yield return StartCoroutine(TeleportToRandomPosition());
-        yield return new WaitForSeconds(postAttackDelay);
-        callback?.Invoke(true);
     }
 
-    public IEnumerator AttackGroggyPattern(Action<bool> callback)
+    public async UniTask AttackGroggyPattern(Action<bool> callback, CancellationTokenSource cts)
     {
-        IsActing = true;
-        animator.SetBool(ActingHash, IsActing);
-
-        if (groggyCenterPosition != null)
-            yield return StartCoroutine(TeleportToPosition(groggyCenterPosition.position));
-
-        animator.Play(BigAttackHash);
-
-        groggyPartsTotal     = groggyPartSpawnPoints?.Length ?? 0;
-        groggyPartsDestroyed = 0;
-        spawnedGroggyParts.Clear();
-
-        if (groggyPartPrefab && groggyPartSpawnPoints is { Length: > 0 })
+        try
         {
-            foreach (var pt in groggyPartSpawnPoints)
-            {
-                if (!pt) continue;
-                var part = PartPool.Get();
-                part.transform.position = pt.position;
-                activePoolObjects.Add(part.gameObject);
-                spawnedGroggyParts.Add(part);
-                part.Initialize(this);
-            }
-        }
+            IsActing = true;
+            animator.SetBool(ActingHash, IsActing);
 
-        float timer = 0f;
-        SoundManager.Instance.PlaySFXLoop(ChargeClip);
-        while (timer < groggyTimeLimit && groggyPartsDestroyed < groggyPartsTotal)
-        {
-            timer += Time.deltaTime;
-            yield return null;
-        }
-        SoundManager.Instance.StopSFXLoop();
+            if (groggyCenterPosition != null)
+                _ = TeleportToPosition(groggyCenterPosition.position);
 
-        if (groggyPartsDestroyed >= groggyPartsTotal)
-        {
-            IsGroggy = true;
-            animator.SetBool(StunHash, IsGroggy);
-            animator.Play(StunHash);
-            yield return new WaitForSeconds(groggyDuration);
-            IsGroggy = false;
-            animator.SetBool(StunHash, IsGroggy);
-        }
-        else
-        {
-            foreach (var part in spawnedGroggyParts)
-                if (part != null && part.gameObject.activeSelf) PartPool.Release(part);
+            animator.Play(BigAttackHash);
+
+            groggyPartsTotal = groggyPartSpawnPoints?.Length ?? 0;
+            groggyPartsDestroyed = 0;
             spawnedGroggyParts.Clear();
-            HealHP(groggyHPRecoveryAmount);
-        }
 
-        IsActing = false;
-        animator.SetBool(ActingHash, IsActing);
-        yield return StartCoroutine(TeleportToRandomPosition());
-        yield return new WaitForSeconds(postAttackDelay);
-        callback?.Invoke(true);
+            if (groggyPartPrefab && groggyPartSpawnPoints is { Length: > 0 })
+            {
+                foreach (var pt in groggyPartSpawnPoints)
+                {
+                    cts.Token.ThrowIfCancellationRequested();
+
+                    if (!pt) continue;
+                    var part = PartPool.Get();
+                    part.transform.position = pt.position;
+                    activePoolObjects.Add(part.gameObject);
+                    spawnedGroggyParts.Add(part);
+                    part.Initialize(this);
+                }
+            }
+
+            float timer = 0f;
+            SoundManager.Instance.PlaySFXLoop(ChargeClip);
+            while (timer < groggyTimeLimit && groggyPartsDestroyed < groggyPartsTotal)
+            {
+                cts.Token.ThrowIfCancellationRequested();
+                timer += Time.deltaTime;
+                await UniTask.Yield(PlayerLoopTiming.LastUpdate);
+            }
+            SoundManager.Instance.StopSFXLoop();
+
+            if (groggyPartsDestroyed >= groggyPartsTotal)
+            {
+                IsGroggy = true;
+                animator.SetBool(StunHash, IsGroggy);
+                animator.Play(StunHash);
+                await UniTask.Delay(groggyDuration);
+                cts.Token.ThrowIfCancellationRequested();
+                IsGroggy = false;
+                animator.SetBool(StunHash, IsGroggy);
+            }
+            else
+            {
+                cts.Token.ThrowIfCancellationRequested();
+                foreach (var part in spawnedGroggyParts)
+                    if (part != null && part.gameObject.activeSelf) PartPool.Release(part);
+                spawnedGroggyParts.Clear();
+                HealHP(groggyHPRecoveryAmount);
+            }
+
+            IsActing = false;
+            animator.SetBool(ActingHash, IsActing);
+            tpCts = new CancellationTokenSource();
+            await TeleportToRandomPosition(tpCts.Token);
+            cts.Token.ThrowIfCancellationRequested();
+            await UniTask.Delay(postAttackDelay);
+            cts.Token.ThrowIfCancellationRequested();
+            callback?.Invoke(true);
+        }
+        catch (OperationCanceledException)
+        {
+            cts.Dispose();
+        }
     }
 
     public void OnFireSignal() => fireSignalReceived = true;
 
     public void OnGroggyPartDestroyed() => groggyPartsDestroyed++;
 
-    private IEnumerator HitFlashCoroutine()
+    async UniTask HitFlashCoroutine()
     {
-        if (!spriteRenderer) yield break;
+        if (!spriteRenderer) return;
         Color baseColor = IsPhase2 ? phase2Color : Color.white;
         spriteRenderer.color = Color.black;
-        yield return new WaitForSecondsRealtime(hitFlashDuration);
+        await UniTask.Delay(hitFlashDuration, ignoreTimeScale: true);
         spriteRenderer.color = baseColor;
     }
 
-    private IEnumerator HitStopCoroutine()
+    async UniTask HitStopCoroutine()
     {
         Time.timeScale = 0.05f;
         float elapsed = 0f;
         while (elapsed < hitStopDuration)
         {
             elapsed += Time.unscaledDeltaTime;
-            yield return null;
+            await UniTask.Yield(PlayerLoopTiming.LastUpdate);
         }
         Time.timeScale = 1f;
     }
 
-    private IEnumerator DeathEffectCoroutine()
+    async UniTask DeathEffectCoroutine()
     {
         Time.timeScale = 0f;
-        yield return new WaitForSecondsRealtime(deathStopDuration);
+        await UniTask.Delay(deathStopDuration, ignoreTimeScale: true);
 
         Time.timeScale = deathSlowScale;
         float elapsed = 0f;
         while (elapsed < deathSlowDuration)
         {
             elapsed += Time.unscaledDeltaTime;
-            yield return null;
+            await UniTask.Yield(PlayerLoopTiming.LastUpdate);
         }
 
         Time.timeScale = 1f;

@@ -1,4 +1,5 @@
 using System;
+using System.Threading;
 using Unity.Behavior;
 using Unity.Properties;
 using UnityEngine;
@@ -14,8 +15,8 @@ using Action = Unity.Behavior.Action;
 public partial class FloorLaserAction : Action
 {
     private Boss2Controller m_Controller;
-    private Coroutine       m_Coroutine;
-    private bool            m_Done;
+    private CancellationTokenSource m_Coroutine;
+    private bool m_Done;
 
     protected override Status OnStart()
     {
@@ -24,8 +25,8 @@ public partial class FloorLaserAction : Action
             return Status.Failure;
 
         m_Done      = false;
-        m_Coroutine = m_Controller.StartCoroutine(
-            m_Controller.AttackFloorLaser(_ => m_Done = true));
+        m_Coroutine = new();
+        _ = m_Controller.AttackFloorLaser(_ => m_Done = true, m_Coroutine);
 
         return Status.Running;
     }
@@ -36,6 +37,6 @@ public partial class FloorLaserAction : Action
     protected override void OnEnd()
     {
         if (!m_Done && m_Controller != null && m_Coroutine != null)
-            m_Controller.StopCoroutine(m_Coroutine);
+            m_Coroutine.Cancel();
     }
 }

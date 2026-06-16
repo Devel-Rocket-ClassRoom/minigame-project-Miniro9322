@@ -1,6 +1,9 @@
 using UnityEngine;
 using Cinemachine;
 using System.Collections;
+using Cysharp.Threading.Tasks;
+using System.Threading;
+using System;
 
 [RequireComponent(typeof(CinemachineVirtualCamera))]
 [RequireComponent(typeof(CinemachineConfiner2D))]
@@ -22,7 +25,7 @@ public class CinemachineCamera : MonoBehaviour
     [SerializeField] private AudioClip bossBgm;
 
     private float defaultSize;
-    private Coroutine zoomCoroutine;
+    private CancellationTokenSource zoomCoroutine;
     private CinemachineConfiner2D confiner;
 
     private void Awake()
@@ -58,54 +61,67 @@ public class CinemachineCamera : MonoBehaviour
     {
         if (virtualCamera == null) return;
 
-        if (zoomCoroutine != null) StopCoroutine(zoomCoroutine);
-        zoomCoroutine = StartCoroutine(ZoomCoroutine());
+        zoomCoroutine?.Cancel();
+        zoomCoroutine = new();
+        _ = ZoomCoroutine(zoomCoroutine);
     }
 
-    private IEnumerator ZoomCoroutine()
+    async UniTask ZoomCoroutine(CancellationTokenSource cts)
     {
-        float elapsed   = 0f;
-        float startSize = virtualCamera.m_Lens.OrthographicSize;
-        while (elapsed < zoomInDuration)
+        try
         {
-            elapsed += Time.unscaledDeltaTime;
-            virtualCamera.m_Lens.OrthographicSize = Mathf.Lerp(startSize, zoomSize, Mathf.Clamp01(elapsed / zoomInDuration));
+            float elapsed = 0f;
+            float startSize = virtualCamera.m_Lens.OrthographicSize;
+            while (elapsed < zoomInDuration)
+            {
+                cts.Token.ThrowIfCancellationRequested();
+                elapsed += Time.unscaledDeltaTime;
+                virtualCamera.m_Lens.OrthographicSize = Mathf.Lerp(startSize, zoomSize, Mathf.Clamp01(elapsed / zoomInDuration));
+                confiner.InvalidateCache();
+                await UniTask.WaitForEndOfFrame();
+            }
+            virtualCamera.m_Lens.OrthographicSize = zoomSize;
             confiner.InvalidateCache();
-            yield return new WaitForEndOfFrame();
-        }
-        virtualCamera.m_Lens.OrthographicSize = zoomSize;
-        confiner.InvalidateCache();
-        yield return new WaitForEndOfFrame();
+            await UniTask.WaitForEndOfFrame();
 
-        float held = 0f;
-        while (held < holdDuration)
-        {
-            held += Time.unscaledDeltaTime;
-            yield return null;
-        }
+            float held = 0f;
+            while (held < holdDuration)
+            {
+                cts.Token.ThrowIfCancellationRequested();
+                held += Time.unscaledDeltaTime;
+                await UniTask.Yield();
+            }
 
-        elapsed   = 0f;
-        startSize = virtualCamera.m_Lens.OrthographicSize;
-        while (elapsed < zoomOutDuration)
-        {
-            elapsed += Time.unscaledDeltaTime;
-            virtualCamera.m_Lens.OrthographicSize = Mathf.Lerp(startSize, defaultSize, Mathf.Clamp01(elapsed / zoomOutDuration));
+            elapsed = 0f;
+            startSize = virtualCamera.m_Lens.OrthographicSize;
+            while (elapsed < zoomOutDuration)
+            {
+                cts.Token.ThrowIfCancellationRequested();
+                elapsed += Time.unscaledDeltaTime;
+                virtualCamera.m_Lens.OrthographicSize = Mathf.Lerp(startSize, defaultSize, Mathf.Clamp01(elapsed / zoomOutDuration));
+                confiner.InvalidateCache();
+                await UniTask.WaitForEndOfFrame();
+            }
+            virtualCamera.m_Lens.OrthographicSize = defaultSize;
             confiner.InvalidateCache();
-            yield return new WaitForEndOfFrame();
+            await UniTask.WaitForEndOfFrame();
+            cts.Token.ThrowIfCancellationRequested();
+            zoomCoroutine = null;
         }
-        virtualCamera.m_Lens.OrthographicSize = defaultSize;
-        confiner.InvalidateCache();
-        yield return new WaitForEndOfFrame();
-        zoomCoroutine = null;
+        catch (OperationCanceledException)
+        {
+            cts.Dispose();
+        }
+        
     }
 
     public void TriggerShake()
     {
         if (noise == null) return;
-        StartCoroutine(ShakeCoroutine(intensity, duration));
+        _ = ShakeCoroutine(intensity, duration);
     }
 
-    private IEnumerator ShakeCoroutine(float intensity, float duration)
+    async UniTask ShakeCoroutine(float intensity, float duration)
     {
         noise.m_AmplitudeGain = intensity;
 
@@ -113,7 +129,7 @@ public class CinemachineCamera : MonoBehaviour
         while (elapsed < duration)
         {
             elapsed += Time.unscaledDeltaTime;
-            yield return null;
+            await UniTask.Yield();
         }
 
         noise.m_AmplitudeGain = 0f;
