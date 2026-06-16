@@ -1,4 +1,4 @@
-using System.Collections;
+using Cysharp.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.Pool;
 
@@ -48,12 +48,12 @@ public class FloorLaser : MonoBehaviour
         SetThickness(warningThickness);
     }
 
-    public void Activate(float activeDuration)
+    public void Activate(int activeDuration)
     {
-        StartCoroutine(ActivateCoroutine(activeDuration));
+        _ = ActivateCoroutine(activeDuration);
     }
 
-    private IEnumerator ActivateCoroutine(float activeDuration)
+    async UniTask ActivateCoroutine(int activeDuration)
     {
         float elapsed = 0f;
         SoundManager.Instance.PlaySFX(laserSound);
@@ -61,14 +61,14 @@ public class FloorLaser : MonoBehaviour
         {
             elapsed += Time.deltaTime;
             SetThickness(Mathf.Lerp(warningThickness, activeThickness, elapsed / expandDuration));
-            yield return null;
+            await UniTask.Yield(PlayerLoopTiming.LastUpdate);
         }
         SetThickness(activeThickness);
 
         if (col) col.enabled = true;
         isActive = true;
 
-        yield return new WaitForSeconds(activeDuration);
+        await UniTask.Delay(activeDuration);
         objectPool.Release(this);
     }
 

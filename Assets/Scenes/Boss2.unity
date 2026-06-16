@@ -1993,6 +1993,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 867881276576010666, guid: 07ccac6c484c4be4a86fcd91efa91c4b, type: 3}
+      propertyPath: spawnInterval
+      value: 50
+      objectReference: {fileID: 0}
     - target: {fileID: 2331030016703428476, guid: 07ccac6c484c4be4a86fcd91efa91c4b, type: 3}
       propertyPath: m_Name
       value: Player
@@ -5481,11 +5485,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 1913611000}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!1 &1521456374 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 7197885901626491110, guid: 37231d2c28822174cbbbaf5aa047014b, type: 3}
-  m_PrefabInstance: {fileID: 2994970053593988754}
-  m_PrefabAsset: {fileID: 0}
 --- !u!1 &1621851368
 GameObject:
   m_ObjectHideFlags: 0
@@ -6367,10 +6366,6 @@ PrefabInstance:
       propertyPath: m_Name
       value: Boss2
       objectReference: {fileID: 0}
-    - target: {fileID: 2171203759769271854, guid: 37231d2c28822174cbbbaf5aa047014b, type: 3}
-      propertyPath: m_IsActive
-      value: 0
-      objectReference: {fileID: 0}
     - target: {fileID: 3616610199987483051, guid: 37231d2c28822174cbbbaf5aa047014b, type: 3}
       propertyPath: m_LocalPosition.x
       value: 1.5
@@ -6412,61 +6407,61 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 5788939629137208428, guid: 37231d2c28822174cbbbaf5aa047014b, type: 3}
-      propertyPath: hitClip
-      value: 
-      objectReference: {fileID: 8300000, guid: 1d7478c81d0df8f4a96033b354454b5f, type: 3}
-    - target: {fileID: 5788939629137208428, guid: 37231d2c28822174cbbbaf5aa047014b, type: 3}
-      propertyPath: ChargeClip
-      value: 
-      objectReference: {fileID: 8300000, guid: 356c34453d57f4d41abed16ef70d29fd, type: 3}
-    - target: {fileID: 5788939629137208428, guid: 37231d2c28822174cbbbaf5aa047014b, type: 3}
-      propertyPath: laserPrefab
-      value: 
-      objectReference: {fileID: 2627341481519218128, guid: 69bb5da72cc538446a7ae7b09ef992b1, type: 3}
-    - target: {fileID: 5788939629137208428, guid: 37231d2c28822174cbbbaf5aa047014b, type: 3}
-      propertyPath: avoidWarning
-      value: 
-      objectReference: {fileID: 1521456374}
-    - target: {fileID: 5788939629137208428, guid: 37231d2c28822174cbbbaf5aa047014b, type: 3}
-      propertyPath: bulletPrefab
-      value: 
-      objectReference: {fileID: 8207482076448330182, guid: 069496fabc99bf24aae6e50ea2df728d, type: 3}
-    - target: {fileID: 5788939629137208428, guid: 37231d2c28822174cbbbaf5aa047014b, type: 3}
-      propertyPath: fireWallClip
-      value: 
-      objectReference: {fileID: 8300000, guid: 0f0c8772d1a9c25479dfd7972e3090ef, type: 3}
-    - target: {fileID: 5788939629137208428, guid: 37231d2c28822174cbbbaf5aa047014b, type: 3}
-      propertyPath: fireballClip
-      value: 
-      objectReference: {fileID: 8300000, guid: 92f4d0c3cbc4ec94e8205b2a31eaf712, type: 3}
-    - target: {fileID: 5788939629137208428, guid: 37231d2c28822174cbbbaf5aa047014b, type: 3}
-      propertyPath: firePillarGroundY
-      value: -5
+      propertyPath: bulletLifetime
+      value: 5000
       objectReference: {fileID: 0}
     - target: {fileID: 5788939629137208428, guid: 37231d2c28822174cbbbaf5aa047014b, type: 3}
-      propertyPath: parryFireballClip
-      value: 
-      objectReference: {fileID: 8300000, guid: 27c92d3febe5c8c40869ac3748efb706, type: 3}
-    - target: {fileID: 5788939629137208428, guid: 37231d2c28822174cbbbaf5aa047014b, type: 3}
-      propertyPath: firePillarRangeXMax
-      value: 14
+      propertyPath: groggyDuration
+      value: 3000
       objectReference: {fileID: 0}
     - target: {fileID: 5788939629137208428, guid: 37231d2c28822174cbbbaf5aa047014b, type: 3}
-      propertyPath: firePillarRangeXMin
-      value: -5
+      propertyPath: firePillarCount
+      value: 5
+      objectReference: {fileID: 0}
+    - target: {fileID: 5788939629137208428, guid: 37231d2c28822174cbbbaf5aa047014b, type: 3}
+      propertyPath: postAttackDelay
+      value: 1500
+      objectReference: {fileID: 0}
+    - target: {fileID: 5788939629137208428, guid: 37231d2c28822174cbbbaf5aa047014b, type: 3}
+      propertyPath: projectileCount
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 5788939629137208428, guid: 37231d2c28822174cbbbaf5aa047014b, type: 3}
+      propertyPath: hitFlashDuration
+      value: 80
+      objectReference: {fileID: 0}
+    - target: {fileID: 5788939629137208428, guid: 37231d2c28822174cbbbaf5aa047014b, type: 3}
+      propertyPath: parryWindowDelay
+      value: 2000
+      objectReference: {fileID: 0}
+    - target: {fileID: 5788939629137208428, guid: 37231d2c28822174cbbbaf5aa047014b, type: 3}
+      propertyPath: teleportDuration
+      value: 300
+      objectReference: {fileID: 0}
+    - target: {fileID: 5788939629137208428, guid: 37231d2c28822174cbbbaf5aa047014b, type: 3}
+      propertyPath: deathStopDuration
+      value: 300
+      objectReference: {fileID: 0}
+    - target: {fileID: 5788939629137208428, guid: 37231d2c28822174cbbbaf5aa047014b, type: 3}
+      propertyPath: projectileInterval
+      value: 400
+      objectReference: {fileID: 0}
+    - target: {fileID: 5788939629137208428, guid: 37231d2c28822174cbbbaf5aa047014b, type: 3}
+      propertyPath: laserActiveDuration
+      value: 2000
       objectReference: {fileID: 0}
     - target: {fileID: 5788939629137208428, guid: 37231d2c28822174cbbbaf5aa047014b, type: 3}
       propertyPath: groggyCenterPosition
       value: 
       objectReference: {fileID: 640741311}
     - target: {fileID: 5788939629137208428, guid: 37231d2c28822174cbbbaf5aa047014b, type: 3}
-      propertyPath: firePillarExplosionPrefab
-      value: 
-      objectReference: {fileID: 942238641608816740, guid: b7ffb917e8812f245955a5cc2a16e800, type: 3}
+      propertyPath: laserWarningDuration
+      value: 1500
+      objectReference: {fileID: 0}
     - target: {fileID: 5788939629137208428, guid: 37231d2c28822174cbbbaf5aa047014b, type: 3}
-      propertyPath: parriableProjectilePrefab
-      value: 
-      objectReference: {fileID: 4677513166808338623, guid: df1a0753c6b01e14f92108fd6b5334c5, type: 3}
+      propertyPath: firePillarWarningDuration
+      value: 2000
+      objectReference: {fileID: 0}
     - target: {fileID: 5788939629137208428, guid: 37231d2c28822174cbbbaf5aa047014b, type: 3}
       propertyPath: 'floorLeftPositions.Array.data[0]'
       value: 

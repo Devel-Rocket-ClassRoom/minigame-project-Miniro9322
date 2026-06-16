@@ -1,4 +1,7 @@
+using Cysharp.Threading.Tasks;
+using System;
 using System.Collections;
+using System.Threading;
 using UnityEngine;
 
 /// <summary>
@@ -12,8 +15,8 @@ public class DashAfterImage : MonoBehaviour
     [SerializeField] private SpriteRenderer spriteRenderer;
 
     [Header("Afterimage Settings")]
-    [Tooltip("잔상 생성 간격 (초)")]
-    [SerializeField] private float spawnInterval = 0.05f;
+    [Tooltip("잔상 생성 간격 (ms)")]
+    [SerializeField] private int spawnInterval = 50;
 
     [Tooltip("잔상이 처음 생성될 때의 알파값 (0~1)")]
     [Range(0f, 1f)]
@@ -26,7 +29,7 @@ public class DashAfterImage : MonoBehaviour
     [SerializeField] private int sortingOrderOffset = -1;
 
     private bool isSpawning = false;
-    private Coroutine routine;
+    private CancellationTokenSource cts;
 
     private void Awake()
     {
@@ -39,47 +42,62 @@ public class DashAfterImage : MonoBehaviour
     {
         if (isSpawning) return;
         isSpawning = true;
-        routine = StartCoroutine(SpawnLoop());
+        _ = SpawnLoop();
     }
 
     /// <summary>대시 종료 — 잔상 생성 중단</summary>
     public void StopAfterImage()
     {
         isSpawning = false;
-        if (routine != null)
+        if (cts != null)
         {
-            StopCoroutine(routine);
-            routine = null;
+            cts.Cancel();
+            cts.Dispose();
         }
     }
 
     /// <summary>지정한 시간 동안만 잔상 재생 (가장 자주 쓰는 패턴)</summary>
-    public void PlayAfterImage(float duration)
+    async UniTask PlayAfterImage(float duration)
     {
-        if (routine != null) StopCoroutine(routine);
-        routine = StartCoroutine(PlayForDuration(duration));
+        if (cts != null)
+        {
+            cts.Cancel();
+            cts.Dispose();
+        }
+        cts = new CancellationTokenSource();
+        _ = PlayForDuration(duration, cts.Token);
     }
 
-    private IEnumerator SpawnLoop()
+    async UniTask SpawnLoop()
     {
         while (isSpawning)
         {
             SpawnOne();
-            yield return new WaitForSeconds(spawnInterval);
+            await UniTask.Delay(spawnInterval);
         }
     }
 
-    private IEnumerator PlayForDuration(float duration)
+    async UniTask PlayForDuration(float duration, CancellationToken cts)
     {
-        isSpawning = true;
-        float t = 0f;
-        while (t < duration)
+        try
         {
-            SpawnOne();
-            yield return new WaitForSeconds(spawnInterval);
-            t += spawnInterval;
+            isSpawning = true;
+            float t = 0f;
+            while (t < duration)
+            {
+                cts.ThrowIfCancellationRequested();
+
+                SpawnOne();
+                await UniTask.Delay(spawnInterval);
+                t += spawnInterval;
+            }
+            isSpawning = false;
         }
-        isSpawning = false;
+        catch (OperationCanceledException)
+        {
+            this.cts.Dispose();
+        }
+        
     }
 
     private void SpawnOne()
@@ -97,7 +115,6 @@ public class DashAfterImage : MonoBehaviour
         ghostSr.sortingLayerID = spriteRenderer.sortingLayerID;
         ghostSr.sortingOrder = spriteRenderer.sortingOrder + sortingOrderOffset;
 
-        // 원본 색 유지, 알파만 낮춤
         Color c = spriteRenderer.color;
         c.a = startAlpha;
         ghostSr.color = c;
