@@ -1,3 +1,4 @@
+using Cysharp.Threading.Tasks;
 using System.Collections;
 using UnityEngine;
 
@@ -86,41 +87,47 @@ public abstract class BossController : MonoBehaviour, IDamageable
     public virtual void GetDamage(IDamageable.DamageInfo damageInfo)
     {
         CurrHp -= damageInfo.damage;
-        StartCoroutine(HitFlashCoroutine());
-        StartCoroutine(HitStopCoroutine());
+       HitFlashCoroutine().Forget();
+       HitStopCoroutine().Forget();
     }
 
     protected void TriggerDeathEffect()
     {
-        StartCoroutine(DeathEffectCoroutine());
+        DeathEffectCoroutine().Forget();
     }
 
-    private IEnumerator HitFlashCoroutine()
+    private async UniTaskVoid HitFlashCoroutine()
     {
-        if (!spriteRenderer) yield break;
+        var ct = this.GetCancellationTokenOnDestroy();
+
+        if (!spriteRenderer) return;
         Color current = spriteRenderer.color;
         spriteRenderer.color = Color.white;
-        yield return new WaitForSecondsRealtime(hitFlashDuration);
+        await UniTask.WaitForSeconds(hitFlashDuration, ignoreTimeScale: true, cancellationToken: ct);
         spriteRenderer.color = current;
     }
 
-    private IEnumerator HitStopCoroutine()
+    private async UniTaskVoid HitStopCoroutine()
     {
+        var ct = this.GetCancellationTokenOnDestroy();
+
         Time.timeScale = 0.05f;
         float elapsed = 0f;
         while (elapsed < hitStopDuration)
         {
             elapsed += Time.unscaledDeltaTime;
-            yield return null;
+            await UniTask.Yield(ct);
         }
         Time.timeScale = 1f;
     }
 
-    private IEnumerator DeathEffectCoroutine()
+    private async UniTaskVoid DeathEffectCoroutine()
     {
+        var ct = this.GetCancellationTokenOnDestroy();
+
         // 완전 정지
         Time.timeScale = 0f;
-        yield return new WaitForSecondsRealtime(deathStopDuration);
+        await UniTask.WaitForSeconds(deathStopDuration, ignoreTimeScale: true, cancellationToken: ct);
 
         // 슬로우모션
         Time.timeScale = deathSlowScale;
@@ -130,7 +137,7 @@ public abstract class BossController : MonoBehaviour, IDamageable
         while (elapsed < deathSlowDuration)
         {
             elapsed += Time.unscaledDeltaTime;
-            yield return null;
+            await UniTask.Yield(ct);
         }
 
         Time.timeScale = 1f;

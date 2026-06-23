@@ -1909,7 +1909,7 @@ PrefabInstance:
     - target: {fileID: 479041301496403354, guid: 07ccac6c484c4be4a86fcd91efa91c4b, type: 3}
       propertyPath: OnHit.m_PersistentCalls.m_Calls.Array.data[0].m_Target
       value: 
-      objectReference: {fileID: 1139596512}
+      objectReference: {fileID: 339288920898834010, guid: 1305947116cdb4842a8d0b589a452f88, type: 3}
     - target: {fileID: 479041301496403354, guid: 07ccac6c484c4be4a86fcd91efa91c4b, type: 3}
       propertyPath: OnHit.m_PersistentCalls.m_Calls.Array.data[1].m_Target
       value: 
@@ -1918,6 +1918,10 @@ PrefabInstance:
       propertyPath: GamePause.m_PersistentCalls.m_Calls.Array.data[0].m_Target
       value: 
       objectReference: {fileID: 1795822187}
+    - target: {fileID: 479041301496403354, guid: 07ccac6c484c4be4a86fcd91efa91c4b, type: 3}
+      propertyPath: OnHit.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
+      value: HitStop
+      objectReference: {fileID: 0}
     - target: {fileID: 479041301496403354, guid: 07ccac6c484c4be4a86fcd91efa91c4b, type: 3}
       propertyPath: OnGameOver.m_PersistentCalls.m_Calls.Array.data[0].m_Target
       value: 

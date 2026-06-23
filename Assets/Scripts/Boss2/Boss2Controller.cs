@@ -351,7 +351,6 @@ public class Boss2Controller : MonoBehaviour, IDamageable
             Debug.LogError("텔레포트 장소가 없습니다.");
             tpCts.Dispose();
         }
-        
     }
 
     public async UniTask AttackParriableProjectile(Action<bool> callback, CancellationTokenSource cts)
@@ -434,7 +433,7 @@ public class Boss2Controller : MonoBehaviour, IDamageable
                 for (int i = 0; i < firePillarCount; i++)
                 {
                     cts.Token.ThrowIfCancellationRequested();
-                    Vector3 spawnPos = new Vector3(
+                    Vector3 spawnPos = new(
                         UnityEngine.Random.Range(firePillarRangeXMin, firePillarRangeXMax),
                         firePillarGroundY, 0f);
 
@@ -498,7 +497,7 @@ public class Boss2Controller : MonoBehaviour, IDamageable
                 {
                     cts.Token.ThrowIfCancellationRequested();
                     float angle = i * step * Mathf.Deg2Rad;
-                    Vector3 dir = new Vector3(Mathf.Cos(angle), Mathf.Sin(angle), 0f);
+                    Vector3 dir = new(Mathf.Cos(angle), Mathf.Sin(angle), 0f);
 
                     var bullet = bulletPool.Get();
                     bullet.transform.position = transform.position;

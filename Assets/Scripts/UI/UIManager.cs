@@ -150,7 +150,7 @@ public class UIManager : MonoBehaviour
         SaveManager.SetClear();
         if (clearScreen) clearScreen.SetActive(true);
         if (GameManager.Instance.isExtra) SaveRecordButton.SetActive(false);
-        clearTime.text = $"Clear Time: {TimeTracker.PlayTime}";
+        clearTime.text = $"Clear Time: {TimeTracker.PlayTime:f2}";
         InputSystem.actions.FindActionMap("Player").Disable();
     }
 

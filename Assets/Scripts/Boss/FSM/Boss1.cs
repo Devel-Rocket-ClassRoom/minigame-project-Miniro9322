@@ -155,6 +155,7 @@ public class Boss1 : BossController
     {
         warning.SetActive(false);
         warning2.SetActive(false);
+
         if (transitionWall != null)
             transitionWall.Activate();
     }

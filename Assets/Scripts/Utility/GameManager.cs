@@ -1,4 +1,5 @@
 using Cysharp.Threading.Tasks;
+using NUnit.Framework;
 using System;
 using System.Collections;
 using UnityEngine;
@@ -80,7 +81,7 @@ public class GameManager : MonoBehaviour
     private async UniTaskVoid CoHit()
     {
         Time.timeScale = 0.1f;
-        await UniTask.Delay(TimeSpan.FromSeconds(0.1f));
+        await UniTask.WaitForSeconds(0.1f);
         Time.timeScale = 1f;
     }
 
