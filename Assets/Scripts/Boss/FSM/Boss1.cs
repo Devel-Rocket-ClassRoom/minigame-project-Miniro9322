@@ -63,7 +63,6 @@ public class Boss1 : BossController
 
         periodicTimer += Time.deltaTime;
 
-        // 이동 중에도 쿨타임 되면 Attack2 즉시 발동
         if (periodicTimer >= periodicInterval &&
             Fsm.CurrentState != Attack2 &&
             Fsm.CurrentState != Attack1 &&
@@ -80,7 +79,6 @@ public class Boss1 : BossController
 
     public override IState ChooseNextAction()
     {
-        // Attack2는 쿨타임 방식으로 우선 발동
         if (periodicTimer >= periodicInterval)
         {
             periodicTimer = 0f;
@@ -90,10 +88,8 @@ public class Boss1 : BossController
         bool canAttack1 = PlayerDistance <= closeRange;
         bool canRush    = PlayerDistance <= farRange;
 
-        // 둘 다 사거리 밖이면 추격
         if (!canAttack1 && !canRush) return Chase;
 
-        // 사거리 내 후보만 추려서 가중치 선택
         float total = 0f;
         if (canAttack1) total += weightAttack1;
         if (canRush)    total += weightRush;

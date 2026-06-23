@@ -124,11 +124,9 @@ public abstract class BossController : MonoBehaviour, IDamageable
     {
         var ct = this.GetCancellationTokenOnDestroy();
 
-        // 완전 정지
         Time.timeScale = 0f;
         await UniTask.WaitForSeconds(deathStopDuration, ignoreTimeScale: true, cancellationToken: ct);
 
-        // 슬로우모션
         Time.timeScale = deathSlowScale;
 
         float elapsed = 0f;

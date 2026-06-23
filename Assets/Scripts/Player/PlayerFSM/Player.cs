@@ -409,13 +409,11 @@ public class Player : MonoBehaviour, IDamageable
 
         if (context.performed)
         {
-            // 공중이면 큐 초기화 후 낙하 공격 버퍼 (대쉬 중에도 허용)
             if (!Grounded)
             {
                 CommandQueue.Clear();
                 CommandQueue.Enqueue("D");
             }
-            // 지상이면 크라우칭 (대쉬 중엔 크라우칭 제외)
             else if (Grounded && Fsm.CurrentState != CrouchState && Fsm.CurrentState != DodgeState)
                 Fsm.ChangeState(CrouchState);
         }

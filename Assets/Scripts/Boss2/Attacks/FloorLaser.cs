@@ -35,7 +35,6 @@ public class FloorLaser : MonoBehaviour
 
     private void OnDisable()
     {
-        // 풀 반환 시 상태 초기화 (재사용 대비)
         isActive = false;
         if (col) col.enabled = false;
         SetThickness(warningThickness);
@@ -50,10 +49,10 @@ public class FloorLaser : MonoBehaviour
 
     public void Activate(int activeDuration)
     {
-        _ = ActivateCoroutine(activeDuration);
+        ActivateCoroutine(activeDuration).Forget();
     }
 
-    async UniTask ActivateCoroutine(int activeDuration)
+    async UniTaskVoid ActivateCoroutine(int activeDuration)
     {
         float elapsed = 0f;
         SoundManager.Instance.PlaySFX(laserSound);
@@ -61,7 +60,7 @@ public class FloorLaser : MonoBehaviour
         {
             elapsed += Time.deltaTime;
             SetThickness(Mathf.Lerp(warningThickness, activeThickness, elapsed / expandDuration));
-            await UniTask.Yield(PlayerLoopTiming.LastUpdate);
+            await UniTask.Yield();
         }
         SetThickness(activeThickness);
 

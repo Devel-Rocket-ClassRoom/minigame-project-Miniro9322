@@ -13,7 +13,7 @@ public class ParriableProjectile : MonoBehaviour, IDamageable
     private int parriedDamage;
 
     [Header("시각 효과")]
-    [SerializeField] private Color normalColor  = new Color(1f, 0.8f, 0f);
+    [SerializeField] private Color normalColor = new(1f, 0.8f, 0f);
     [SerializeField] private Color parriedColor = Color.cyan;
 
     private Boss2Controller boss;
@@ -44,7 +44,7 @@ public class ParriableProjectile : MonoBehaviour, IDamageable
         this.boss     = boss;
         playerDamage  = Mathf.RoundToInt(baseAtk * playerDamageMultiplier);
         parriedDamage = Mathf.RoundToInt(baseAtk * parriedDamageMultiplier);
-        isParried     = false; // 재사용 시 상태 리셋
+        isParried     = false;
         if (sr) sr.color = normalColor;
     }
 
@@ -56,7 +56,6 @@ public class ParriableProjectile : MonoBehaviour, IDamageable
         if (sr) sr.color = parriedColor;
         if (boss == null || rb == null) return;
 
-        // 이미 보스와 겹쳐있으면 즉시 데미지
         var col     = GetComponent<Collider2D>();
         var bossCol = boss.GetComponent<Collider2D>();
         if (col != null && bossCol != null && col.IsTouching(bossCol))
@@ -94,7 +93,6 @@ public class ParriableProjectile : MonoBehaviour, IDamageable
         }
     }
 
-    /// <summary>이중 반환 방지: 이미 비활성(반환됨)이면 스킵</summary>
     private void ReleaseToPool()
     {
         if (!gameObject.activeSelf) return;

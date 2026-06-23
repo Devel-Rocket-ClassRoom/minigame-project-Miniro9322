@@ -68,7 +68,7 @@ public class ProfileUI : MonoBehaviour
         }
         catch (Exception ex)
         {
-            Debug.LogError($"[Score] 점수 저장 실패 {ex.Message}");
+            Debug.LogError($"[Record] 기록 저장 실패 {ex.Message}");
             return;
         }
     }

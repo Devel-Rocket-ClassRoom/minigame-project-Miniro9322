@@ -26,10 +26,9 @@ public class GroggyPart : MonoBehaviour, IDamageable
         if (sr) originalColor = sr.color;
     }
 
-    /// <summary>풀에서 꺼낼 때마다 호출 — 스프라이트/색상 초기화</summary>
     private void OnEnable()
     {
-        CancelInvoke(nameof(ResetColor)); // 이전 사용에서 남은 Invoke 취소
+        CancelInvoke(nameof(ResetColor));
         if (sr)
         {
             sr.enabled = true;
@@ -37,7 +36,6 @@ public class GroggyPart : MonoBehaviour, IDamageable
         }
     }
 
-    /// <summary>풀에 반환될 때 호출 — 잔여 Invoke 정리</summary>
     private void OnDisable()
     {
         CancelInvoke(nameof(ResetColor));
