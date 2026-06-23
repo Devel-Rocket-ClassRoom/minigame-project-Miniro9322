@@ -48,6 +48,11 @@ public class AuthManager : MonoBehaviour
         auth = FirebaseInitializer.Instance.Auth;
         auth.StateChanged += OnAuthStateChanged;
 
+        if(auth.CurrentUser == null)
+        {
+            await SignInAnonymouslyAsync();
+        }
+
         currentUser = auth.CurrentUser;
         Debug.Log(currentUser != null ? "[Auth] 이미 로그인 됨" : "[Auth] 로그인 필요");
 
@@ -98,48 +103,6 @@ public class AuthManager : MonoBehaviour
         catch (Exception ex)
         {
             Debug.Log($"[Auth] 익명 로그인 실패: {ex.Message}");
-            return (false, ParseFirebaseError(ex.Message));
-        }
-    }
-
-    public async UniTask<(bool success, string error)> CreateUserWithEmailAsync(string email, string password)
-    {
-        try
-        {
-            Debug.Log("[Auth] 회원 가입 시도...");
-
-            AuthResult result = await auth.CreateUserWithEmailAndPasswordAsync(email, password);
-            currentUser = result.User;
-
-            NotifyLoginState();
-
-            Debug.Log($"[Auth] 회원 가입 성공: {currentUser.UserId}");
-            return (true, null);
-        }
-        catch (Exception ex)
-        {
-            Debug.Log($"[Auth] 회원 가입 실패: {ex.Message}");
-            return (false, ParseFirebaseError(ex.Message));
-        }
-    }
-
-    public async UniTask<(bool success, string error)> SignInUserWithEmailAsync(string email, string password)
-    {
-        try
-        {
-            Debug.Log("[Auth] 로그인 시도...");
-
-            AuthResult result = await auth.SignInWithEmailAndPasswordAsync(email, password);
-            currentUser = result.User;
-
-            NotifyLoginState();
-
-            Debug.Log($"[Auth] 로그인 성공: {currentUser.UserId}");
-            return (true, null);
-        }
-        catch (Exception ex)
-        {
-            Debug.Log($"[Auth] 로그인 실패: {ex.Message}");
             return (false, ParseFirebaseError(ex.Message));
         }
     }

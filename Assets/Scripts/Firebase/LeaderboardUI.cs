@@ -59,7 +59,7 @@ public class LeaderboardUI : MonoBehaviour
             {
                 texts[0].text = $"{rank}";
                 texts[1].text = entry.nickname;
-                texts[2].text = $"클리어 시간: {entry.cleartime:f2}";
+                texts[2].text = $"Time: {(int)entry.cleartime / 60:d2} : {entry.cleartime % 60:f2}";
             }
 
             rank++;

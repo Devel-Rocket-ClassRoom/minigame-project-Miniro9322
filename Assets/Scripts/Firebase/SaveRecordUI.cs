@@ -4,7 +4,6 @@ using System;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
-using UnityEngine.SocialPlatforms.Impl;
 using UnityEngine.UI;
 
 public class ProfileUI : MonoBehaviour
@@ -20,13 +19,6 @@ public class ProfileUI : MonoBehaviour
     [Header("Buttons")]
     [SerializeField]
     private Button saveButton;
-
-    [SerializeField]
-    private Button logoutButton;
-
-    [Header("References")]
-    [SerializeField]
-    private LoginUI loginUI;
 
     private DatabaseReference scoresRef;
 
@@ -45,7 +37,6 @@ public class ProfileUI : MonoBehaviour
         Debug.Log("[Score] 초기화 완료");
 
         saveButton.onClick.AddListener(OnSaveButtonClicked);
-        logoutButton.onClick.AddListener(OnLogoutButtonClicked);
     }
 
     private void OnSaveButtonClicked()
@@ -55,12 +46,6 @@ public class ProfileUI : MonoBehaviour
 
     private async UniTaskVoid SaveInfo()
     {
-        if (!AuthManager.Instance.IsLoginedIn)
-        {
-            Debug.LogError($"로그인 필요");
-            return;
-        }
-
         string nickname = string.IsNullOrEmpty(nicknameInput.text) ? AuthManager.Instance.UserId.Substring(0, 6) : nicknameInput.text;
 
         try
@@ -86,13 +71,5 @@ public class ProfileUI : MonoBehaviour
             Debug.LogError($"[Score] 점수 저장 실패 {ex.Message}");
             return;
         }
-    }
-
-    private void OnLogoutButtonClicked()
-    {
-        AuthManager.Instance.SignOut();
-        saveRecordPanel.SetActive(false);
-
-        loginUI.UpdateUI().Forget();
     }
 }

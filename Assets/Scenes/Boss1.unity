@@ -4516,7 +4516,7 @@ RectTransform:
   m_PrefabAsset: {fileID: 0}
 --- !u!1 &3458508710786261781 stripped
 GameObject:
-  m_CorrespondingSourceObject: {fileID: 6718598424947138373, guid: 7f78fdae2ba2a6e419d22bbd2400a00e, type: 3}
+  m_CorrespondingSourceObject: {fileID: 5593742677493062987, guid: 7f78fdae2ba2a6e419d22bbd2400a00e, type: 3}
   m_PrefabInstance: {fileID: 3458508710786261779}
   m_PrefabAsset: {fileID: 0}
 --- !u!1 &3458508710786261782 stripped
