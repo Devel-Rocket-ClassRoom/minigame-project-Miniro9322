@@ -267,14 +267,16 @@ public class Boss2Controller : MonoBehaviour, IDamageable
 
     async UniTask WaitForDeathAnimation()
     {
-        await UniTask.Yield(PlayerLoopTiming.LastUpdate);
+        var ct = this.GetCancellationTokenOnDestroy();
+
+        await UniTask.Yield(PlayerLoopTiming.LastUpdate, ct);
         while (!animator.GetCurrentAnimatorStateInfo(0).IsName("Death"))
-            await UniTask.Yield(PlayerLoopTiming.LastUpdate);
+            await UniTask.Yield(PlayerLoopTiming.LastUpdate, ct);
         while (animator.GetCurrentAnimatorStateInfo(0).normalizedTime < 1f)
-            await UniTask.Yield(PlayerLoopTiming.LastUpdate);
+            await UniTask.Yield(PlayerLoopTiming.LastUpdate, ct);
 
         OnBossDead?.Invoke();
-        await UniTask.Delay(500);
+        await UniTask.Delay(500, cancellationToken: ct);
         Destroy(gameObject);
     }
 
