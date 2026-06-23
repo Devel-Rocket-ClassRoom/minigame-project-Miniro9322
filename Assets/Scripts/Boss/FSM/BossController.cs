@@ -27,7 +27,6 @@ public abstract class BossController : MonoBehaviour, IDamageable
     [SerializeField] private float deathStopDuration = 0.3f;
     [SerializeField] private float deathSlowScale = 0.2f;
     [SerializeField] private float deathSlowDuration = 1.0f;
-    [SerializeField] private ParticleSystem deathParticle;  // 없어도 작동
 
     public bool IsDead { get; protected set; } = false;
     public bool IsGameOver { get; protected set; } = false;
@@ -131,7 +130,6 @@ public abstract class BossController : MonoBehaviour, IDamageable
 
         // 슬로우모션
         Time.timeScale = deathSlowScale;
-        if (deathParticle) deathParticle.Play();
 
         float elapsed = 0f;
         while (elapsed < deathSlowDuration)

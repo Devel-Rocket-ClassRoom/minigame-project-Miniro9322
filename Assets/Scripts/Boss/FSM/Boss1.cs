@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.Events;
 
 public class Boss1 : BossController
 {
@@ -38,6 +39,8 @@ public class Boss1 : BossController
     [SerializeField] private AudioClip hitSound;
     private float stunTime = 0f;
     private bool isStuned;
+
+    public UnityEvent BossDeath;
 
     protected override void Update()
     {
@@ -155,6 +158,12 @@ public class Boss1 : BossController
     {
         warning.SetActive(false);
         warning2.SetActive(false);
+
+        if (GameManager.Instance.isExtra)
+        {
+            BossDeath?.Invoke();
+            return;
+        }
 
         if (transitionWall != null)
             transitionWall.Activate();
