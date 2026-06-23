@@ -107,3 +107,7 @@ InitTestScene*.unity*
 
 #Free/Paid assets ignore
 /[Aa]ssets/Import
+
+#Custon ignore
+/[Aa]ssets/Resources
+*.bundle

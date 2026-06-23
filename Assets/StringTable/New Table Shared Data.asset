@@ -87,6 +87,34 @@ MonoBehaviour:
     m_Key: Summon
     m_Metadata:
       m_Items: []
+  - m_Id: 6919516523765760
+    m_Key: LogIn
+    m_Metadata:
+      m_Items: []
+  - m_Id: 6919591337566208
+    m_Key: Register
+    m_Metadata:
+      m_Items: []
+  - m_Id: 6919638011781120
+    m_Key: Anoymous
+    m_Metadata:
+      m_Items: []
+  - m_Id: 6936715921629184
+    m_Key: Save
+    m_Metadata:
+      m_Items: []
+  - m_Id: 6936741041315840
+    m_Key: LogOut
+    m_Metadata:
+      m_Items: []
+  - m_Id: 6942622537654272
+    m_Key: Refresh
+    m_Metadata:
+      m_Items: []
+  - m_Id: 6942651956502528
+    m_Key: Close
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items:
     - rid: 7097357565738090591

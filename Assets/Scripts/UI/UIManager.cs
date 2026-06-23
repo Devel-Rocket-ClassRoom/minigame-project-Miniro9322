@@ -5,6 +5,7 @@ using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
 using UnityEngine.Localization.Settings;
 using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 
 public class UIManager : MonoBehaviour
 {
@@ -14,11 +15,14 @@ public class UIManager : MonoBehaviour
     [SerializeField] private CinemachineVirtualCamera mainCamera;
     [SerializeField] private CinemachineConfiner2D confiner;
     [SerializeField] private TextMeshProUGUI bossName;
+    [SerializeField] private TextMeshProUGUI clearTime;
     [SerializeField] private GameObject pauseMenu;
     [SerializeField] private GameObject optionMenu;
     [SerializeField] private GameObject gameOver;
     [SerializeField] private GameObject clearScreen;
     [SerializeField] private AudioClip buttonSFX;
+    [SerializeField] private GameObject SaveRecord;
+    [SerializeField] private GameObject SaveRecordButton;
     private Animator animator;
 
     private void Awake()
@@ -36,7 +40,6 @@ public class UIManager : MonoBehaviour
         if (player != null)
         {
             player.OnGameOver.AddListener(ShowGameOver);
-            player.OnHit.AddListener(OnPlayerHit);
         }
     }
 
@@ -45,11 +48,8 @@ public class UIManager : MonoBehaviour
         if (player != null)
         {
             player.OnGameOver.RemoveListener(ShowGameOver);
-            player.OnHit.RemoveListener(OnPlayerHit);
         }
     }
-
-    private void OnPlayerHit() { }  // 필요 시 피격 UI 처리용
 
     public void OnBossSpawn()
     {
@@ -149,6 +149,8 @@ public class UIManager : MonoBehaviour
         Time.timeScale = 0f;
         SaveManager.SetClear();
         if (clearScreen) clearScreen.SetActive(true);
+        if (GameManager.Instance.isExtra) SaveRecordButton.SetActive(false);
+        clearTime.text = $"Clear Time: {TimeTracker.PlayTime}";
         InputSystem.actions.FindActionMap("Player").Disable();
     }
 
@@ -167,5 +169,10 @@ public class UIManager : MonoBehaviour
         SoundManager.Instance.PlaySFX(buttonSFX);
         Time.timeScale = 1f;
         SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+    }
+
+    public void OnSaveRecord()
+    {
+        SaveRecord.SetActive(true);
     }
 }

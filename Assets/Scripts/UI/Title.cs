@@ -14,6 +14,7 @@ public class Title : MonoBehaviour
     [SerializeField] private AudioClip titleBgm;
     [SerializeField] private AudioClip buttonSFX;
     [SerializeField] private GameObject TitleText;
+    [SerializeField] private GameObject LeaderboardPanel;
     private InputAction escAction;
 
     private string path;
@@ -67,7 +68,13 @@ public class Title : MonoBehaviour
             if(TitleText != null) TitleText.SetActive(true);
             extraPanel.SetActive(false);
         }
-    }
+        else if (LeaderboardPanel.activeSelf)
+        {
+            if (formatButton != null) formatButton.SetActive(true);
+            if (TitleText != null) TitleText.SetActive(true);
+            LeaderboardPanel.SetActive(false);
+        }
+}
 
     public void OnStart()
     {
@@ -82,8 +89,10 @@ public class Title : MonoBehaviour
             return;
         }
 
+        GameManager.Instance.isExtra = false;
         SoundManager.Instance.PlaySFX(buttonSFX);
         SoundManager.Instance.StopBGM();
+        TimeTracker.Instance.StartTimer();
         SceneManager.LoadScene("Boss1");
     }
 
@@ -106,6 +115,7 @@ public class Title : MonoBehaviour
 
     public void OnExtra()
     {
+        GameManager.Instance.isExtra = true;
         SoundManager.Instance.PlaySFX(buttonSFX);
         if(formatButton != null) formatButton.SetActive(false);
         if(TitleText != null) TitleText.SetActive(false);
@@ -129,5 +139,13 @@ public class Title : MonoBehaviour
         SoundManager.Instance.PlaySFX(buttonSFX);
         SaveManager.RemoveSave();
         extra.SetActive(SaveManager.Data.isClear);
+    }
+
+    public void OnLeaderBoard()
+    {
+        SoundManager.Instance.PlaySFX(buttonSFX);
+        if (formatButton != null) formatButton.SetActive(false);
+        if (TitleText != null) TitleText.SetActive(false);
+        LeaderboardPanel.SetActive(true);
     }
 }

@@ -1,9 +1,15 @@
+using Cysharp.Threading.Tasks;
+using System;
 using System.Collections;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
 public class GameManager : MonoBehaviour
 {
+    private static GameManager instance;
+    public static GameManager Instance => instance;
+    public bool isExtra = false;
+
     [SerializeField] private PlayerInput playerInput;
     [SerializeField] private BossController boss;
 
@@ -13,42 +19,68 @@ public class GameManager : MonoBehaviour
     private InputAction attack2;
     private InputAction rush;
 
+    private void Awake()
+    {
+        if (instance == null)
+        {
+            instance = this;
+            DontDestroyOnLoad(gameObject);
+        }
+        else
+        {
+            Destroy(gameObject);
+            return;
+        }
+    }
+
     private void Start()
     {
-        playerInput.SwitchCurrentActionMap("Player");
-        playerInput.actions.FindActionMap("Debug").Disable();
+        if (playerInput)
+        {
+            playerInput.SwitchCurrentActionMap("Player");
+            playerInput.actions.FindActionMap("Debug").Disable();
+        }
     }
 
     private void OnEnable()
     {
-        attack    = InputSystem.actions.FindAction("BossAttack");
-        attack2   = InputSystem.actions.FindAction("BossAttack2");
-        debug     = InputSystem.actions.FindAction("DebugMode");
-        debugOff  = InputSystem.actions.FindAction("OffDebug");
-        rush      = InputSystem.actions.FindAction("Rush");
+        if (boss)
+        {        
+            attack    = InputSystem.actions.FindAction("BossAttack");
+            attack2   = InputSystem.actions.FindAction("BossAttack2");
+            debug     = InputSystem.actions.FindAction("DebugMode");
+            debugOff  = InputSystem.actions.FindAction("OffDebug");
+            rush      = InputSystem.actions.FindAction("Rush");
 
-        attack.performed   += OnAttack;
-        attack2.performed  += OnAttack2;
-        rush.performed     += OnRush;
-        debug.performed    += OnDebug;
-        debugOff.performed += OffDebug;
+            attack.performed   += OnAttack;
+            attack2.performed  += OnAttack2;
+            rush.performed     += OnRush;
+            debug.performed    += OnDebug;
+            debugOff.performed += OffDebug;
+        }
     }
 
     private void OnDisable()
     {
-        attack.performed   -= OnAttack;
-        attack2.performed  -= OnAttack2;
-        debug.performed    -= OnDebug;
-        debugOff.performed -= OffDebug;
-        rush.performed     -= OnRush;
+        if (instance != this) return;
+
+        if (boss)
+        {
+            attack.performed -= OnAttack;
+            attack2.performed -= OnAttack2;
+            debug.performed -= OnDebug;
+            debugOff.performed -= OffDebug;
+            rush.performed -= OnRush;
+        }
+
     }
 
-    public void HitStop() => StartCoroutine(CoHit());
+    public void HitStop() => CoHit().Forget();
 
-    private IEnumerator CoHit()
+    private async UniTaskVoid CoHit()
     {
         Time.timeScale = 0.1f;
-        yield return new WaitForSeconds(0.1f);
+        await UniTask.Delay(TimeSpan.FromSeconds(0.1f));
         Time.timeScale = 1f;
     }
 

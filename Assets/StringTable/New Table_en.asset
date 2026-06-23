@@ -90,6 +90,34 @@ MonoBehaviour:
     m_Localized: Summon Boss
     m_Metadata:
       m_Items: []
+  - m_Id: 6919516523765760
+    m_Localized: LogIn
+    m_Metadata:
+      m_Items: []
+  - m_Id: 6919591337566208
+    m_Localized: Register
+    m_Metadata:
+      m_Items: []
+  - m_Id: 6919638011781120
+    m_Localized: Anoymous
+    m_Metadata:
+      m_Items: []
+  - m_Id: 6936715921629184
+    m_Localized: Save
+    m_Metadata:
+      m_Items: []
+  - m_Id: 6936741041315840
+    m_Localized: LogOut
+    m_Metadata:
+      m_Items: []
+  - m_Id: 6942622537654272
+    m_Localized: Refresh
+    m_Metadata:
+      m_Items: []
+  - m_Id: 6942651956502528
+    m_Localized: Close
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []
