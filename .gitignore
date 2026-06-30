@@ -110,4 +110,5 @@ InitTestScene*.unity*
 
 #Custon ignore
 /[Aa]ssets/Resources
+/[Aa]ssets/StreamingAssets
 *.bundle
